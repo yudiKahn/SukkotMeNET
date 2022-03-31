@@ -1,0 +1,24 @@
+﻿@page "/users"
+@using SukkotMeNET.Interfaces
+@using SukkotMeNET.Models
+
+<PageTitle>Users</PageTitle>
+
+@foreach (var user in users)
+{
+    <div>
+        <h3>@user.FirstName</h3>
+    </div>
+}
+
+@code{
+    [Inject]
+    public IRepositoryService repository { get; set; }
+
+    private IEnumerable<User> users { get; set; } = Array.Empty<User>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await repository.UserRepository.ReadAsync();
+    }
+}

@@ -1,19 +1,43 @@
 ﻿@inherits LayoutComponentBase
 
+<MudThemeProvider Theme="@_customTheme"/>
+<MudDialogProvider />
+<MudSnackbarProvider />
+
 <PageTitle>SukkotMeNET</PageTitle>
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudLayout>
+    <MudAppBar Style="background-color:transparent; box-shadow:none;">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Success" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_drawerOpen">
+        <NavMenu/>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+@code {
+    MudTheme _customTheme = new()
+    {
+        Palette = new Palette()
+        {
+            Success = "#059669"
+        },
+        Typography = new Typography()
+        {
+            Default = new Default()
+            {
+                //FontFamily = new[] {"ui-monospace","SFMono-Regular","Consolas","Liberation Mono","Menlo","monospace"}
+            }
+        }
+    };
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    bool _drawerOpen = false;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

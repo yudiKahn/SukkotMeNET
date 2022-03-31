@@ -1,9 +1,35 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>SukkotMe | Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+<MudElement HtmlTag="div" Class="px-2 py-32">
+    <MudContainer>
+        <MudGrid Class="my-5" Justify="Justify.Center">
+            <MudItem xs="12" md="6" Style="align-self:center;">
+                <MudElement HtmlTag="div">
+                    <MudText Color="Color.Dark" Typo="Typo.h2">
+                        All your sukkot needs
+                    </MudText>
+                    <MudText Color="Color.Success" Typo="Typo.h2">
+                        in one place
+                    </MudText>
+                    <MudText>
+                        It's never been easier to get your 4 minim & your sukkot needs, All in one place.
+                    </MudText>
+                    <MudGrid Class="mt-4" Justify="Justify.FlexStart">
+                        <MudItem xs="12" md="6">
+                            <MudButton FullWidth="true" Variant="Variant.Filled" Color="Color.Success" Size="Size.Large">Shop</MudButton>
+                        </MudItem>
+                        <MudItem xs="12" md="6">
+                            <MudButton FullWidth="true" Variant="Variant.Filled" Color="Color.Default" Size="Size.Large">Gallery</MudButton>
+                        </MudItem>
+                    </MudGrid>
+                </MudElement>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudImage Fluid="true" Src="images/field.jpg" Elevation="25"
+                          Alt="esrog field by yudi kahn" Class="rounded-lg" />
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+</MudElement>
