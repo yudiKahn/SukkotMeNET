@@ -1,17 +1,27 @@
 ﻿@page "/users"
 @using SukkotMeNET.Interfaces
 @using SukkotMeNET.Models
+@using SukkotMeNET.Services
+@inject AppStateService state 
+
 
 <PageTitle>Users</PageTitle>
 
-@foreach (var user in users)
-{
-    <div>
-        <h3>@user.FirstName</h3>
-    </div>
-}
+<AuthorizeView Policy="@Constants.Policies.IsAdmin" Resource="@state.User?.Id">
+    <Authorized>
+        @foreach (var user in users)
+        {
+            <div>
+                <h3>@user.FirstName</h3>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
 
-@code{
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
     [Inject]
     public IRepositoryService repository { get; set; }
 
@@ -19,6 +29,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        users = await repository.UserRepository.ReadAsync();
+        users = await repository.UserRepository.ReadAllAsync();
     }
 }

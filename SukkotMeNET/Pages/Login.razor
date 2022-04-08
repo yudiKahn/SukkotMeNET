@@ -1,0 +1,40 @@
+﻿@page "/login"
+@using SukkotMeNET.Services
+@using SukkotMeNET.Models
+@using System.ComponentModel.DataAnnotations
+
+<PageTitle>SukkotMe | Login</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Style="height: 90vh;">
+    <EditForm Model="@user" OnSubmit="OnSubmit">
+        <DataAnnotationsValidator />
+        <MudCard>
+            <MudCardHeader>
+                <MudText Typo="Typo.h6" Color="Color.Primary">Login</MudText>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudTextField Label="Email" Class="mt-3"
+                              @bind-Value="user.Email" For="@(() => user.Email)" />
+                <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+                              @bind-Value="user.Password" For="@(() => user.Password)" InputType="InputType.Password" />
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mr-auto">Login</MudButton>
+            </MudCardActions>
+        </MudCard>
+    </EditForm>
+</MudContainer>
+
+@code {
+    [Inject]
+    private MainService _Service { get; set; }
+
+    User user = new User();
+
+    private void OnSubmit(EditContext context)
+    {
+        _Service.Login(context.Model as User);
+        StateHasChanged();
+    }
+
+}

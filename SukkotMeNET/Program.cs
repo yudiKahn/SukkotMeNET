@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using MudBlazor.Services;
 using SukkotMeNET.Configuration;
 using SukkotMeNET.Data;
@@ -22,7 +23,17 @@ namespace SukkotMeNET
 
             builder.Services.Configure<MongodbConfig>(builder.Configuration.GetSection(nameof(MongodbConfig)));
 
+            builder.Services.AddSingleton<IAuthorizationHandler, AuthorizationHandlerService>();
+            builder.Services.AddAuthorization(config =>
+            {
+                config.AddPolicy(Constants.Policies.IsAdmin, policy => policy.Requirements.Add(new AdminRequirement()));
+                config.AddPolicy(Constants.Policies.IsUser, policy => policy.Requirements.Add(new UserRequirement()));
+            });
+
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
+            builder.Services.AddSingleton<AppStateService>();
+            builder.Services.AddHostedService<MainService>();
+            builder.Services.AddSingleton<MainService>();
 
 
             var app = builder.Build();

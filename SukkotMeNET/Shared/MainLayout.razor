@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider Theme="@_customTheme"/>
+<MudThemeProvider Theme="@_customTheme" />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
@@ -9,9 +9,19 @@
 <MudLayout>
     <MudAppBar Style="background-color:transparent; box-shadow:none;">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Success" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudSpacer />
+        <MudNavLink Href="/login" Match="NavLinkMatch.Prefix" Style="width:fit-content;">
+            <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Success" Edge="Edge.Start"/>
+        </MudNavLink>
     </MudAppBar>
     <MudDrawer @bind-Open="@_drawerOpen">
-        <NavMenu/>
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All">
+                <MudText Color="Color.Success">Home</MudText>
+            </MudNavLink>
+            <MudNavLink Href="/users" Match="NavLinkMatch.Prefix">Users</MudNavLink>
+            <MudNavLink Href="/about" Match="NavLinkMatch.Prefix">About</MudNavLink>
+        </MudNavMenu>
     </MudDrawer>
     <MudMainContent>
         @Body
@@ -20,19 +30,12 @@
 
 @code {
     MudTheme _customTheme = new()
-    {
-        Palette = new Palette()
         {
-            Success = "#059669"
-        },
-        Typography = new Typography()
-        {
-            Default = new Default()
+            Palette = new Palette()
             {
-                //FontFamily = new[] {"ui-monospace","SFMono-Regular","Consolas","Liberation Mono","Menlo","monospace"}
-            }
-        }
-    };
+                Success = "#059669",
+            },
+        };
 
     bool _drawerOpen = false;
 

@@ -2,8 +2,9 @@
 {
     public interface IRepository<T>
     {
-        Task<T?> ReadAsync(string id);
-        Task<IEnumerable<T?>> ReadAsync();
+        Task<IEnumerable<T?>> ReadAllAsync(Func<T, bool> predicate);
+        Task<IEnumerable<T?>> ReadAllAsync();
+        Task<T?> ReadFirstAsync(Func<T, bool> predicate);
 
         Task<bool> DeleteAsync(string id);
 
