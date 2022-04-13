@@ -24,7 +24,7 @@ namespace SukkotMeNET.Services
                     var isAuth = requirement switch
                     {
                         AdminRequirement => _AppStateService.User.IsAdmin,
-                        UserRequirement => _AppStateService.User.Id == userId,
+                        UserRequirement => _AppStateService.User.Id == userId, //TODO userId == mongoObjectId
                         _ => false
                     };
 

@@ -1,5 +1,6 @@
 ﻿using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
+using System.Linq.Expressions;
 
 namespace SukkotMeNET.Services
 {
@@ -18,8 +19,7 @@ namespace SukkotMeNET.Services
 
         public async void Login(User user)
         {
-            var res = await _Repository.UserRepository.ReadFirstAsync(u => 
-                u.Email == user.Email);
+            var res = await _Repository.UserRepository.ReadFirstAsync(u => u.Email == user.Email);
 
             _AppState.User = res;
         }

@@ -5,25 +5,35 @@
 
 <PageTitle>SukkotMe | Login</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Small" Style="height: 90vh;">
-    <EditForm Model="@user" OnSubmit="OnSubmit">
-        <DataAnnotationsValidator />
-        <MudCard>
-            <MudCardHeader>
-                <MudText Typo="Typo.h6" Color="Color.Primary">Login</MudText>
-            </MudCardHeader>
-            <MudCardContent>
-                <MudTextField Label="Email" Class="mt-3"
-                              @bind-Value="user.Email" For="@(() => user.Email)" />
-                <MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
-                              @bind-Value="user.Password" For="@(() => user.Password)" InputType="InputType.Password" />
-            </MudCardContent>
-            <MudCardActions>
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="mr-auto">Login</MudButton>
-            </MudCardActions>
-        </MudCard>
-    </EditForm>
-</MudContainer>
+<section class="w-full px-2 py-20 bg-gray-100 xl:px-8 flex-grow dark:bg-gray-700">
+        <div class="max-w-5xl mx-auto py-16">
+            <div class="grid" style="place-items:center;">
+                
+                <div class="w-full mt-16 md:mt-0 md:w-2/5">
+                    <div class="relative z-10 h-auto p-8 py-10 overflow-hidden bg-white dark:bg-gray-800 border-b-2 border-gray-300 dark:border-gray-900 rounded-lg shadow-2xl px-7">
+                        <EditForm Model="@user" OnSubmit="@OnSubmit">
+                            <h3 class="mb-6 text-2xl font-medium text-center dark:text-gray-300">Sign in to your Account</h3>
+                            <input type="text" @bind-value="@user.Email" class="block w-full px-4 py-3 mb-4 border border-2 border-transparent border-gray-200 rounded-lg focus:ring focus:ring-green-500 focus:outline-none" placeholder="Email address"/>
+                            <input type="password" @bind-value="@user.Password" class="block w-full px-4 py-3 mb-4 border border-2 border-transparent border-gray-200 rounded-lg focus:ring focus:ring-green-500 focus:outline-none" placeholder="Password"/>
+                            <div class="block">
+                                <button 
+                                    class="w-full px-3 py-4 font-medium text-white bg-green-600 rounded-lg"
+                                    type="submit"
+                                >
+                                    Log Me In
+                                </button>
+                            </div>
+                            <p class="w-full mt-4 text-sm text-center text-gray-500">
+                                Don't have an account? 
+                                <NavLink href="/register" class="text-green-500 underline font-bold cursor-pointer">Sign up here</NavLink>
+                            </p>
+                        </EditForm>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
 
 @code {
     [Inject]

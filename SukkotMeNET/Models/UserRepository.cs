@@ -1,5 +1,6 @@
 ﻿using MongoDB.Driver;
 using SukkotMeNET.Interfaces;
+using System.Linq.Expressions;
 
 namespace SukkotMeNET.Models
 {
@@ -30,11 +31,11 @@ namespace SukkotMeNET.Models
             return users;
         }
 
-        public async Task<User?> ReadFirstAsync(Func<User, bool> predicate)
+        public async Task<User?> ReadFirstAsync(Expression<Func<User, bool>> predicate)
         {
             try
             {
-                var res = await _UserCollection.FindAsync(u => predicate(u));
+                var res = await _UserCollection.FindAsync(predicate);
                 var user = res.FirstOrDefault();
                 return user;
             }

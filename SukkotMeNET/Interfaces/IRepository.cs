@@ -1,10 +1,12 @@
-﻿namespace SukkotMeNET.Interfaces
+﻿using System.Linq.Expressions;
+
+namespace SukkotMeNET.Interfaces
 {
     public interface IRepository<T>
     {
         Task<IEnumerable<T?>> ReadAllAsync(Func<T, bool> predicate);
         Task<IEnumerable<T?>> ReadAllAsync();
-        Task<T?> ReadFirstAsync(Func<T, bool> predicate);
+        Task<T?> ReadFirstAsync(Expression<Func<T, bool>> predicate);
 
         Task<bool> DeleteAsync(string id);
 
