@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using MongoDB.Bson;
 using SukkotMeNET.Models;
 
 namespace SukkotMeNET.Services
@@ -20,11 +21,10 @@ namespace SukkotMeNET.Services
                 foreach (var requirement in pendingRequirements)
                 {
                     var userId = context.Resource?.ToString();
-
                     var isAuth = requirement switch
                     {
                         AdminRequirement => _AppStateService.User.IsAdmin,
-                        UserRequirement => _AppStateService.User.Id == userId, //TODO userId == mongoObjectId
+                        UserRequirement => ObjectId.TryParse(_AppStateService.User.Id, out var id),
                         _ => false
                     };
 

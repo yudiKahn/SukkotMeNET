@@ -1,6 +1,7 @@
 ﻿using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
-using System.Linq.Expressions;
+using System.IdentityModel.Tokens.Jwt;
+using static BCrypt.Net.BCrypt;
 
 namespace SukkotMeNET.Services
 {
@@ -17,15 +18,33 @@ namespace SukkotMeNET.Services
             _Repository = repositoryService;
         }
 
-        public async void Login(User user)
+        public void AddItemToCart(OrderItem item) 
+        { 
+            
+        }
+
+        public async Task<bool> LoginAsync(User user)
         {
-            var res = await _Repository.UserRepository.ReadFirstAsync(u => u.Email == user.Email);
+            var hashedPassword = HashPassword(user.Password);
+
+            var res = await _Repository.UsersRepository.ReadFirstAsync(u => u.Email == user.Email && u.Password == hashedPassword);
+
+            if(res == null)
+                return false;
 
             _AppState.User = res;
+
+            return true;
+        }
+
+        public void Logout()
+        {
+            _AppState.User = null;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            //TODO: init cart, orders, cached user,
             return Task.CompletedTask;
         }
     }

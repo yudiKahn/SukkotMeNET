@@ -1,6 +1,7 @@
 ﻿@page "/users"
 @using SukkotMeNET.Interfaces
 @using SukkotMeNET.Models
+@using SukkotMeNET.Services
 
 
 <PageTitle>Users</PageTitle>
@@ -51,6 +52,9 @@
                                 {
                                     <tr>
                                         <th class="dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
+                                            @if(user.IsAdmin){
+                                                <b>A &nbsp;</b>  
+                                            }
                                             @user.FirstName @user.LastName
                                         </th>
                                         <td class="dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
@@ -65,7 +69,8 @@
                                         </td>
                                         <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
                                             <NavLink href="/">
-                                                <i class="fas fa-external-link-square-alt"></i>
+                                                <i class="fas fa-external-link-square-alt">
+                                                </i>
                                             </NavLink>
                                         </td>
                                         <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
@@ -95,6 +100,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        users = await repository.UserRepository.ReadAllAsync();
+        users = await repository.UsersRepository.ReadAllAsync();
     }
 }

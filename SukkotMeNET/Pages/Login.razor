@@ -1,4 +1,6 @@
 ﻿@page "/login"
+@using SukkotMeNET.Extensions
+@using SukkotMeNET.Interfaces
 @using SukkotMeNET.Services
 @using SukkotMeNET.Models
 @using System.ComponentModel.DataAnnotations
@@ -26,6 +28,8 @@
                             <p class="w-full mt-4 text-sm text-center text-gray-500">
                                 Don't have an account? 
                                 <NavLink href="/register" class="text-green-500 underline font-bold cursor-pointer">Sign up here</NavLink>
+                                <br/>
+                                <NavLink href="/">Forgot Password?</NavLink>
                             </p>
                         </EditForm>
                     </div>
@@ -39,11 +43,28 @@
     [Inject]
     private MainService _Service { get; set; }
 
+    [CascadingParameter(Name = "ErrorComponent")]
+    protected IErrorComponent ErrorComponent { get; set; }
+
     User user = new User();
 
-    private void OnSubmit(EditContext context)
+    private async void OnSubmit(EditContext context)
     {
-        _Service.Login(context.Model as User);
+        try
+        {
+            var _user = context.Model as User;
+            if (_user.Email.IsNullOrBlank() || _user.Password.IsNullOrBlank())
+                throw new Exception("Please fill all required fields");
+
+            var isLogin = await _Service.LoginAsync(_user);
+
+            if (!isLogin)
+                throw new Exception("Login failed, check your credentials");
+        }
+        catch (Exception e)
+        {
+            ErrorComponent.ShowError("Error!", e.Message);
+        }
         StateHasChanged();
     }
 

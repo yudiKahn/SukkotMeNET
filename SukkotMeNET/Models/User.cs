@@ -35,7 +35,7 @@ namespace SukkotMeNET.Models
         public string Password { get; set; }
 
         [BsonElement("isAdmin")]
-        public bool IsAdmin { get; }
+        public bool IsAdmin { get; set; }
 
         [Required]
         [BsonElement("address")]

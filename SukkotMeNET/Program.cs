@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using MudBlazor.Services;
 using SukkotMeNET.Configuration;
 using SukkotMeNET.Data;
@@ -28,6 +29,7 @@ namespace SukkotMeNET
             {
                 config.AddPolicy(Constants.Policies.IsAdmin, policy => policy.Requirements.Add(new AdminRequirement()));
                 config.AddPolicy(Constants.Policies.IsUser, policy => policy.Requirements.Add(new UserRequirement()));
+                config.AddPolicy(Constants.Policies.IsGuest, policy => policy.Requirements.Add(new GuestRequirement()));
             });
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();

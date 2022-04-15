@@ -6,6 +6,7 @@
         {
             public const string IsAdmin = "IsAdmin";
             public const string IsUser = "IsUser";
+            public const string IsGuest = "IsGuest";
         }
     }
 }

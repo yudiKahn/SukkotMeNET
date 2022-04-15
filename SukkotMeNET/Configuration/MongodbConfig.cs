@@ -10,5 +10,8 @@
     public class MongodbCollectionsConfig
     {
         public string Users { get; set; }
+        public string Items { get; set; }
+        public string Carts { get; set; }
+        public string Orders { get; set; }
     }
 }
