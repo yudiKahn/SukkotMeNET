@@ -8,10 +8,10 @@ namespace SukkotMeNET.Services
 {
     public class RepositoryService : IRepositoryService
     {
-        public IRepository<User> UsersRepository { get; private set; }
-        public IRepository<Item> ItemsRepository { get; private set; }
-        public IRepository<Cart> CartsRepository { get; private set; }
-        public IRepository<Order> OrdersRepository { get; private set; }
+        public Repository<User> UsersRepository { get; private set; }
+        public Repository<Item> ItemsRepository { get; private set; }
+        public Repository<Cart> CartsRepository { get; private set; }
+        public Repository<Order> OrdersRepository { get; private set; }
 
         public RepositoryService(
             IOptions<MongodbConfig> dbConfig)

@@ -1,8 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
-using MudBlazor.Services;
 using SukkotMeNET.Configuration;
-using SukkotMeNET.Data;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
 using SukkotMeNET.Services;
@@ -18,11 +15,13 @@ namespace SukkotMeNET
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
-            builder.Services.AddMudServices();
 
             builder.Configuration.AddJsonFile("Configuration/appsettings.json");
 
             builder.Services.Configure<MongodbConfig>(builder.Configuration.GetSection(nameof(MongodbConfig)));
+            var emailConfig = builder.Configuration.GetSection(nameof(EmailConfig));
+            builder.Services.Configure<EmailConfig>(emailConfig)
+                .AddSingleton(emailConfig.Get<EmailConfig>());
 
             builder.Services.AddSingleton<IAuthorizationHandler, AuthorizationHandlerService>();
             builder.Services.AddAuthorization(config =>
@@ -36,6 +35,7 @@ namespace SukkotMeNET
             builder.Services.AddSingleton<AppStateService>();
             builder.Services.AddHostedService<MainService>();
             builder.Services.AddSingleton<MainService>();
+            builder.Services.AddSingleton<EmailService>();
 
 
             var app = builder.Build();

@@ -1,75 +1,29 @@
-﻿@using SukkotMeNET.Interfaces
+﻿@using SukkotMeNET.Extensions
+@using SukkotMeNET.Interfaces
+@using SukkotMeNET.Components
+@using SukkotMeNET.Models
 @using SukkotMeNET.Services
 @inherits LayoutComponentBase
-@implements IErrorComponent
+@inject AppStateService State
+@inject MainService MainService
 
 <PageTitle>SukkotMeNET</PageTitle>
 
-<section class="relative w-full px-8 text-gray-700 bg-white body-font">
-    <div class="container flex flex-col flex-wrap items-center justify-between py-5 mx-auto md:flex-row max-w-7xl">
-        <NavLink href="/" class="relative z-10 flex items-center w-auto text-2xl font-extrabold leading-none text-black select-none">
-            SukkotMe<span class="text-green-600">.</span>
-        </NavLink>
+<Navbar />
 
-        <nav class="top-0 left-0 z-0 flex items-center justify-center w-full h-full py-5 -ml-0 space-x-5 text-base md:-ml-5 md:py-0 md:absolute">
-            <NavLink href="/" class="relative font-medium leading-6 text-gray-600 transition duration-150 ease-out hover:text-gray-900">
-                <span class="block">Home</span>
-            </NavLink>
-
-            <AuthorizeView Policy="@Constants.Policies.IsAdmin">
-                <Authorized>
-                    <NavLink href="/users" class="relative font-medium leading-6 text-gray-600 transition duration-150 ease-out hover:text-gray-900">
-                        <span class="block">Users</span>
-                    </NavLink>
-                    <NavLink href="/orders" class="relative font-medium leading-6 text-gray-600 transition duration-150 ease-out hover:text-gray-900">
-                        <span class="block">Orders</span>
-                    </NavLink>
-                </Authorized>
-            </AuthorizeView>
-
-            <AuthorizeView Policy="@Constants.Policies.IsUser">
-                <Authorized>
-                    <NavLink href="/shop" class="relative font-medium leading-6 text-gray-600 transition duration-150 ease-out hover:text-gray-900">
-                        <span class="block">Shop</span>
-                    </NavLink>
-                </Authorized>
-            </AuthorizeView>
-        </nav>
-
-        <div class="relative z-10 inline-flex items-center space-x-3 md:ml-5 lg:justify-end">
-            <AuthorizeView Policy="@Constants.Policies.IsUser">
-                <Authorized>
-                    <span class="inline-flex rounded-md shadow-sm">
-                        <button @onclick="@Logout" class="inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-white whitespace-no-wrap bg-green-600 border border-green-700 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            Logout
-                        </button>
-                    </span>
-                </Authorized>
-                <NotAuthorized>
-                    <NavLink href="/login" class="inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-gray-600 whitespace-no-wrap bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:shadow-none">
-                        Sign in
-                    </NavLink>
-                    <span class="inline-flex rounded-md shadow-sm">
-                        <NavLink href="/register" class="inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-white whitespace-no-wrap bg-green-600 border border-green-700 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                            Sign up
-                        </NavLink>
-                    </span>
-                </NotAuthorized>
-            </AuthorizeView>
-        </div>
-    </div>
-</section>
-
-@if (IsErrorActive)
+@if (State.Alerts.Any())
 {
     <div class="fixed w-full h-full top-0 z-50 bg-opacity-50 bg-white">
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 w-1/2 rounded" role="alert">
-            <strong class="font-bold">@Title</strong>
-            <span class="block sm:inline">@Message</span>
-            <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                <svg class="fill-current h-6 w-6 text-red-500" role="button" @onclick="HideError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
-            </span>
-        </div>
+        @foreach (var alert in State.Alerts)
+        {
+            <div class="@string.Format($"relative bg-{alert.Type.ToFriendlyString()}-100 border-{alert.Type.ToFriendlyString()}-400 text-{alert.Type.ToFriendlyString()}-700 left-1/2 transform -translate-x-1/2 mt-5 border px-4 py-3 w-1/2 rounded")" role="alert">
+                <strong class="font-bold">@alert.Title</strong>
+                <span class="block sm:inline">@alert.Message</span>
+                <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+                    <svg class="@string.Format($"fill-current h-6 w-6 text-{alert.Type.ToFriendlyString()}-500")" role="button" @onclick="@OnRemoveAlert(alert)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                </span>
+            </div>
+        }
     </div>
 }
 
@@ -77,32 +31,13 @@
     @Body
 </CascadingValue>
 
-@code {
-    [Inject]
-    MainService MainService{ get; set; }
-    [Inject]
-    NavigationManager Navigation { get; set; }
+<Footer />
 
-    bool IsErrorActive;
-    string Title;
-    string Message;
-
-    public void ShowError(string title, string message)
+@code{
+    protected override void OnInitialized()
     {
-        this.IsErrorActive = true;
-        this.Title = title;
-        this.Message = message;
-        StateHasChanged();
+        MainService.StateHasChanged += (sender, e) => InvokeAsync(this.StateHasChanged);
     }
 
-    private void HideError()
-    {
-        IsErrorActive = false;
-    }
-
-    private void Logout()
-    {
-        MainService.Logout();
-        Navigation.NavigateTo("/login");
-    }
+    Action OnRemoveAlert(Alert alert) => () => MainService.RemoveAlert(alert);
 }

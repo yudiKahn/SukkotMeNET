@@ -1,14 +1,13 @@
 ﻿using MongoDB.Driver;
-using SukkotMeNET.Interfaces;
 using System.Linq.Expressions;
 
 namespace SukkotMeNET.Models
 {
-    public class AbstractRepository<T> : IRepository<T>
+    public class Repository<T>
     {
         readonly IMongoCollection<T> _Collection;
 
-        public AbstractRepository(IMongoCollection<T> collection)
+        public Repository(IMongoCollection<T> collection)
         {
             _Collection = collection;
         }
@@ -40,9 +39,17 @@ namespace SukkotMeNET.Models
             return documents;
         }
 
-        public async Task<T> UpdateFirstAsync(Expression<Func<T, bool>> filter, UpdateDefinition<T> newValue)
+        public async Task<T> UpdateFirstAsync(Expression<Func<T, bool>> filter, T newValue)
         {
-            return await _Collection.FindOneAndUpdateAsync(filter, newValue);
+            try
+            {
+                await _Collection.ReplaceOneAsync<T>(filter, newValue);
+                return newValue;
+            }
+            catch
+            {
+                return default;
+            }
         }
 
         public async Task<T?> WriteAsync(T value)

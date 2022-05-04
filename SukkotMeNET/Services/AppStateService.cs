@@ -11,24 +11,12 @@ namespace SukkotMeNET.Services
 
         public List<Order> Orders { get; set; }
 
+        public List<Alert> Alerts { get; set; }
+
         public AppStateService()
         {
             Orders = new List<Order>();
-            //TODO:remove
-            User = new User() //TODO remove
-            {
-                Email = "yudik@gmail.com",
-                Address = new Address()
-                {
-
-                },
-                FirstName = "Yudi",
-                LastName = "Kahn",
-                Id = ObjectId.GenerateNewId().ToString(),
-                Password = "123",
-                PhoneNumber = "123",
-                IsAdmin = true
-            };
+            Alerts = new List<Alert>();
         }
     }
 }

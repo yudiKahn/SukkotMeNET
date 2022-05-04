@@ -2,22 +2,22 @@
 
 namespace SukkotMeNET.Models
 {
-    public class UsersRepository : AbstractRepository<User>
+    public class UsersRepository : Repository<User>
     {
         public UsersRepository(IMongoCollection<User> collection) : base(collection) { }
     }
 
-    public class ItemsRepository : AbstractRepository<Item>
+    public class ItemsRepository : Repository<Item>
     {
         public ItemsRepository(IMongoCollection<Item> collection) : base(collection) { }
     }
 
-    public class CartsRepository : AbstractRepository<Cart>
+    public class CartsRepository : Repository<Cart>
     {
         public CartsRepository(IMongoCollection<Cart> collection) : base(collection) { }
     }
 
-    public class OrdersRepository : AbstractRepository<Order>
+    public class OrdersRepository : Repository<Order>
     {
         public OrdersRepository(IMongoCollection<Order> collection) : base(collection) { }
     }

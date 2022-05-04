@@ -3,6 +3,7 @@
 @using SukkotMeNET.Interfaces
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
+@attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
 <div class="antialiased bg-gray-200 dark:bg-gray-800 text-gray-900 font-sans p-6 flex-grow">
     <div class="container mx-auto">

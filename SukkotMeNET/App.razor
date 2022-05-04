@@ -1,13 +1,23 @@
 ﻿<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
-            <PageTitle>Not found</PageTitle>
+            <PageTitle>404 | Not found</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Sorry, there's nothing at this address.</p>
+                <div class="relative overflow-hidden bg-white dark:bg-gray-900 flex-grow">
+                    <div class="container mx-auto px-6 md:px-12 relative z-10 flex py-32 xl:py-40">
+                        <h1 class="drop-shadow-lg text-4xl font-extrabold tracking-tight text-green-600 sm:text-5xl md:text-4xl lg:text-5xl xl:text-6xl animate-bounce">
+                            404 | Page Not Found...
+                            <br />
+                            <small style="font-size:20px;" class="text-gray-700">Go back 
+                                <NavLink href="/">Home</NavLink>
+                           </small>
+                        </h1>
+                    </div>
+                </div>
             </LayoutView>
         </NotFound>
     </Router>

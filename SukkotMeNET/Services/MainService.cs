@@ -1,7 +1,5 @@
 ﻿using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
-using System.IdentityModel.Tokens.Jwt;
-using static BCrypt.Net.BCrypt;
 
 namespace SukkotMeNET.Services
 {
@@ -9,6 +7,8 @@ namespace SukkotMeNET.Services
     {
         readonly AppStateService _AppState;
         readonly IRepositoryService _Repository;
+
+        public event EventHandler StateHasChanged;
 
         public MainService(
             AppStateService appState,
@@ -25,7 +25,9 @@ namespace SukkotMeNET.Services
 
         public async Task<bool> LoginAsync(User user)
         {
-            var hashedPassword = HashPassword(user.Password);
+            string email = user.Email;
+            string password = user.Password;
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, 10);
 
             var res = await _Repository.UsersRepository.ReadFirstAsync(u => u.Email == user.Email && u.Password == hashedPassword);
 
@@ -41,6 +43,14 @@ namespace SukkotMeNET.Services
         {
             _AppState.User = null;
         }
+
+        public void AddAlert(Alert alert)
+        {
+            _AppState.Alerts.Add(alert);
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public void RemoveAlert(Alert alert) => _AppState.Alerts.Remove(alert);
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
