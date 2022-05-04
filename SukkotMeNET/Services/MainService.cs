@@ -1,5 +1,6 @@
 ﻿using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
+using System.Linq.Expressions;
 
 namespace SukkotMeNET.Services
 {
@@ -27,14 +28,15 @@ namespace SukkotMeNET.Services
         {
             string email = user.Email;
             string password = user.Password;
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, 10);
 
-            var res = await _Repository.UsersRepository.ReadFirstAsync(u => u.Email == user.Email && u.Password == hashedPassword);
+            var users = await _Repository.UsersRepository.ReadAllAsync(u => u.Email == email);
+            var res = users.FirstOrDefault(u => BCrypt.Net.BCrypt.Verify(password, u?.Password));
 
             if(res == null)
                 return false;
 
             _AppState.User = res;
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
 
             return true;
         }
@@ -42,6 +44,7 @@ namespace SukkotMeNET.Services
         public void Logout()
         {
             _AppState.User = null;
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void AddAlert(Alert alert)

@@ -40,6 +40,8 @@
 @code {
     [Inject]
     private MainService _Service { get; set; }
+    [Inject]
+    NavigationManager _NavManager { get; set; }
 
     User user = new User();
 
@@ -55,12 +57,20 @@
 
             if (!isLogin)
                 throw new Exception("Login failed, check your credentials");
+            else
+            {
+                _Service.AddAlert(new Alert("Welcome back!", "", AlertType.Success));
+                _NavManager.NavigateTo("/");
+            }
         }
         catch (Exception e)
         {
             _Service.AddAlert(new Alert("Error", e.Message, AlertType.Error));
         }
-        StateHasChanged();
     }
 
+    protected override void OnInitialized()
+    {
+        _Service.StateHasChanged += (e, s) => InvokeAsync(this.StateHasChanged);
+    }
 }
