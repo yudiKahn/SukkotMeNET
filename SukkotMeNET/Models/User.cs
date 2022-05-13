@@ -40,5 +40,7 @@ namespace SukkotMeNET.Models
         [Required]
         [BsonElement("address")]
         public Address Address { get; set; }
+
+        public override string ToString() => $"{FirstName} {LastName}";
     }
 }

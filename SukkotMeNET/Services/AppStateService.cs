@@ -9,13 +9,17 @@ namespace SukkotMeNET.Services
 
         public Cart Cart { get; set; }
 
-        public List<Order> Orders { get; set; }
+        public List<Order> UserOrders { get; set; }
 
         public List<Alert> Alerts { get; set; }
 
+        public AdminState AdminState { get; set; }
+
         public AppStateService()
         {
-            Orders = new List<Order>();
+            AdminState = new AdminState();
+
+            UserOrders = new List<Order>();
             Alerts = new List<Alert>();
         }
     }

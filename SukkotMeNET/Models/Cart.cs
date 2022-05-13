@@ -16,6 +16,6 @@ namespace SukkotMeNET.Models
         public string UserId { get; set; }
 
         [BsonElement("items")]
-        public IEnumerable<OrderItem> Items { get; set; }
+        public List<OrderItem> Items { get; set; }
     }
 }
