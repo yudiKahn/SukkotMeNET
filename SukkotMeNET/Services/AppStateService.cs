@@ -5,11 +5,11 @@ namespace SukkotMeNET.Services
 {
     public class AppStateService
     {
-        public User User { get; set; }
+        public User? User { get; set; }
 
-        public Cart Cart { get; set; }
+        public Cart? Cart { get; set; }
 
-        public List<Order> UserOrders { get; set; }
+        public List<Order>? UserOrders { get; set; }
 
         public List<Alert> Alerts { get; set; }
 

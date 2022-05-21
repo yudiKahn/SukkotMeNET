@@ -31,12 +31,13 @@
 
 @code {
     [Inject] MainService MainService { get; set; }
-
     [Inject] NavigationManager Navigation { get; set; }
+    [Inject] IJSRuntime _Js { get; set; }
 
     void Logout()
     {
         MainService.Logout();
+        _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
         Navigation.NavigateTo("/login");
     }
 }

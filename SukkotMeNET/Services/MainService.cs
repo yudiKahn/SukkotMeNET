@@ -1,6 +1,6 @@
-﻿using SukkotMeNET.Interfaces;
+﻿using SukkotMeNET.Extensions;
+using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
-using System.Linq.Expressions;
 
 namespace SukkotMeNET.Services
 {
@@ -25,11 +25,11 @@ namespace SukkotMeNET.Services
                 return;
 
             var cart = _AppState.Cart;
-            cart.Items.Add(item);
+            cart.Items.AddOrMerge(item);
             await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, cart);
         }
 
-        public async Task<bool> LoginAsync(User user)
+        public async Task<User?> LoginAsync(User user)
         {
             string email = user.Email;
             string password = user.Password;
@@ -37,18 +37,19 @@ namespace SukkotMeNET.Services
             var users = await _Repository.UsersRepository.ReadAllAsync(u => u.Email == email);
             var user1 = users.FirstOrDefault(u => BCrypt.Net.BCrypt.Verify(password, u?.Password));
 
-            if(user1 == null)
-                return false;
-
             _AppState.User = user1;
-            StateHasChanged?.Invoke(this, EventArgs.Empty);
 
-            InitUserCart();
-            InitUserOrders();
-            if (user1.IsAdmin)
-                InitAdminState();
+            if (user1 != null)
+            {
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
 
-            return true;
+                InitUserCart();
+                InitUserOrders();
+                if (user1.IsAdmin)
+                    InitAdminState();
+            }
+
+            return user1;
         }
 
         public void Logout()
@@ -69,6 +70,13 @@ namespace SukkotMeNET.Services
         {
             _AppState.Alerts.Remove(alert);
             StateHasChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public async void RemoveItemFromCart(OrderItem item)
+        {
+            _AppState.Cart.Items.Remove(item);
+            await _Repository.CartsRepository.UpdateFirstAsync(c => c.Id == _AppState.Cart.Id, _AppState.Cart);
+
         }
 
         private async void InitUserCart()
@@ -103,7 +111,6 @@ namespace SukkotMeNET.Services
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //TODO: init cached user,
             return Task.CompletedTask;
         }
     }

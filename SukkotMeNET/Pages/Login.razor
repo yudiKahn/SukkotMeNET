@@ -42,6 +42,8 @@
     private MainService _Service { get; set; }
     [Inject]
     NavigationManager _NavManager { get; set; }
+    [Inject]
+    IJSRuntime _Js { get; set; }
 
     User user = new User();
 
@@ -53,13 +55,14 @@
             if (_user.Email.IsNullOrBlank() || _user.Password.IsNullOrBlank())
                 throw new Exception("Please fill all required fields");
 
-            var isLogin = await _Service.LoginAsync(_user);
+            var loggedUser = await _Service.LoginAsync(_user);
 
-            if (!isLogin)
+            if (loggedUser == null)
                 throw new Exception("Login failed, check your credentials");
             else
             {
                 _Service.AddAlert(new Alert("Welcome back!", "", AlertType.Success));
+                await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageSet, "token", loggedUser.Id);
                 _NavManager.NavigateTo("/");
             }
         }

@@ -1,6 +1,10 @@
 ﻿@page "/user/cart"
+@using SukkotMeNET.Components
+@using SukkotMeNET.Extensions
+@using SukkotMeNET.Models
 @using SukkotMeNET.Services
 @inject AppStateService State
+@inject MainService Service
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
 <div class="w-full bg-white grid place-content-center py-3 flex-grow dark:bg-gray-800">
@@ -11,70 +15,76 @@
                     @string.Format(State.Cart?.Items?.Count() > 0 ? $"{State.User.FirstName}, Here is your cart" : "No items found")
                 </h3>
                 <div class="flex items-center mt-8">
-                    <h4 class="flex-shrink-0 pr-4 bg-white text-sm leading-5 tracking-wider font-semibold uppercase" style={{color:'#c6a530'}}>
-                        x Cart
+                    <h4 class="flex-shrink-0 pr-4 bg-white text-sm leading-5 tracking-wider font-semibold uppercase" style="color:#c6a530;">
+                        Messages
                     </h4>
-                    <div class="flex-1 border-t-2 border-gray-200" style={{borderTopStyle:'solid'}}></div>
+                    <div class="flex-1 border-t-2 border-gray-200" style="border-top-style:solid;"></div>
                 </div>
 
-                getCartSalesMsg(user.cart.items)
+                <CartSaleMessages />
 
                 <div class="mt-8">
+
                     <ul class="pl-0">
-                    {
-                        user.cart?.items ? user.cart.items.map((v,i)=><li key={i}>
-                            <div class="flex items-start">
-                                <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
-                                    <a href={`/shop/item/${v._id}`} class="text-gray-700 flex-shrink-0">
-                                        {v.name} <small>{v.priceType.toString()!=="undefined"&&v.priceType} {v.option}</small>
-                                    </a>
-                                    <div class="flex-shrink-0 mt-1 md:mt-0">
-                                        <small class="ml-5 mr-3">{v.q} &times; {v.price.toFixed(2)} = </small>
-                                        <span class="text-lg text-gray-800 font-bold">
-                                            ${(parseInt(v.q) * v.price.toFixed(2)).toFixed(2)}
+                        @foreach (var item in State.Cart?.Items)
+                        {
+                            <li>
+                                <div class="flex items-start">
+                                    <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
+                                        <a href="/shop/item/${v._id}" class="text-gray-700 flex-shrink-0">
+                                            @item.Name <small>@item.PriceType @item.Option</small>
+                                        </a>
+                                        <div class="flex-shrink-0 mt-1 md:mt-0">
+                                            <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
+                                            <span class="text-lg text-gray-800 font-bold">
+                                                $@(item.Qty * item.Price)
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start mt-3">
+                                    <div class="flex-shrink-0">
+                                        <span @onclick="() => Service.RemoveItemFromCart(item)" class="rounded-full bg-yellow-700 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
+                                            <i class="fas fa-times text-white"></i>
+                                        </span>
+                                        <span class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
+                                            <i class="fas fa-sort-up text-white align-middle"></i>
+                                        </span>
+                                        <span>
+                                            @item.Qty
+                                        </span>
+                                        <span class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mx-3 cursor-pointer">
+                                            <i class="fas fa-sort-down text-white align-text-top"></i>
                                         </span>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="flex items-start mt-3">
-                                <div class="flex-shrink-0">
-                                    <span class="rounded-full bg-yellow-700 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
-                                        <i onClick={()=>removeFromCart(user.cart._id, v._id)} class="fas fa-times text-white"></i>                                        
-                                    </span>
-                                    <span onClick={()=>changeQtyOfItemInCart(user.cart._id, v._id,"up")} class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
-                                        <i class="fas fa-sort-up text-white align-middle"></i>                                        
-                                    </span>
-                                    <span>
-                                        {v.q}
-                                    </span>
-                                    <span  onClick={()=>changeQtyOfItemInCart(user.cart._id, v._id,"down")} class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mx-3 cursor-pointer">
-                                        <i class="fas fa-sort-down text-white align-text-top"></i>                                        
-                                    </span>
-                                </div>
-                            </div>
-                        </li>) : null
-                    }
-                    {
-                        user.cart && user.cart.items && <li class="mt-10">
+                            </li>
+                        }
+
+
+                        <li class="mt-10">
                             <div class="flex justify-end">
                                 Total: &nbsp;&nbsp;
-                                <span class="text-lg text-gray-800 font-bold">${getOrderTotal(user.cart)}</span>
+                                <span class="text-lg text-gray-800 font-bold">$@State.Cart?.Items?.GetTotal().ToString("N2")</span>
                             </div>
                         </li>
-                    }
                     </ul>
                 </div>
             </div>
             <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
+                @if (State.Cart?.Items?.Any() == true)
                 {
-                    (user?.cart?.items?.length > 0) && <button onClick={()=>createOrder(user.cart)} class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
+                    <button class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
                         Make an order
                     </button>
                 }
-                <a href="/shop/all" class="mt-6 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-gray-400 text-lg leading-6 font-medium rounded-md text-gray-700">
+                <NavLink href="/shop" class="mt-6 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-gray-400 text-lg leading-6 font-medium rounded-md text-gray-700">
                     Go Shopping
-                </a>
+                </NavLink>
             </div>
         </div>
     </div>
 </div>
+
+@code {
+}

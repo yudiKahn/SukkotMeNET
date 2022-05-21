@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using SukkotMeNET.Configuration;
+using SukkotMeNET.Extensions;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
 using SukkotMeNET.Services;
@@ -19,9 +20,10 @@ namespace SukkotMeNET
             builder.Configuration.AddJsonFile("Configuration/appsettings.json");
 
             builder.Services.Configure<MongodbConfig>(builder.Configuration.GetSection(nameof(MongodbConfig)));
+
             var emailConfig = builder.Configuration.GetSection(nameof(EmailConfig));
-            builder.Services.Configure<EmailConfig>(emailConfig)
-                .AddSingleton(emailConfig.Get<EmailConfig>());
+            builder.Services.Configure<EmailConfig>(emailConfig);
+            builder.Services.AddSingleton(emailConfig.Get<EmailConfig>());
 
             builder.Services.AddSingleton<IAuthorizationHandler, AuthorizationHandlerService>();
             builder.Services.AddAuthorization(config =>
@@ -36,7 +38,6 @@ namespace SukkotMeNET
             builder.Services.AddHostedService<MainService>();
             builder.Services.AddSingleton<MainService>();
             builder.Services.AddSingleton<EmailService>();
-
 
             var app = builder.Build();
 

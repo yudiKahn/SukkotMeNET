@@ -30,7 +30,7 @@
                                             @(order.Items.Count()) items
                                         </p>
                                         <div class="flex-shrink-0 mt-1 md:mt-0">
-                                            <span class="text-lg text-gray-800 font-bold">@order.GetTotal()</span>
+                                            <span class="text-lg text-gray-800 font-bold">@order.Items.GetTotal()</span>
                                         </div>
                                     </div>
                                 </NavLink>
@@ -47,7 +47,3 @@
         </div>
     </div>
 </div>
-
-@code {
-
-}
