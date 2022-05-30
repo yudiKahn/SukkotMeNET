@@ -1,7 +1,14 @@
-﻿<CascadingAuthenticationState>
+﻿@using SukkotMeNET.Pages
+@using SukkotMeNET.Services
+
+<CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" >
+                <NotAuthorized>
+                    <Login/>
+                </NotAuthorized>
+            </AuthorizeRouteView>
         </Found>
         <NotFound>
             <PageTitle>404 | Not found</PageTitle>
@@ -21,3 +28,22 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+@code{
+    [Inject]
+    IJSRuntime _Js { get; set; }
+    [Inject]
+    MainService _Service { get; set; }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        var token = await _Js.InvokeAsync<string>(Constants.JavaScriptFunctions.LocalStorageGet, "token");
+        if(token != null)
+        {
+            var isTokenValid = await _Service.LoginUserFromLocalStorage(token);
+            if (!isTokenValid)
+                await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
+        }
+    }
+}

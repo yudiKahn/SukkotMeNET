@@ -52,6 +52,23 @@ namespace SukkotMeNET.Services
             return user1;
         }
 
+        public async Task<bool> LoginUserFromLocalStorage(string token)
+        {
+            var user = await _Repository.UsersRepository.ReadFirstAsync(u => u.Id == token);
+            if(user != null)
+            {
+                _AppState.User = user;
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+
+                InitUserCart();
+                InitUserOrders();
+                if (user.IsAdmin)
+                    InitAdminState();
+                return true;
+            }
+            return false;
+        }
+
         public void Logout()
         {
             _AppState.User = null;
