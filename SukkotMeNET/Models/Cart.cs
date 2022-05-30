@@ -17,5 +17,10 @@ namespace SukkotMeNET.Models
 
         [BsonElement("items")]
         public List<OrderItem> Items { get; set; }
+
+        public Cart()
+        {
+            Items = new();
+        }
     }
 }

@@ -9,82 +9,99 @@
 
 <div class="w-full bg-white grid place-content-center py-3 flex-grow dark:bg-gray-800">
     <div class="container">
-        <div class="rounded-lg shadow-lg overflow-hidden ">
-            <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
-                <h3 class="text-2xl leading-8 font-extrabold text-gray-900 sm:text-3xl sm:leading-9">
-                    @string.Format(State.Cart?.Items?.Count() > 0 ? $"{State.User.FirstName}, Here is your cart" : "No items found")
-                </h3>
-                <div class="flex items-center mt-8">
-                    <h4 class="flex-shrink-0 pr-4 bg-white text-sm leading-5 tracking-wider font-semibold uppercase" style="color:#c6a530;">
-                        Messages
-                    </h4>
-                    <div class="flex-1 border-t-2 border-gray-200" style="border-top-style:solid;"></div>
-                </div>
+        @if (State?.Cart is not null)
+        {
+            <div class="rounded-lg shadow-lg overflow-hidden ">
+                <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
+                    <h3 class="text-2xl leading-8 font-extrabold text-gray-900 sm:text-3xl sm:leading-9">
+                        @string.Format(State.Cart.Items.Count() > 0 ? $"{State?.User?.FirstName}, Here is your cart" : "No items found")
+                    </h3>
+                    <div class="flex items-center mt-8">
+                        <h4 class="flex-shrink-0 pr-4 bg-white text-sm leading-5 tracking-wider font-semibold uppercase" style="color:#c6a530;">
+                            Messages
+                        </h4>
+                        <div class="flex-1 border-t-2 border-gray-200" style="border-top-style:solid;"></div>
+                    </div>
 
-                <CartSaleMessages />
+                    <CartSaleMessages />
 
-                <div class="mt-8">
+                    <div class="mt-8">
 
-                    <ul class="pl-0">
-                        @foreach (var item in State.Cart?.Items)
-                        {
-                            <li>
-                                <div class="flex items-start">
-                                    <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
-                                        <a href="/shop/item/${v._id}" class="text-gray-700 flex-shrink-0">
-                                            @item.Name <small>@item.PriceType @item.Option</small>
-                                        </a>
-                                        <div class="flex-shrink-0 mt-1 md:mt-0">
-                                            <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
-                                            <span class="text-lg text-gray-800 font-bold">
-                                                $@(item.Qty * item.Price)
+                        <ul class="pl-0">
+                            @foreach (var item in State.Cart.Items)
+                            {
+                                <li>
+                                    <div class="flex items-start">
+                                        <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
+                                            <a href="/shop/item/${v._id}" class="text-gray-700 flex-shrink-0">
+                                                @item.Name <small>@item.PriceType @item.Option</small>
+                                            </a>
+                                            <div class="flex-shrink-0 mt-1 md:mt-0">
+                                                <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
+                                                <span class="text-lg text-gray-800 font-bold">
+                                                    $@(item.Qty * item.Price)
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start mt-3">
+                                        <div class="flex-shrink-0">
+                                            <span @onclick="() => Service.RemoveItemFromCart(item)" class="rounded-full bg-yellow-700 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
+                                                <i class="fas fa-times text-white"></i>
+                                            </span>
+                                            <span class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
+                                                <i class="fas fa-sort-up text-white align-middle"></i>
+                                            </span>
+                                            <span>
+                                                @item.Qty
+                                            </span>
+                                            <span class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mx-3 cursor-pointer">
+                                                <i class="fas fa-sort-down text-white align-text-top"></i>
                                             </span>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="flex items-start mt-3">
-                                    <div class="flex-shrink-0">
-                                        <span @onclick="() => Service.RemoveItemFromCart(item)" class="rounded-full bg-yellow-700 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
-                                            <i class="fas fa-times text-white"></i>
-                                        </span>
-                                        <span class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
-                                            <i class="fas fa-sort-up text-white align-middle"></i>
-                                        </span>
-                                        <span>
-                                            @item.Qty
-                                        </span>
-                                        <span class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mx-3 cursor-pointer">
-                                            <i class="fas fa-sort-down text-white align-text-top"></i>
-                                        </span>
-                                    </div>
+                                </li>
+                            }
+
+
+                            <li class="mt-10">
+                                <div class="flex justify-end">
+                                    Total: &nbsp;&nbsp;
+                                    <span class="text-lg text-gray-800 font-bold">$@State.Cart?.Items?.GetTotal().ToString("N2")</span>
                                 </div>
                             </li>
-                        }
-
-
-                        <li class="mt-10">
-                            <div class="flex justify-end">
-                                Total: &nbsp;&nbsp;
-                                <span class="text-lg text-gray-800 font-bold">$@State.Cart?.Items?.GetTotal().ToString("N2")</span>
-                            </div>
-                        </li>
-                    </ul>
+                        </ul>
+                    </div>
+                </div>
+                <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
+                    @if (State.Cart?.Items?.Any() == true)
+                    {
+                        <button @onclick="@Service.CreateOrderFromCart" class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
+                            Make an order
+                        </button>
+                    }
+                    <NavLink href="/shop" class="mt-6 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-gray-400 text-lg leading-6 font-medium rounded-md text-gray-700">
+                        Go Shopping
+                    </NavLink>
                 </div>
             </div>
-            <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
-                @if (State.Cart?.Items?.Any() == true)
-                {
-                    <button class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                        Make an order
-                    </button>
-                }
-                <NavLink href="/shop" class="mt-6 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-gray-400 text-lg leading-6 font-medium rounded-md text-gray-700">
-                    Go Shopping
-                </NavLink>
-            </div>
-        </div>
+        }
+        else
+        {
+            <section class="py-20 bg-white min-h-screen">
+                <div class="px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-extrabold tracking-tight text-green-600 my-6 sm:text-4xl md:text-5xl xl:text-6xl">
+                        Cart Is Empty...
+                    </h2>
+                    <NavLink href="/shop" class="max-w-md underline mx-auto mt-3 text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                        Go Back Shopping
+                    </NavLink>
+                </div>
+            </section>
+        }
     </div>
 </div>
+
 
 @code {
 }

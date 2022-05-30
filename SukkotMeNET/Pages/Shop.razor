@@ -116,7 +116,11 @@
         OrderItem.PriceType = SelectedItem.PricesTypes.ElementAtOrDefault(index);
     }
 
-    void OnSubmit() => MainService.AddItemToCart(OrderItem);
+    void OnSubmit()
+    {
+        MainService.AddItemToCart(OrderItem);
+        SelectItem(null);
+    }
 
     protected override async Task OnInitializedAsync()
     {

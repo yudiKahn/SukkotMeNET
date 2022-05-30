@@ -21,7 +21,11 @@ namespace SukkotMeNET.Services
 
         public async void AddItemToCart(OrderItem item) 
         { 
-            if(item == null || item.Qty < 1 || _AppState?.Cart?.Items == null)
+            if(_AppState.Cart?.Items == null)
+            {
+                _AppState.Cart = new Cart();
+            }
+            if(item == null || item.Qty < 1)
                 return;
 
             var cart = _AppState.Cart;
@@ -96,6 +100,29 @@ namespace SukkotMeNET.Services
 
         }
 
+        public async Task<bool> CreateOrderFromCart()
+        {
+            if (_AppState?.Cart is null || _AppState.User is null)
+                return await Task.FromResult(false);
+
+            try
+            {
+                var order = new Order();
+                order.Items = _AppState.Cart.Items;
+                order.UserId = _AppState.User.Id;
+                order.CreatedAt = DateTime.Now;
+                await _Repository.OrdersRepository.WriteAsync(order);
+
+                await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
+                _AppState.Cart = null;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private async void InitUserCart()
         {
             if (_AppState.User == null)
@@ -108,7 +135,6 @@ namespace SukkotMeNET.Services
 
         private async void InitUserOrders()
         {
-
             if (_AppState.User == null)
                 return;
 
