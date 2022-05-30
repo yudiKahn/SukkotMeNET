@@ -9,6 +9,8 @@ namespace SukkotMeNET.Services
 
         public Cart? Cart { get; set; }
 
+        public IEnumerable<Item> ShopItems { get; set; }
+
         public List<Order>? UserOrders { get; set; }
 
         public List<Alert> Alerts { get; set; }
@@ -18,9 +20,9 @@ namespace SukkotMeNET.Services
         public AppStateService()
         {
             AdminState = new AdminState();
-
             UserOrders = new List<Order>();
             Alerts = new List<Alert>();
+            ShopItems = Array.Empty<Item>();
         }
     }
 }

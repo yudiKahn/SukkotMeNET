@@ -25,7 +25,7 @@ namespace SukkotMeNET.Models
             return items;
         }
 
-        public async Task<IEnumerable<T?>> ReadAllAsync()
+        public async Task<IEnumerable<T>?> ReadAllAsync()
         {
             var res = _Collection.Find((item) => true);
             var items = await res.ToListAsync();

@@ -16,5 +16,10 @@ namespace SukkotMeNET
             public const string LocalStorageRemove = "localStorage.removeItem";
             public const string LocalStorageGet = "localStorage.getItem";
         }
+
+        public class General
+        {
+            public const string IsraeliSetItemId = "6176e416dae028e3337ce552";
+        }
     }
 }

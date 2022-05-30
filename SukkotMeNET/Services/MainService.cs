@@ -20,17 +20,28 @@ namespace SukkotMeNET.Services
         }
 
         public async void AddItemToCart(OrderItem item) 
-        { 
-            if(_AppState.Cart?.Items == null)
+        {
+            try
             {
-                _AppState.Cart = new Cart();
-            }
-            if(item == null || item.Qty < 1)
-                return;
+                if (_AppState.Cart?.Items == null)
+                    _AppState.Cart = new Cart();
 
-            var cart = _AppState.Cart;
-            cart.Items.AddOrMerge(item);
-            await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, cart);
+                if (item == null)
+                    throw new Exception("Unknown error (0x1), Please contact developer");
+                if (item.Qty < 1)
+                    throw new Exception("Please insert item quantity");
+
+
+                var cart = _AppState.Cart;
+                cart.Items.AddOrMerge(item);
+                cart.Items.AddOrMergeRange(SaleItemsToAdd(item).ToArray());
+
+                await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, cart);
+            }
+            catch (Exception e)
+            {
+                AddAlert(new Alert("Eroor", e.Message, AlertType.Error));
+            }
         }
 
         public async Task<User?> LoginAsync(User user)
@@ -84,7 +95,7 @@ namespace SukkotMeNET.Services
         {
             _AppState.Alerts.Add(alert);
             StateHasChanged?.Invoke(this, EventArgs.Empty);
-            Task.Delay(2000).ContinueWith(t => RemoveAlert(alert));
+            Task.Delay(4000).ContinueWith(t => RemoveAlert(alert));
         }
 
         public void RemoveAlert(Alert alert)
@@ -133,6 +144,30 @@ namespace SukkotMeNET.Services
             _AppState.Cart = cart;
         }
 
+        private IEnumerable<OrderItem> SaleItemsToAdd(OrderItem newItem)
+        {
+            List<OrderItem> itemsToAdd = new List<OrderItem>();
+
+            //add 20% extra for israeli sets
+            if (newItem.Id == Constants.General.IsraeliSetItemId)
+            {
+                var qtyToAdd = (int)(0.2 * newItem.Qty);
+                itemsToAdd.Add(new OrderItem()
+                {
+                    Id = newItem.Id,
+                    ByAdmin = true,
+                    Category = newItem.Category,
+                    Name = newItem.Name,
+                    Option = newItem.Option,
+                    Price = 0,
+                    PriceType = newItem.PriceType,
+                    Qty = qtyToAdd
+                });
+            }
+
+            return itemsToAdd;
+        }
+
         private async void InitUserOrders()
         {
             if (_AppState.User == null)
@@ -152,9 +187,10 @@ namespace SukkotMeNET.Services
             _AppState.AdminState.AllUsers = users.ToList();
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return Task.CompletedTask;
+            //init shop items
+            _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync() ?? Array.Empty<Item>();
         }
     }
 }
