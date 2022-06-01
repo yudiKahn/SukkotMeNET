@@ -12,14 +12,14 @@ namespace SukkotMeNET.Services
             _EmailConfig = emailConfig;
         }
 
-        public bool Send(string to, string subject, string body)
+        public async Task<bool> SendAsync(string to, string subject, string body)
         {
             try
             {
                 var smtp = new SmtpClient
                 {
-                    Host = "smtp.gmail.com",
-                    Port = 587,
+                    Host = _EmailConfig.Host,
+                    Port = _EmailConfig.Port,
                     EnableSsl = true,
                     DeliveryMethod = SmtpDeliveryMethod.Network,
                     Credentials = new NetworkCredential(_EmailConfig.Address, _EmailConfig.Password)
@@ -35,7 +35,7 @@ namespace SukkotMeNET.Services
                 };
                 msg.To.Add(new MailAddress(to));
 
-                smtp.Send(msg);
+                await smtp.SendMailAsync(msg);
 
                 return true;
             }

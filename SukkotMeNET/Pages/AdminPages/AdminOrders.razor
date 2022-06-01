@@ -1,6 +1,8 @@
 ﻿@page "/admin/orders"
+@page "/admin/orders/{userId}"
 @using SukkotMeNET.Interfaces
 @using SukkotMeNET.Models
+@using MongoDB.Bson
 @using SukkotMeNET.Services
 @inject AppStateService _State
 
@@ -37,20 +39,25 @@
                     <tbody>
                         @foreach (var order in _State.AdminState.AllOrders)
                         {
-                            <tr>
-                                <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
-                                    @order.CreatedAt.ToString("mm/dd/yyyy hh:mm")
-                                </th>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                    @_State.AdminState.AllUsers.FirstOrDefault(u => u.Id == order.UserId)
-                                </td>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                    @string.Format($"{order.Items.Count():D2}")
-                                </td>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                    <i class="fa fa-external-link"></i>
-                                </td>
-                            </tr>
+                            @if (string.IsNullOrEmpty(userId) || order.UserId == userId)
+                            {
+                                <tr>
+                                    <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
+                                        @order.CreatedAt
+                                    </th>
+                                    <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                        @_State.AdminState.AllUsers.FirstOrDefault(u => u.Id == order.UserId)
+                                    </td>
+                                    <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                        @string.Format($"{order.Items.Count():D2}")
+                                    </td>
+                                    <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                        <NavLink href=@string.Format($"/admin/order/{order.Id}")>
+                                            <i class="fa fa-external-link"></i>
+                                        </NavLink>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
 
@@ -61,5 +68,5 @@
 </section>
 
 @code {
-
+    [Parameter] public string userId { get; set; }
 }

@@ -27,7 +27,7 @@ namespace SukkotMeNET.Models
         [BsonElement("isDone")]
         public bool IsDone { get; set; }
 
-        [BsonDateTimeOptions]
+        [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; }
     }
 }

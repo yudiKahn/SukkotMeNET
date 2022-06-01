@@ -21,9 +21,9 @@ namespace SukkotMeNET
 
             builder.Services.Configure<MongodbConfig>(builder.Configuration.GetSection(nameof(MongodbConfig)));
 
-            var emailConfig = builder.Configuration.GetSection(nameof(EmailConfig));
-            builder.Services.Configure<EmailConfig>(emailConfig);
-            builder.Services.AddSingleton(emailConfig.Get<EmailConfig>());
+            var emailConfig = new EmailConfig();
+            builder.Configuration.GetSection(nameof(EmailConfig)).Bind(emailConfig);
+            builder.Services.AddSingleton(emailConfig);
 
             builder.Services.AddSingleton<IAuthorizationHandler, AuthorizationHandlerService>();
             builder.Services.AddAuthorization(config =>
@@ -35,9 +35,10 @@ namespace SukkotMeNET
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
             builder.Services.AddSingleton<AppStateService>();
+            builder.Services.AddSingleton<EmailService>();
             builder.Services.AddHostedService<MainService>();
             builder.Services.AddSingleton<MainService>();
-            builder.Services.AddSingleton<EmailService>();
+
 
             var app = builder.Build();
 
