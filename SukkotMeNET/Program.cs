@@ -19,7 +19,11 @@ namespace SukkotMeNET
 
             builder.Configuration.AddJsonFile("Configuration/appsettings.json");
 
+            Console.WriteLine("Trying to get configuraion");
             builder.Services.Configure<MongodbConfig>(builder.Configuration.GetSection(nameof(MongodbConfig)));
+            Console.WriteLine("Got db config");
+
+
 
             var emailConfig = new EmailConfig();
             builder.Configuration.GetSection(nameof(EmailConfig)).Bind(emailConfig);
