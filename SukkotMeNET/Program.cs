@@ -21,13 +21,11 @@ namespace SukkotMeNET
 
             Console.WriteLine("Trying to get configuraion");
             builder.Services.Configure<MongodbConfig>(builder.Configuration.GetSection(nameof(MongodbConfig)));
-            Console.WriteLine("Got db config");
-
-
 
             var emailConfig = new EmailConfig();
             builder.Configuration.GetSection(nameof(EmailConfig)).Bind(emailConfig);
             builder.Services.AddSingleton(emailConfig);
+            Console.WriteLine($"Got config, address: {emailConfig.Address}");
 
             builder.Services.AddSingleton<IAuthorizationHandler, AuthorizationHandlerService>();
             builder.Services.AddAuthorization(config =>
