@@ -29,5 +29,7 @@ namespace SukkotMeNET.Models
 
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; }
+        [BsonElement("CreatedAt")]
+        public DateTime createdAt { get; set; }
     }
 }

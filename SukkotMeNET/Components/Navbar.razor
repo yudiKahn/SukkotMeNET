@@ -151,10 +151,10 @@
     [Inject]
     IJSRuntime _Js { get; set; }
 
-    private void Logout()
+    private async void Logout()
     {
         MainService.Logout();
-        _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
+        await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
         Navigation.NavigateTo("/login");
     }
 

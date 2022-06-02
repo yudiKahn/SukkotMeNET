@@ -27,8 +27,17 @@ namespace SukkotMeNET.Models
         [BsonElement("option")]
         public string? Option { get; set; }
 
+        private int _Qty;
+
         [BsonElement("q")]
-        public int Qty { get; set; }
+        public int Qty 
+        {
+            get => _Qty;
+            set
+            {
+                _Qty = value;
+            } 
+        }
 
         [BsonElement("byAdmin")]
         public bool ByAdmin { get; set; }

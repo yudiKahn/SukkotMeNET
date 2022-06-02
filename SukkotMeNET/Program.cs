@@ -39,7 +39,6 @@ namespace SukkotMeNET
             builder.Services.AddHostedService<MainService>();
             builder.Services.AddSingleton<MainService>();
 
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

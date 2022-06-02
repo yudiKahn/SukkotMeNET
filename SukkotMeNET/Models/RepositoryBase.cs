@@ -3,11 +3,11 @@ using System.Linq.Expressions;
 
 namespace SukkotMeNET.Models
 {
-    public class Repository<T>
+    public class RepositoryBase<T>
     {
         readonly IMongoCollection<T> _Collection;
 
-        public Repository(IMongoCollection<T> collection)
+        public RepositoryBase(IMongoCollection<T> collection)
         {
             _Collection = collection;
         }
@@ -39,11 +39,15 @@ namespace SukkotMeNET.Models
             return documents;
         }
 
-        public async Task<T> UpdateFirstAsync(Expression<Func<T, bool>> filter, T newValue)
+        public async Task<T> UpdateFirstAsync(Expression<Func<T, bool>> filter, T newValue, bool writeIfNotFound = true)
         {
             try
             {
-                await _Collection.ReplaceOneAsync<T>(filter, newValue);
+                await _Collection.ReplaceOneAsync<T>(filter, newValue, new ReplaceOptions()
+                {
+                    IsUpsert = writeIfNotFound,
+                    
+                });
                 return newValue;
             }
             catch

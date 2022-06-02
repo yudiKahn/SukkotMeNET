@@ -28,10 +28,10 @@
                                 User
                             </th>
                             <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Items
+                                View
                             </th>
                             <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                View
+                                Actions
                             </th>
                         </tr>
                     </thead>
@@ -43,18 +43,24 @@
                             {
                                 <tr>
                                     <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
-                                        @order.CreatedAt
+                                        @order.CreatedAt.ToString("dd MMM yyyy hh:mm")
                                     </th>
                                     <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                         @_State.AdminState.AllUsers.FirstOrDefault(u => u.Id == order.UserId)
                                     </td>
                                     <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                        @string.Format($"{order.Items.Count():D2}")
-                                    </td>
-                                    <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                         <NavLink href=@string.Format($"/admin/order/{order.Id}")>
                                             <i class="fa fa-external-link"></i>
                                         </NavLink>
+                                    </td>
+                                    <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-full">
+                                            Send Invoice
+                                        </button>
+                                        <br/>
+                                        <button class="mt-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-full">
+                                            Payment reminder
+                                        </button>
                                     </td>
                                 </tr>
                             }

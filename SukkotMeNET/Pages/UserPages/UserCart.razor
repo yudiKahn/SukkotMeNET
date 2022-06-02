@@ -3,18 +3,17 @@
 @using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
-@inject AppStateService State
 @inject MainService Service
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
-<div class="w-full bg-white grid place-content-center py-3 flex-grow dark:bg-gray-800">
+<div class="w-full bg-white grid place-content-center py-3 flex-grow dark:bg-gray-800" style="min-height: 80vh;">
     <div class="container">
-        @if (State?.Cart is not null)
+        @if (State?.Cart?.Items?.Any() == true)
         {
             <div class="rounded-lg shadow-lg overflow-hidden ">
                 <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
                     <h3 class="text-2xl leading-8 font-extrabold text-gray-900 sm:text-3xl sm:leading-9">
-                        @string.Format(State.Cart.Items.Count() > 0 ? $"{State?.User?.FirstName}, Here is your cart" : "No items found")
+                        @string.Format($"{State?.User?.FirstName}, Here is your cart" )
                     </h3>
                     <div class="flex items-center mt-8">
                         <h4 class="flex-shrink-0 pr-4 bg-white text-sm leading-5 tracking-wider font-semibold uppercase" style="color:#c6a530;">
@@ -30,7 +29,7 @@
                         <ul class="pl-0">
                             @foreach (var item in State.Cart.Items)
                             {
-                                <li>
+                                <li class="mb-4">
                                     <div class="flex items-start">
                                         <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
                                             <a href="/shop/item/${v._id}" class="text-gray-700 flex-shrink-0">
@@ -46,18 +45,10 @@
                                     </div>
                                     <div class="flex items-start mt-3">
                                         <div class="flex-shrink-0">
-                                            <span @onclick="() => Service.RemoveItemFromCart(item)" class="rounded-full bg-yellow-700 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
-                                                <i class="fas fa-times text-white"></i>
+                                            <span class="rounded-md text-gray-700 leading-6 border border-solid border-gray-400 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
+                                                DELETE
                                             </span>
-                                            <span class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mr-3 cursor-pointer">
-                                                <i class="fas fa-sort-up text-white align-middle"></i>
-                                            </span>
-                                            <span>
-                                                @item.Qty
-                                            </span>
-                                            <span class="rounded-full bg-indigo-400 px-2 py-1 text-xs font-bold mx-3 cursor-pointer">
-                                                <i class="fas fa-sort-down text-white align-text-top"></i>
-                                            </span>
+                                            <input type="number" min="1" @bind="@item.Qty" class="shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                                         </div>
                                     </div>
                                 </li>
@@ -67,19 +58,26 @@
                             <li class="mt-10">
                                 <div class="flex justify-end">
                                     Total: &nbsp;&nbsp;
-                                    <span class="text-lg text-gray-800 font-bold">$@State.Cart?.Items?.GetTotal().ToString("N2")</span>
+                                    <span class="text-lg text-gray-800 font-bold">$@State.Cart.Items.GetTotal().ToString("N2")</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div>
+                                    <span @onclick="Undo" class="rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
+                                        UNDO
+                                    </span>
+                                    <span @onclick="Save" class="rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
+                                        SAVE
+                                    </span>
                                 </div>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
-                    @if (State.Cart?.Items?.Any() == true)
-                    {
-                        <button @onclick="@Service.CreateOrderFromCart" class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                            Make an order
-                        </button>
-                    }
+                    <button @onclick="@Service.CreateOrderFromCart" class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
+                        Make an order
+                    </button>
                     <NavLink href="/shop" class="mt-6 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-gray-400 text-lg leading-6 font-medium rounded-md text-gray-700">
                         Go Shopping
                     </NavLink>
@@ -104,4 +102,15 @@
 
 
 @code {
+    [Inject] public AppStateService State { get; set; }
+
+    private void Undo()
+    {
+        
+    }
+
+    private void Save()
+    {
+
+    }
 }

@@ -1,6 +1,6 @@
 ﻿@page "/admin"
 @using SukkotMeNET.Components
-@inject SukkotMeNET.Services.MainService Service
+@using SukkotMeNET.Services
 @attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
 
 <section class="py-20 bg-white dark:bg-gray-800">
@@ -17,21 +17,24 @@
             <Card FaIcon="fa-chart-bar" Title="All Orders" Link="/admin/orders"
                   Text="Each of our plan will provide you and your team with certifications" />
 
-            <Card FaIcon="fa-envelope" Title="Email" Link="/admin/email"
+            <Card FaIcon="fa-shopping-basket" Title="Items" Link="/admin/items"
                   Text="Each of our plan will provide you and your team with certifications" />
 
-            <Card FaIcon="fa-shopping-basket" Title="Todo" Link="/admin/items"
-                  Text="Each of our plan will provide you and your team with certifications" />
-
-            <Card FaIcon="fa-wrench" Title="All Users" Link="/admin/todo"
-                  Text="Each of our plan will provide you and your team with certifications" />
-
-            <Card FaIcon="fa-sign-out-alt" Title="Logout" Onclick="@Service.Logout"
+            <Card FaIcon="fa-sign-out-alt" Title="Logout" Onclick="@Logout"
                   Text="Each of our plan will provide you and your team with certifications" />
         </div>
     </div>
 </section>
 
 @code {
+    [Inject] public MainService Service { get; set; }    
+    [Inject] public NavigationManager Navigation { get; set; }
+    [Inject] public IJSRuntime Js { get; set; }
 
+    private async void Logout()
+    {
+        await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
+        Service.Logout();
+        Navigation.NavigateTo("/login");
+    }
 }

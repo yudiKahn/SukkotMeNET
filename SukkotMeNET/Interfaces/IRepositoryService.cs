@@ -4,9 +4,9 @@ namespace SukkotMeNET.Interfaces
 {
     public interface IRepositoryService
     {
-        Repository<User> UsersRepository { get; }
-        Repository<Item> ItemsRepository { get; }
-        Repository<Cart> CartsRepository { get; }
-        Repository<Order> OrdersRepository { get; }
+        RepositoryBase<User> UsersRepository { get; }
+        RepositoryBase<Item> ItemsRepository { get; }
+        RepositoryBase<Cart> CartsRepository { get; }
+        RepositoryBase<Order> OrdersRepository { get; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using SukkotMeNET.Extensions;
+﻿using MongoDB.Bson;
+using SukkotMeNET.Extensions;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
 
@@ -8,24 +9,24 @@ namespace SukkotMeNET.Services
     {
         readonly AppStateService _AppState;
         readonly IRepositoryService _Repository;
+        private readonly EmailService _EmailService;
 
         public event EventHandler StateHasChanged;
 
         public MainService(
             AppStateService appState,
-            IRepositoryService repositoryService)
+            IRepositoryService repositoryService,
+            EmailService emailService)
         {
             _AppState = appState;
             _Repository = repositoryService;
+            _EmailService = emailService;
         }
 
-        public async void AddItemToCart(OrderItem item) 
+        public async void AddItemToCart(OrderItem item)
         {
             try
             {
-                if (_AppState.Cart?.Items == null)
-                    _AppState.Cart = new Cart();
-
                 if (item == null)
                     throw new Exception("Unknown error (0x1), Please contact developer");
                 if (item.Qty < 1)
@@ -69,19 +70,23 @@ namespace SukkotMeNET.Services
 
         public async Task<bool> LoginUserFromLocalStorage(string token)
         {
-            var user = await _Repository.UsersRepository.ReadFirstAsync(u => u.Id == token);
-            if(user != null)
+            if (_AppState.User is null)
             {
-                _AppState.User = user;
-                StateHasChanged?.Invoke(this, EventArgs.Empty);
+                var user = await _Repository.UsersRepository.ReadFirstAsync(u => u.Id == token);
+                if (user != null)
+                {
+                    _AppState.User = user;
+                    StateHasChanged?.Invoke(this, EventArgs.Empty);
 
-                InitUserCart();
-                InitUserOrders();
-                if (user.IsAdmin)
-                    InitAdminState();
-                return true;
+                    InitUserCart();
+                    InitUserOrders();
+                    if (user.IsAdmin)
+                        InitAdminState();
+                    return true;
+                }
+                return false;
             }
-            return false;
+            return true;
         }
 
         public void Logout()
@@ -126,6 +131,9 @@ namespace SukkotMeNET.Services
 
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
                 _AppState.Cart = null;
+
+                var invoice = InvoiceHelper.GetInvoiceHTML(order, _AppState.User);
+                await _EmailService.SendAsync(_AppState.User.Email, "Order Invoice", invoice);
                 return true;
             }
             catch
@@ -141,7 +149,18 @@ namespace SukkotMeNET.Services
 
             var userId = _AppState.User.Id;
             var cart = await _Repository.CartsRepository.ReadFirstAsync(c => c.UserId == userId);
-            _AppState.Cart = cart;
+            if(cart != null)
+            {
+                _AppState.Cart = cart;
+            }
+            else
+            {
+                _AppState.Cart = new Cart();
+                _AppState.Cart.Id = ObjectId.GenerateNewId().ToString();
+                _AppState.Cart.UserId = _AppState.User.Id;
+            }
+
+            StateHasChanged.Invoke(this, EventArgs.Empty);
         }
 
         private IEnumerable<OrderItem> SaleItemsToAdd(OrderItem newItem)
@@ -176,6 +195,8 @@ namespace SukkotMeNET.Services
             var userId = _AppState.User.Id;
             var orders = await _Repository.OrdersRepository.ReadAllAsync(o => o.UserId == userId);
             _AppState.UserOrders = orders?.ToList();
+
+            StateHasChanged.Invoke(this, EventArgs.Empty);
         }
 
         private async void InitAdminState()
@@ -185,6 +206,8 @@ namespace SukkotMeNET.Services
 
             var users = await _Repository.UsersRepository.ReadAllAsync();
             _AppState.AdminState.AllUsers = users.ToList();
+
+            StateHasChanged.Invoke(this, EventArgs.Empty);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
