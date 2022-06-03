@@ -51,6 +51,7 @@ namespace SukkotMeNET.Services
             string password = user.Password;
 
             var users = await _Repository.UsersRepository.ReadAllAsync(u => u.Email == email);
+            Console.WriteLine($"User login: {users.First()}");
             var user1 = users.FirstOrDefault(u => BCrypt.Net.BCrypt.Verify(password, u?.Password));
 
             _AppState.User = user1;
