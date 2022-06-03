@@ -20,8 +20,9 @@ namespace SukkotMeNET.Models
 
         public async Task<IEnumerable<T?>> ReadAllAsync(Expression<Func<T, bool>> predicate)
         {
-            var res = _Collection.Find(predicate);
+            var res = await _Collection.FindAsync(predicate);
             var items = await res.ToListAsync();
+            Console.WriteLine($"Found items: {items.Count}");
             return items;
         }
 
