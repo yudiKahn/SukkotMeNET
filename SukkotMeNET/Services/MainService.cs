@@ -48,6 +48,7 @@ namespace SukkotMeNET.Services
         public async Task<User?> LoginAsync(User user)
         {
             string email = user.Email;
+            Console.WriteLine($"User try login: {user.Email}");
             string password = user.Password;
 
             var users = await _Repository.UsersRepository.ReadAllAsync(u => u.Email == email);
