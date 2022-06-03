@@ -19,13 +19,21 @@ namespace SukkotMeNET
 
             builder.Configuration.AddJsonFile("Configuration/appsettings.json");
 
-            Console.WriteLine("Trying to get configuraion");
-            builder.Services.Configure<MongodbConfig>(builder.Configuration.GetSection(nameof(MongodbConfig)));
+            try
+            {
+                Console.WriteLine("Trying to get configuraion");
+                builder.Services.Configure<MongodbConfig>(builder.Configuration.GetSection(nameof(MongodbConfig)));
 
-            var emailConfig = new EmailConfig();
-            builder.Configuration.GetSection(nameof(EmailConfig)).Bind(emailConfig);
-            builder.Services.AddSingleton(emailConfig);
-            Console.WriteLine($"Got config, address: {emailConfig.Address}");
+                var emailConfig = new EmailConfig();
+                builder.Configuration.GetSection(nameof(EmailConfig)).Bind(emailConfig);
+                builder.Services.AddSingleton(emailConfig);
+                Console.WriteLine($"Got config, address: {emailConfig.Address}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error in config, {e.Message}");
+                
+            }
 
             builder.Services.AddSingleton<IAuthorizationHandler, AuthorizationHandlerService>();
             builder.Services.AddAuthorization(config =>
