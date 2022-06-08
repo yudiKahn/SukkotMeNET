@@ -30,10 +30,14 @@ namespace SukkotMeNET.Services
                 if (item == null)
                     throw new Exception("Unknown error (0x1), Please contact developer");
                 if (item.Qty < 1)
-                    throw new Exception("Please insert item quantity");
+                    throw new Exception("Quantity cannot be less then one");
 
-
+                if (_AppState.Cart == null)
+                {
+                    await Task.Run(InitUserCart);
+                }
                 var cart = _AppState.Cart;
+
                 cart.Items.AddOrMerge(item);
                 cart.Items.AddOrMergeRange(SaleItemsToAdd(item).ToArray());
 
@@ -48,11 +52,9 @@ namespace SukkotMeNET.Services
         public async Task<User?> LoginAsync(User user)
         {
             string email = user.Email;
-            Console.WriteLine($"User try login: {user.Email}");
             string password = user.Password;
 
             var users = await _Repository.UsersRepository.ReadAllAsync(u => u.Email == email);
-            Console.WriteLine($"User login: {users.First()}");
             var user1 = users.FirstOrDefault(u => BCrypt.Net.BCrypt.Verify(password, u?.Password));
 
             _AppState.User = user1;
@@ -151,7 +153,7 @@ namespace SukkotMeNET.Services
 
             var userId = _AppState.User.Id;
             var cart = await _Repository.CartsRepository.ReadFirstAsync(c => c.UserId == userId);
-            if(cart != null)
+            if (cart != null)
             {
                 _AppState.Cart = cart;
             }
@@ -216,6 +218,7 @@ namespace SukkotMeNET.Services
         {
             //init shop items
             _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync() ?? Array.Empty<Item>();
+            Console.WriteLine($"items: {_AppState.ShopItems.Count()}");
         }
     }
 }

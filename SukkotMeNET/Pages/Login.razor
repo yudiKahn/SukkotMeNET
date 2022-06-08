@@ -52,7 +52,7 @@
         try
         {
             var _user = context.Model as User;
-            if (_user.Email.IsNullOrBlank() || _user.Password.IsNullOrBlank())
+            if (string.IsNullOrEmpty(_user.Email) || string.IsNullOrEmpty(_user.Password))
                 throw new Exception("Please fill all required fields");
 
             var loggedUser = await _Service.LoginAsync(_user);

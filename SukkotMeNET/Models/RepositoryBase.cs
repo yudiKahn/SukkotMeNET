@@ -22,7 +22,6 @@ namespace SukkotMeNET.Models
         {
             var res = await _Collection.FindAsync(predicate);
             var items = await res.ToListAsync();
-            Console.WriteLine($"Found items: {items.Count}");
             return items;
         }
 
