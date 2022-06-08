@@ -39,9 +39,11 @@ namespace SukkotMeNET.Services
                 var cart = _AppState.Cart;
 
                 cart.Items.AddOrMerge(item);
-                cart.Items.AddOrMergeRange(SaleItemsToAdd(item).ToArray());
 
                 await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, cart);
+                
+                _AppState.Cart = cart;
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception e)
             {

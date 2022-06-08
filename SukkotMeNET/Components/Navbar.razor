@@ -37,13 +37,6 @@
                 <NavLink href="/shop" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
                     <span class="block">Shop</span>
                 </NavLink>
-                <AuthorizeView Policy="@Constants.Policies.IsUser">
-                    <Authorized>
-                        <NavLink href="/user" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                            <span class="block">@string.Concat(AppState?.User?.FirstName, "'s Place")</span>
-                        </NavLink>
-                    </Authorized>
-                </AuthorizeView>
                 <AuthorizeView Policy="@Constants.Policies.IsAdmin">
                     <Authorized>
                         <NavLink href="/admin" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
@@ -55,9 +48,18 @@
             <div class="hidden lg:flex items-center justify-end lg:flex-1 lg:w-0">
                 <AuthorizeView Policy="@Constants.Policies.IsUser">
                     <Authorized>
-                        <span @onclick="@Logout" class="cursor-pointer inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-gray-600 dark:text-gray-200 whitespace-no-wrap bg-white  dark:bg-gray-900 border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:shadow-none">
-                            Logout
-                        </span>
+                        <div>
+                            <NavLink href="/user/cart" class="relative inline-flex">
+                                <i class="fa fa-shopping-cart text-gray-600" style="font-size:25px;"></i>
+                                <span class="absolute top-6 right-7 px-1 -mt-3 -mr-3 text-xs text-white bg-green-600 rounded-full">
+                                    @((AppState?.Cart?.Items?.Count ?? -1) + 1)
+                                </span>
+                            </NavLink>
+                            &nbsp;
+                            <NavLink href="/user">
+                                <i class="fa fa-user text-gray-600" style="font-size:25px;"></i>
+                            </NavLink>
+                        </div>
                     </Authorized>
                     <NotAuthorized>
                         <span class="inline-flex rounded-md shadow-sm">
@@ -107,13 +109,6 @@
                     <NavLink href="/shop" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
                         <span class="block">Shop</span>
                     </NavLink>
-                    <AuthorizeView Policy="@Constants.Policies.IsUser">
-                        <Authorized>
-                            <NavLink href="/user" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                                <span class="block">@string.Concat(AppState.User.FirstName, "'s Place")</span>
-                            </NavLink>
-                        </Authorized>
-                    </AuthorizeView>
                     <AuthorizeView Policy="@Constants.Policies.IsAdmin">
                         <Authorized>
                             <NavLink href="/admin" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
@@ -125,9 +120,18 @@
                 <div>
                     <AuthorizeView Policy="@Constants.Policies.IsUser">
                         <Authorized>
-                            <span @onclick="@Logout" class="cursor-pointer inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-gray-600 dark:text-gray-200 whitespace-no-wrap bg-white  dark:bg-gray-900 border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:shadow-none">
-                                Logout
-                            </span>
+                            <div>
+                                <NavLink href="/user/cart" class="relative inline-flex">
+                                    <i class="fa fa-shopping-cart text-gray-600" style="font-size:25px;"></i>
+                                    <span class="absolute top-6 right-7 px-1 -mt-3 -mr-3 text-xs text-white bg-green-600 rounded-full">
+                                        @((AppState?.Cart?.Items?.Count ?? -1) + 1)
+                                    </span>
+                                </NavLink>
+                                &nbsp;
+                                <NavLink href="/user">
+                                    <i class="fa fa-user text-gray-600" style="font-size:25px;"></i>
+                                </NavLink>
+                            </div>
                         </Authorized>
                         <NotAuthorized>
                             <span class="inline-flex rounded-md shadow-sm">
@@ -145,18 +149,7 @@
 
 @code {
     [Inject]
-    NavigationManager Navigation { get; set; }
-    [Inject]
     MainService MainService { get; set; }
-    [Inject]
-    IJSRuntime _Js { get; set; }
-
-    private async void Logout()
-    {
-        MainService.Logout();
-        await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
-        Navigation.NavigateTo("/login");
-    }
 
     bool IsOpen { get; set; }
     string OpenNavbarclass

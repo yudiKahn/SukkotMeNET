@@ -34,6 +34,12 @@
                                         <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
                                             <a href="/shop/item/${v._id}" class="text-gray-700 flex-shrink-0">
                                                 @item.Name <small>@item.PriceType @item.Option</small>
+                                                @if (item.Id == Constants.General.IsraeliSetItemId)
+                                                {
+                                                    <span class="px-2 py-1 ml-3 text-xs font-medium text-white bg-green-500 rounded-full">
+                                                        Free 20% extra (@((int)(0.2 * item.Qty)))
+                                                    </span>
+                                                }
                                             </a>
                                             <div class="flex-shrink-0 mt-1 md:mt-0">
                                                 <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
@@ -106,7 +112,7 @@
 
     private void Undo()
     {
-        
+
     }
 
     private void Save()
