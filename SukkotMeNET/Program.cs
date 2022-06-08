@@ -21,7 +21,6 @@ namespace SukkotMeNET
 
             try
             {
-                Console.WriteLine("Trying to get configuraion");
                 var dbConfig = new MongodbConfig();
                 builder.Configuration.GetSection(nameof(MongodbConfig)).Bind(dbConfig);
                 builder.Services.AddSingleton(dbConfig);
@@ -29,7 +28,6 @@ namespace SukkotMeNET
                 var emailConfig = new EmailConfig();
                 builder.Configuration.GetSection(nameof(EmailConfig)).Bind(emailConfig);
                 builder.Services.AddSingleton(emailConfig);
-                Console.WriteLine($"Got config, address: {emailConfig.Address}");
             }
             catch (Exception e)
             {

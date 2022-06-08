@@ -15,6 +15,8 @@ namespace SukkotMeNET.Services
 
         public RepositoryService(MongodbConfig dbConfig)
         {
+            Console.WriteLine($"connectionStr: {dbConfig.ConnectionString}");
+
             var client = new MongoClient(dbConfig.ConnectionString);
             var db = client.GetDatabase(dbConfig.DatabaseName);
 
