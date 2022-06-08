@@ -17,7 +17,7 @@ namespace SukkotMeNET
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
 
-            builder.Configuration.AddJsonFile("Configuration/appsettings.json");
+            builder.Configuration.AddJsonFile("Configuration/appsettings.json").AddEnvironmentVariables();
 
             try
             {
