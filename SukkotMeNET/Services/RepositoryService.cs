@@ -13,19 +13,18 @@ namespace SukkotMeNET.Services
         public RepositoryBase<Cart> CartsRepository { get; private set; }
         public RepositoryBase<Order> OrdersRepository { get; private set; }
 
-        public RepositoryService(
-            IOptions<MongodbConfig> dbConfig)
+        public RepositoryService(MongodbConfig dbConfig)
         {
-            var client = new MongoClient(dbConfig.Value.ConnectionString);
-            var db = client.GetDatabase(dbConfig.Value.DatabaseName);
+            var client = new MongoClient(dbConfig.ConnectionString);
+            var db = client.GetDatabase(dbConfig.DatabaseName);
 
-            UsersRepository = new UsersRepository(db.GetCollection<User>(dbConfig.Value.Collections.Users)); 
+            UsersRepository = new UsersRepository(db.GetCollection<User>(dbConfig.Collections.Users)); 
             
-            ItemsRepository = new ItemsRepository(db.GetCollection<Item>(dbConfig.Value.Collections.Items));
+            ItemsRepository = new ItemsRepository(db.GetCollection<Item>(dbConfig.Collections.Items));
 
-            CartsRepository = new CartsRepository(db.GetCollection<Cart>(dbConfig.Value.Collections.Carts)); 
+            CartsRepository = new CartsRepository(db.GetCollection<Cart>(dbConfig.Collections.Carts)); 
 
-            OrdersRepository = new OrdersRepository(db.GetCollection<Order>(dbConfig.Value.Collections.Orders));
+            OrdersRepository = new OrdersRepository(db.GetCollection<Order>(dbConfig.Collections.Orders));
         }
     }
 }
