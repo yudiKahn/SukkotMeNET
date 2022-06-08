@@ -17,23 +17,13 @@ namespace SukkotMeNET
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
 
-            builder.Configuration.AddJsonFile("Configuration/appsettings.json").AddEnvironmentVariables();
+            builder.Configuration.AddJsonFile("Configuration/appsettings.json")
+                .AddEnvironmentVariables();
 
-            try
-            {
-                var dbConfig = new MongodbConfig();
-                builder.Configuration.GetSection(nameof(MongodbConfig)).Bind(dbConfig);
-                builder.Services.AddSingleton(dbConfig);
+            var appConfig = new ApplicationConfiguration();
+            builder.Configuration.Bind(appConfig);
+            builder.Services.AddSingleton(appConfig);
 
-                var emailConfig = new EmailConfig();
-                builder.Configuration.GetSection(nameof(EmailConfig)).Bind(emailConfig);
-                builder.Services.AddSingleton(emailConfig);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"Error in config, {e.Message}");
-                
-            }
 
             builder.Services.AddSingleton<IAuthorizationHandler, AuthorizationHandlerService>();
             builder.Services.AddAuthorization(config =>

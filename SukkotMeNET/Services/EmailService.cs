@@ -6,10 +6,10 @@ namespace SukkotMeNET.Services
 {
     public class EmailService
     {
-        readonly EmailConfig _EmailConfig;
-        public EmailService(EmailConfig emailConfig)
+        readonly ApplicationConfiguration _AppConfig;
+        public EmailService(ApplicationConfiguration emailConfig)
         {
-            _EmailConfig = emailConfig;
+            _AppConfig = emailConfig;
         }
 
         public async Task<bool> SendAsync(string to, string subject, string body)
@@ -18,17 +18,17 @@ namespace SukkotMeNET.Services
             {
                 var smtp = new SmtpClient
                 {
-                    Host = _EmailConfig.Host,
-                    Port = _EmailConfig.Port,
+                    Host = _AppConfig.SmtpHost,
+                    Port = _AppConfig.SmtpPort,
                     EnableSsl = true,
                     DeliveryMethod = SmtpDeliveryMethod.Network,
-                    Credentials = new NetworkCredential(_EmailConfig.Address, _EmailConfig.Password)
+                    Credentials = new NetworkCredential(_AppConfig.SmtpAddress, _AppConfig.SmtpPassword)
                 };
 
                 var msg = new MailMessage
                 {
-                    From = new MailAddress(_EmailConfig.Address),
-                    Sender = new MailAddress(_EmailConfig.Address),
+                    From = new MailAddress(_AppConfig.SmtpAddress),
+                    Sender = new MailAddress(_AppConfig.SmtpAddress),
                     Subject = subject,
                     IsBodyHtml = true,
                     Body = body
