@@ -27,6 +27,16 @@
                     <div class="mt-8">
 
                         <ul class="pl-0">
+                            <li class="mb-5">
+                                <div>
+                                    <button type="button" @onclick="() => CanEditQty = !CanEditQty" class="rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
+                                        @(CanEditQty ? "STOP EDIT" : "EDIT QUANTITY")
+                                    </button>
+                                    <button type="button" disabled="@(!CanEditQty)" @onclick="Service.SaveCurrentCart" class=@string.Concat("rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer ", CanEditQty ? "":"opacity-50")>
+                                        SAVE
+                                    </button>
+                                </div>
+                            </li>
                             @foreach (var item in State.Cart.Items)
                             {
                                 <li class="mb-4">
@@ -36,7 +46,7 @@
                                                 @item.Name <small>@item.PriceType @item.Option</small>
                                                 @if (item.Id == Constants.General.IsraeliSetItemId)
                                                 {
-                                                    <span class="px-2 py-1 ml-3 text-xs font-medium text-white bg-green-500 rounded-full">
+                                                    <span class="px-2 py-1 ml-3 text-xs font-medium text-white bg-green-700 rounded-full">
                                                         Free 20% extra (@((int)(0.2 * item.Qty)))
                                                     </span>
                                                 }
@@ -44,17 +54,17 @@
                                             <div class="flex-shrink-0 mt-1 md:mt-0">
                                                 <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
                                                 <span class="text-lg text-gray-800 font-bold">
-                                                    $@(item.Qty * item.Price)
+                                                    $@((item.Qty * item.Price).ToString("N1"))
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="flex items-start mt-3">
                                         <div class="flex-shrink-0">
-                                            <span class="rounded-md text-gray-700 leading-6 border border-solid border-gray-400 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
+                                            <span @onclick="() => Delete(item)" class="rounded-md text-gray-700 leading-6 border border-solid border-gray-400 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
                                                 DELETE
                                             </span>
-                                            <input type="number" min="1" @bind="@item.Qty" class="shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                            <input type="number" disabled="@(!CanEditQty)" min="1" @bind="@item.Qty" class="shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                                         </div>
                                     </div>
                                 </li>
@@ -65,16 +75,6 @@
                                 <div class="flex justify-end">
                                     Total: &nbsp;&nbsp;
                                     <span class="text-lg text-gray-800 font-bold">$@State.Cart.Items.GetTotal().ToString("N2")</span>
-                                </div>
-                            </li>
-                            <li>
-                                <div>
-                                    <span @onclick="Undo" class="rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
-                                        UNDO
-                                    </span>
-                                    <span @onclick="Save" class="rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
-                                        SAVE
-                                    </span>
                                 </div>
                             </li>
                         </ul>
@@ -109,14 +109,20 @@
 
 @code {
     [Inject] public AppStateService State { get; set; }
+    [Inject] IJSRuntime _Js { get; set; }
 
-    private void Undo()
+    public bool CanEditQty { get; set; } = false;
+
+    private async void Delete(OrderItem item)
     {
-
+        if (await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"To delete item?"))
+        {
+            Service.RemoveItemFromCart(item);
+        }
     }
 
-    private void Save()
+    protected override void OnInitialized()
     {
-
+        Service.StateHasChanged += (e, s) => InvokeAsync(this.StateHasChanged);
     }
 }

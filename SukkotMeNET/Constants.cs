@@ -15,6 +15,7 @@ namespace SukkotMeNET
             public const string LocalStorageSet = "localStorage.setItem";
             public const string LocalStorageRemove = "localStorage.removeItem";
             public const string LocalStorageGet = "localStorage.getItem";
+            public const string Confirm = "confirm";
         }
 
         public class General

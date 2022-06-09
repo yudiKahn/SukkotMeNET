@@ -52,12 +52,12 @@
                             <NavLink href="/user/cart" class="relative inline-flex">
                                 <i class="fa fa-shopping-cart text-gray-600" style="font-size:25px;"></i>
                                 <span class="absolute top-6 right-7 px-1 -mt-3 -mr-3 text-xs text-white bg-green-600 rounded-full">
-                                    @((AppState?.Cart?.Items?.Count ?? -1) + 1)
+                                    @(AppState?.Cart?.Items?.Count ?? 0)
                                 </span>
                             </NavLink>
                             &nbsp;
                             <NavLink href="/user">
-                                <i class="fa fa-user text-gray-600" style="font-size:25px;"></i>
+                                <i class="fa fa-user-o text-gray-600" style="font-size:25px;"></i>
                             </NavLink>
                         </div>
                     </Authorized>
@@ -124,12 +124,12 @@
                                 <NavLink href="/user/cart" class="relative inline-flex">
                                     <i class="fa fa-shopping-cart text-gray-600" style="font-size:25px;"></i>
                                     <span class="absolute top-6 right-7 px-1 -mt-3 -mr-3 text-xs text-white bg-green-600 rounded-full">
-                                        @((AppState?.Cart?.Items?.Count ?? -1) + 1)
+                                        @(AppState?.Cart?.Items?.Count ?? 0)
                                     </span>
                                 </NavLink>
                                 &nbsp;
                                 <NavLink href="/user">
-                                    <i class="fa fa-user text-gray-600" style="font-size:25px;"></i>
+                                    <i class="fa fa-user-o text-gray-600" style="font-size:25px;"></i>
                                 </NavLink>
                             </div>
                         </Authorized>

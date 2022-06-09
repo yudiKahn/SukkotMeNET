@@ -23,6 +23,7 @@ namespace SukkotMeNET.Services
             _EmailService = emailService;
         }
 
+        //Cart
         public async void AddItemToCart(OrderItem item)
         {
             try
@@ -51,6 +52,21 @@ namespace SukkotMeNET.Services
             }
         }
 
+        public async void RemoveItemFromCart(OrderItem item)
+        {
+            _AppState.Cart.Items.Remove(item);
+            await _Repository.CartsRepository.UpdateFirstAsync(c => c.Id == _AppState.Cart.Id, _AppState.Cart);
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public async void SaveCurrentCart()
+        {
+            if (_AppState.Cart == null || _AppState.User == null)
+                return;
+            await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart);
+        }
+
+        //Login
         public async Task<User?> LoginAsync(User user)
         {
             string email = user.Email;
@@ -102,6 +118,7 @@ namespace SukkotMeNET.Services
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        //Alerts
         public void AddAlert(Alert alert)
         {
             _AppState.Alerts.Add(alert);
@@ -115,13 +132,7 @@ namespace SukkotMeNET.Services
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public async void RemoveItemFromCart(OrderItem item)
-        {
-            _AppState.Cart.Items.Remove(item);
-            await _Repository.CartsRepository.UpdateFirstAsync(c => c.Id == _AppState.Cart.Id, _AppState.Cart);
-
-        }
-
+        //Order
         public async Task<bool> CreateOrderFromCart()
         {
             if (_AppState?.Cart is null || _AppState.User is null)
@@ -129,10 +140,12 @@ namespace SukkotMeNET.Services
 
             try
             {
-                var order = new Order();
-                order.Items = _AppState.Cart.Items;
-                order.UserId = _AppState.User.Id;
-                order.CreatedAt = DateTime.Now;
+                var order = new Order
+                {
+                    Items = _AppState.Cart.Items.GetWithSaleItems(),
+                    UserId = _AppState.User.Id,
+                    CreatedAt = DateTime.Now
+                };
                 await _Repository.OrdersRepository.WriteAsync(order);
 
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
@@ -147,6 +160,7 @@ namespace SukkotMeNET.Services
                 return false;
             }
         }
+
 
         private async void InitUserCart()
         {
@@ -167,30 +181,6 @@ namespace SukkotMeNET.Services
             }
 
             StateHasChanged.Invoke(this, EventArgs.Empty);
-        }
-
-        private IEnumerable<OrderItem> SaleItemsToAdd(OrderItem newItem)
-        {
-            List<OrderItem> itemsToAdd = new List<OrderItem>();
-
-            //add 20% extra for israeli sets
-            if (newItem.Id == Constants.General.IsraeliSetItemId)
-            {
-                var qtyToAdd = (int)(0.2 * newItem.Qty);
-                itemsToAdd.Add(new OrderItem()
-                {
-                    Id = newItem.Id,
-                    ByAdmin = true,
-                    Category = newItem.Category,
-                    Name = newItem.Name,
-                    Option = newItem.Option,
-                    Price = 0,
-                    PriceType = newItem.PriceType,
-                    Qty = qtyToAdd
-                });
-            }
-
-            return itemsToAdd;
         }
 
         private async void InitUserOrders()

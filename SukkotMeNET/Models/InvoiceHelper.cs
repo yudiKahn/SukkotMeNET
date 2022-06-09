@@ -19,7 +19,7 @@ namespace SukkotMeNET.Models
                     {"UserName", $"{user.FirstName} {user.LastName}"  },
                     {"UserEmail", user.Email },
                     {"UserPhone", user.PhoneNumber },
-                    {"Total", order.Items.GetTotal().ToString("0.00") },
+                    {"Total", order.Items.GetTotal().ToString("N2") },
                     {"Items", string.Join(' ',order.Items.Select(item => $@"<tr>
                         <td>{item.Name}</td>
                         <td style={'"'}text-align:right;{'"'}>{item.Qty}</td>

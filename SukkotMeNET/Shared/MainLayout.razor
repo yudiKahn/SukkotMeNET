@@ -33,7 +33,7 @@
 
 <Footer />
 
-@code{
+@code {
     protected override void OnInitialized()
     {
         MainService.StateHasChanged += (sender, e) => InvokeAsync(this.StateHasChanged);
