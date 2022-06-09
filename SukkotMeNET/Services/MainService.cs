@@ -9,7 +9,7 @@ namespace SukkotMeNET.Services
     {
         readonly AppStateService _AppState;
         readonly IRepositoryService _Repository;
-        private readonly EmailService _EmailService;
+        readonly EmailService _EmailService;
 
         public event EventHandler StateHasChanged;
 
@@ -153,6 +153,22 @@ namespace SukkotMeNET.Services
 
                 var invoice = InvoiceHelper.GetInvoiceHTML(order, _AppState.User);
                 await _EmailService.SendAsync(_AppState.User.Email, "Order Invoice", invoice);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        //Admin
+        public async Task<bool> SendInvoiceFromAdminAsync(Order order, User user)
+        {
+            try
+            {
+                var html = InvoiceHelper.GetInvoiceHTML(order, user);
+                await _EmailService.SendAsync(user.Email, "Order Invoice", html);
+
                 return true;
             }
             catch

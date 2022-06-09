@@ -43,7 +43,7 @@
                             {
                                 <tr>
                                     <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
-                                        @order.CreatedAt.ToString("dd MMM yyyy hh:mm")
+                                        @(order.CreatedAt == default ? "--" : order.CreatedAt.ToString("dd MMM yyyy hh:mm"))
                                     </th>
                                     <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                         @_State.AdminState.AllUsers.FirstOrDefault(u => u.Id == order.UserId)
@@ -54,7 +54,7 @@
                                         </NavLink>
                                     </td>
                                     <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                        <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-full">
+                                        <button @onclick="() => SendInvoice(order)" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-full">
                                             Send Invoice
                                         </button>
                                         <br/>
@@ -75,4 +75,16 @@
 
 @code {
     [Parameter] public string userId { get; set; }
+    [Inject] IJSRuntime _Js { get; set; }
+    [Inject] MainService Service { get; set; }
+
+    async void SendInvoice(Order order)
+    {
+        var user = _State.AdminState.AllUsers.FirstOrDefault(u => u.Id == order.UserId);
+
+        if (user != null && await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"To send invoice to {user.Email}?"))
+        {
+            var didSend = await Service.SendInvoiceFromAdminAsync(order,user);
+        }
+    }
 }
