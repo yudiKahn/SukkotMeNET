@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using SukkotMeNET.Configuration;
-using SukkotMeNET.Extensions;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
 using SukkotMeNET.Services;
@@ -13,7 +12,6 @@ namespace SukkotMeNET
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddServerSideBlazor();
 
@@ -38,6 +36,7 @@ namespace SukkotMeNET
             builder.Services.AddSingleton<EmailService>();
             builder.Services.AddHostedService<MainService>();
             builder.Services.AddSingleton<MainService>();
+            builder.Services.AddSingleton<InvoiceService>();
 
             var app = builder.Build();
 

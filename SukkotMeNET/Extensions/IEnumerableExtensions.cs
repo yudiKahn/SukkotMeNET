@@ -27,14 +27,14 @@ namespace SukkotMeNET.Extensions
 
         public static List<OrderItem> GetWithSaleItems(this List<OrderItem> items)
         {
-            var itemsToAdd = items;
+            var itemsToAdd = new List<OrderItem>(items);
 
             //add 20% extra for israeli sets
             var israeliSet = itemsToAdd.FirstOrDefault(i => i.Id == Constants.General.IsraeliSetItemId);
             if (israeliSet is not null)
             {
                 var qtyToAdd = (int)(0.2 * israeliSet.Qty);
-                itemsToAdd.Add(new OrderItem()
+                itemsToAdd.AddOrMerge(new OrderItem()
                 {
                     Id = israeliSet.Id,
                     ByAdmin = true,

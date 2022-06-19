@@ -11,7 +11,7 @@
         <div class="flex flex-wrap -mx-4">
             @foreach (var item in _State.ShopItems)
             {
-                <div class="w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4">
+                <div @onclick="() => SelectItem(item)" class="w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4">
                     <div class="c-card block bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden">
                         <div>
                             <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;" src=@item.GetItemIcon() alt="logo"/>
@@ -20,7 +20,7 @@
                             <h5 class="font-bold">@item.Name</h5>
                             <p class="my-1">@item.Prices.GetFriednlyRange('$')</p>
 
-                            <button @onclick="() => SelectItem(item)" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
+                            <button class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
                                 Add To Cart
                             </button>
                         </div>
@@ -42,7 +42,7 @@
                         <div class="relative z-10 h-auto p-8 py-10 overflow-hidden bg-white dark:bg-gray-800 border-b-2 border-gray-300 dark:border-gray-900 rounded-lg shadow-2xl px-7">
                             <EditForm Model="@OrderItem" OnSubmit="@OnSubmit">
                                 <h3 class="mb-6 text-2xl font-medium dark:text-gray-300">
-                                    @SelectedItem.Category - @SelectedItem.Name
+                                    @SelectedItem.Name
                                 </h3>
 
                                 <select @onchange="e => OnPriceSelectChange(Convert.ToInt32(e.Value))"
@@ -111,7 +111,6 @@
         {
             OrderItem.Id = SelectedItem.Id;
             OrderItem.Qty = 1;
-            OrderItem.Category = item.Category;
             OrderItem.Price = SelectedItem.Prices.FirstOrDefault();
             OrderItem.PriceType = SelectedItem.PricesTypes.FirstOrDefault();
             OrderItem.Option = SelectedItem.Options.FirstOrDefault();

@@ -111,66 +111,89 @@
 
 <body>
     <div class="invoice-box">
+        <div style="text-align:right;">ב"ה</div>
         <table>
             <tr class="top">
-                <td colspan="3">
-                    <table>
-                        <tr>
-                            <td>
-                                Invoice: [ OrderId ]<br />
-                                Created: [ Created ]
-                            </td>
-                        </tr>
-                    </table>
+                <td colspan="4">
+                    <div style="text-align:center;">
+                        <b>Yanky Kahn</b> | <b>+18186052066</b> | <b>18253 Topham St Tarazana CA</b>
+                    </div>
                 </td>
             </tr>
 
             <tr class="information">
-                <td colspan="3">
+                <td colspan="4">
                     <table>
                         <tr>
                             <td>
-                                Yanky Kahn.<br />
-                                +18186052066<br />
-                                18253 Topham St Tarazana CA
+                                <b>Customer information:</b><br />
+                                [ UserName ]<br />
+                                [ UserEmail ]<br />
+                                [ UserPhone ]<br />
+                                [ UserAddress ]
                             </td>
                             <td></td>
                             <td style="text-align:right;">
-                                [ UserName ]<br />
-                                [ UserEmail ]<br />
-                                [ UserPhone ]
+                                <br />
+                                Invoice: #[ OrderId ]<br />
+                                Created: [ Created ]<br />
                             </td>
                         </tr>
                     </table>
                 </td>
             </tr>
 
-            <tr class="heading">
-                <td>Payment Method</td>
-
-                <td colspan="2"></td>
-            </tr>
-
-            <tr class="details">
-                <td>Check</td>
-
-                <td colspan="2"></td>
+            <tr>
+                <td colspan="4">
+                    <b>Orderd items:</b>
+                </td>
             </tr>
 
             <tr class="heading">
                 <td>Item</td>
-                <td style="text-align:right;">Qty</td>
-                <td style="text-align:right;width:auto;">Price</td>
+                <td>Qty</td>
+                <td>Price</td>
+                <td style="text-align:right;">Subtotal</td>
             </tr>
 
             [ Items ]
 
             <tr class="total">
-                <td colspan="2"></td>
+                <td colspan="3"></td>
 
                 <td style="text-align:right;">Total: $[ Total ]</td>
             </tr>
+
+            <tr>
+                <td colspan="4">
+                    <b>Sets items:</b>
+                </td>
+            </tr>
+
+            <tr class="heading">
+                <td colspan="3">Item</td>
+                <td>Qty</td>
+            </tr>
+
+            [ SetsItems ]
+
+            <tr class="heading">
+                <td colspan="2">Payment Method</td>
+
+                <td colspan="2"></td>
+            </tr>
+
+            <tr class="details">
+                <td colspan="2">
+                    [ PaymentMethod ]
+                </td>
+
+                <td colspan="2"></td>
+            </tr>
         </table>
+        <div>
+            <b>Thank's for your buisness</b>
+        </div>
     </div>
 </body>
 </html>

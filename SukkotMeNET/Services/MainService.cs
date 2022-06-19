@@ -1,7 +1,9 @@
-﻿using MongoDB.Bson;
+﻿using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
 using SukkotMeNET.Extensions;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
+using SukkotMeNET.Pages;
 
 namespace SukkotMeNET.Services
 {
@@ -10,17 +12,20 @@ namespace SukkotMeNET.Services
         readonly AppStateService _AppState;
         readonly IRepositoryService _Repository;
         readonly EmailService _EmailService;
+        readonly InvoiceService _InvoiceService;
 
         public event EventHandler StateHasChanged;
 
         public MainService(
             AppStateService appState,
             IRepositoryService repositoryService,
-            EmailService emailService)
+            EmailService emailService,
+            InvoiceService invoiceService)
         {
             _AppState = appState;
             _Repository = repositoryService;
             _EmailService = emailService;
+            _InvoiceService = invoiceService;
         }
 
         //Cart
@@ -37,12 +42,18 @@ namespace SukkotMeNET.Services
                 {
                     await Task.Run(InitUserCart);
                 }
-                var cart = _AppState.Cart;
+
+                var cart = new Cart()
+                {
+                    Id = _AppState.Cart.Id,
+                    Items = new List<OrderItem>(_AppState.Cart.Items),
+                    UserId = _AppState.Cart.UserId
+                };
 
                 cart.Items.AddOrMerge(item);
 
                 await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, cart);
-                
+
                 _AppState.Cart = cart;
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
             }
@@ -146,13 +157,14 @@ namespace SukkotMeNET.Services
                     UserId = _AppState.User.Id,
                     CreatedAt = DateTime.Now
                 };
+                var invoice = _InvoiceService.GetInvoiceHtml(order, _AppState.User);
+
+
                 await _Repository.OrdersRepository.WriteAsync(order);
-
-                await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
-                _AppState.Cart = null;
-
-                var invoice = InvoiceHelper.GetInvoiceHTML(order, _AppState.User);
                 await _EmailService.SendAsync(_AppState.User.Email, "Order Invoice", invoice);
+                await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
+
+                _AppState.Cart = new Cart();
                 return true;
             }
             catch
@@ -166,7 +178,7 @@ namespace SukkotMeNET.Services
         {
             try
             {
-                var html = InvoiceHelper.GetInvoiceHTML(order, user);
+                var html = _InvoiceService.GetInvoiceHtml(order, user);
                 await _EmailService.SendAsync(user.Email, "Order Invoice", html);
 
                 return true;
@@ -178,7 +190,7 @@ namespace SukkotMeNET.Services
         }
 
 
-        private async void InitUserCart()
+        async void InitUserCart()
         {
             if (_AppState.User == null)
                 return;
@@ -199,7 +211,7 @@ namespace SukkotMeNET.Services
             StateHasChanged.Invoke(this, EventArgs.Empty);
         }
 
-        private async void InitUserOrders()
+        async void InitUserOrders()
         {
             if (_AppState.User == null)
                 return;
@@ -211,7 +223,7 @@ namespace SukkotMeNET.Services
             StateHasChanged.Invoke(this, EventArgs.Empty);
         }
 
-        private async void InitAdminState()
+        async void InitAdminState()
         {
             var orders = await _Repository.OrdersRepository.ReadAllAsync();
             _AppState.AdminState.AllOrders = orders.ToList();
@@ -226,7 +238,6 @@ namespace SukkotMeNET.Services
         {
             //init shop items
             _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync() ?? Array.Empty<Item>();
-            Console.WriteLine($"items: {_AppState.ShopItems.Count()}");
         }
     }
 }

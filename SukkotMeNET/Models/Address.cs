@@ -20,5 +20,7 @@ namespace SukkotMeNET.Models
         [Required]
         [BsonElement("zip")]
         public int Zip { get; set; }
+
+        public override string ToString() => $"{Zip} {Street} St {City} {State}";
     }
 }

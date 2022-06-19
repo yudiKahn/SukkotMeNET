@@ -21,6 +21,7 @@ namespace SukkotMeNET
         public class General
         {
             public const string IsraeliSetItemId = "6176e416dae028e3337ce552";
+            public const string YaneverSetItemId = "6176e51e654d28089f656e19";
         }
     }
 }

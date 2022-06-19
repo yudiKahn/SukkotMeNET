@@ -13,7 +13,7 @@ namespace SukkotMeNET.Extensions
 
         public static string GetItemIcon(this Item item)
         {
-            var name = $"{item.Name.ToLower()} {item.Category.ToLower()}";
+            var name = $"{item.Name.ToLower()}";
             if (name.Contains("lulav"))
                 return "/images/lulav.png";
             else if (name.Contains("hadas"))
@@ -25,5 +25,30 @@ namespace SukkotMeNET.Extensions
         }
 
         #endregion
+
+        public static OrderItem ToOrderItem(this Item item, int optionIndex, int priceIndex, int qty = 0)
+        {
+            return new OrderItem()
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Option = item.Options.ElementAtOrDefault(optionIndex),
+                Price = item.Prices.ElementAtOrDefault(priceIndex),
+                PriceType = item.PricesTypes.ElementAtOrDefault(priceIndex),
+                Qty = qty,
+            };
+        }
+
+        public static T Clone<T>(this T obj)
+        {
+            T res = (T)Activator.CreateInstance(obj.GetType());
+
+            foreach (var prop in obj.GetType().GetProperties())
+            {
+                prop.SetValue(res, prop.GetValue(obj));
+            }
+
+            return res;
+        }
     }
 }

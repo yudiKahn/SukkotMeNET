@@ -14,8 +14,8 @@ namespace SukkotMeNET.Models
         [BsonElement("name")]
         public string Name { get; set; }
 
-        [BsonElement("category")]
-        public string Category { get; set; }
+        /*[BsonElement("category")]
+        public string Category { get; set; }*/
 
         [BsonElement("prices")]
         public double[] Prices { get; set; }
@@ -25,5 +25,7 @@ namespace SukkotMeNET.Models
 
         [BsonElement("options")]
         public string[] Options { get; set; }
+
+        public override string ToString() => Name;
     }
 }
