@@ -71,13 +71,6 @@
                                 <span class="relative inline-flex w-full">
                                     <input required type="number" min="1" placeholder="Qty" @bind-value="OrderItem.Qty"
                                        class="block w-full px-4 py-3 mb-4 border border-2 border-transparent border-gray-200 rounded-lg focus:ring focus:ring-green-500 focus:outline-none" />
-
-                                    @if (SelectedItem.Id == Constants.General.IsraeliSetItemId)
-                                    {
-                                        <span class="absolute top-0 right-0 px-2 py-1 -mt-3 -mr-3 text-sm font-medium text-white bg-green-500 rounded-full">
-                                            Free 20% extra
-                                        </span>
-                                    }
                                 </span>
 
                                 <div class="block">
@@ -116,19 +109,24 @@
             OrderItem.Option = SelectedItem.Options.FirstOrDefault();
             OrderItem.Name = item.Name;
         }
+
+        StateHasChanged();
     }
 
     OrderItem OrderItem = new OrderItem();
 
     void OnPriceSelectChange(int index)
     {
-        OrderItem.Price = SelectedItem.Prices[index];
-        OrderItem.PriceType = SelectedItem.PricesTypes.ElementAtOrDefault(index);
+        if (SelectedItem != null)
+        {
+            OrderItem.Price = SelectedItem.Prices[index];
+            OrderItem.PriceType = SelectedItem.PricesTypes.ElementAtOrDefault(index);
+        }
     }
 
-    void OnSubmit()
+    async void OnSubmit()
     {
-        MainService.AddItemToCart(OrderItem);
+        _ = await MainService.AddItemToCart(OrderItem);
         SelectItem(null);
     }
 }

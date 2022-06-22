@@ -29,37 +29,34 @@ namespace SukkotMeNET.Services
         }
 
         //Cart
-        public async void AddItemToCart(OrderItem item)
+        public async Task<bool> AddItemToCart(OrderItem item)
         {
             try
             {
-                if (item == null)
-                    throw new Exception("Unknown error (0x1), Please contact developer");
-                if (item.Qty < 1)
-                    throw new Exception("Quantity cannot be less then one");
+                var itemClone = item.Clone();
 
+                if (itemClone == null)
+                    throw new Exception("Unknown error (0x1), Please contact developer");
+                if (itemClone.Qty < 1)
+                    throw new Exception("Quantity cannot be less then one");
+                
                 if (_AppState.Cart == null)
                 {
-                    await Task.Run(InitUserCart);
+                    Console.WriteLine("Cart is null");
+                    _ = await InitUserCart();
                 }
 
-                var cart = new Cart()
-                {
-                    Id = _AppState.Cart.Id,
-                    Items = new List<OrderItem>(_AppState.Cart.Items),
-                    UserId = _AppState.Cart.UserId
-                };
+                _AppState.Cart.Items.AddOrMerge(itemClone);
 
-                cart.Items.AddOrMerge(item);
+                await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart, false);
 
-                await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, cart);
-
-                _AppState.Cart = cart;
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
+                return true;
             }
             catch (Exception e)
             {
                 AddAlert(new Alert("Eroor", e.Message, AlertType.Error));
+                return false;
             }
         }
 
@@ -92,7 +89,7 @@ namespace SukkotMeNET.Services
             {
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
 
-                InitUserCart();
+                Task.Run(InitUserCart).Wait();
                 InitUserOrders();
                 if (user1.IsAdmin)
                     InitAdminState();
@@ -111,7 +108,7 @@ namespace SukkotMeNET.Services
                     _AppState.User = user;
                     StateHasChanged?.Invoke(this, EventArgs.Empty);
 
-                    InitUserCart();
+                    Task.Run(InitUserCart).Wait();
                     InitUserOrders();
                     if (user.IsAdmin)
                         InitAdminState();
@@ -153,7 +150,7 @@ namespace SukkotMeNET.Services
             {
                 var order = new Order
                 {
-                    Items = _AppState.Cart.Items.GetWithSaleItems(),
+                    Items = _AppState.Cart.Items,
                     UserId = _AppState.User.Id,
                     CreatedAt = DateTime.Now
                 };
@@ -190,25 +187,34 @@ namespace SukkotMeNET.Services
         }
 
 
-        async void InitUserCart()
+        async Task<bool> InitUserCart()
         {
             if (_AppState.User == null)
-                return;
+                return false;
 
-            var userId = _AppState.User.Id;
-            var cart = await _Repository.CartsRepository.ReadFirstAsync(c => c.UserId == userId);
-            if (cart != null)
+            try
             {
-                _AppState.Cart = cart;
-            }
-            else
-            {
-                _AppState.Cart = new Cart();
-                _AppState.Cart.Id = ObjectId.GenerateNewId().ToString();
-                _AppState.Cart.UserId = _AppState.User.Id;
-            }
 
-            StateHasChanged.Invoke(this, EventArgs.Empty);
+                var userId = _AppState.User.Id;
+                var cart = await _Repository.CartsRepository.ReadFirstAsync(c => c.UserId == userId);
+                if (cart != null)
+                {
+                    _AppState.Cart = cart;
+                }
+                else
+                {
+                    _AppState.Cart = new Cart();
+                    _AppState.Cart.Id = ObjectId.GenerateNewId().ToString();
+                    _AppState.Cart.UserId = _AppState.User.Id;
+                }
+
+                StateHasChanged.Invoke(this, EventArgs.Empty);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         async void InitUserOrders()

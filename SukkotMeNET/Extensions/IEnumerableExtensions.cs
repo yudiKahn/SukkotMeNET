@@ -25,34 +25,12 @@ namespace SukkotMeNET.Extensions
             return res;
         }
 
-        public static List<OrderItem> GetWithSaleItems(this List<OrderItem> items)
-        {
-            var itemsToAdd = new List<OrderItem>(items);
-
-            //add 20% extra for israeli sets
-            var israeliSet = itemsToAdd.FirstOrDefault(i => i.Id == Constants.General.IsraeliSetItemId);
-            if (israeliSet is not null)
-            {
-                var qtyToAdd = (int)(0.2 * israeliSet.Qty);
-                itemsToAdd.AddOrMerge(new OrderItem()
-                {
-                    Id = israeliSet.Id,
-                    ByAdmin = true,
-                    Category = israeliSet.Category,
-                    Name = israeliSet.Name,
-                    Option = israeliSet.Option,
-                    Price = 0,
-                    PriceType = israeliSet.PriceType,
-                    Qty = qtyToAdd
-                });
-            }
-
-            return itemsToAdd;
-        }
+       
 
         public static void AddOrMerge(this List<OrderItem> items, OrderItem newItem)
         {
-            var existItem = items.FirstOrDefault(i => i.Name == newItem.Name && i.Option == newItem.Option && i.Price == newItem.Price && i.PriceType == newItem.PriceType && i.ByAdmin == newItem.ByAdmin);
+            var existItem = items.FirstOrDefault(i => 
+                i.Name == newItem.Name && i.Option == newItem.Option && Math.Abs(i.Price - newItem.Price) == 0.0 && i.PriceType == newItem.PriceType && i.ByAdmin == newItem.ByAdmin);
             
             if(existItem == null)
             {

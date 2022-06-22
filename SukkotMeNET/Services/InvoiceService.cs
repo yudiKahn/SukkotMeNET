@@ -33,8 +33,9 @@ namespace SukkotMeNET.Services
                 {"Items", string.Join(' ',order.Items.OrderBy(i => i.Name).Select(item =>
                 $@"<tr>
                         <td><input type={'"'}checkbox{'"'}/> {item.Name} <small>{item.PriceType} {item.Option}</small></td>
-                        <td style={'"'}text-align:right;{'"'}>{item.Qty}</td>
-                        <td style={'"'}text-align:right;{'"'}>${item.Price}</td>
+                        <td>{item.Qty}</td>
+                        <td>${item.Price}</td>
+                        <td style={'"'}text-align:right;{'"'}>${item.Qty * item.Price:N2}</td>
                     </tr>"
 
                 )) },
@@ -45,7 +46,10 @@ namespace SukkotMeNET.Services
                         </td>
                         <td>{item.Qty}</td>
                     </tr>")) },
-                {"PaymentMethod", "Check" }
+                {"PaymentMethod", @$"<input type={'"'}checkbox{'"'}/> Check &nbsp; 
+                                    <input type={'"'}checkbox{'"'}/> CashApp &nbsp;
+                                    <input type={'"'}checkbox{'"'}/> PayPal &nbsp;
+                                    <input type={'"'}checkbox{'"'}/> Zell"}
             };
 
             var newHtml = Regex.Replace(html, @"\[(.+?)\]", m => htmlValues[m.Groups[1].Value.Trim()]);
@@ -63,6 +67,8 @@ namespace SukkotMeNET.Services
             //When ordering a set the customer giraeliSetQtyets:
             //esrog, Egyptien lulav, hadas רובו חיים נאה,  aruvos, koishaklach & plastic bag
             //for yanever set over 50$ he gets also hadas כולו חיים נאה
+            //
+            //for each israeli set 20% lulavim extra
             var lulav = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e562654d28089f656e1d");
             var hadas = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e5d3654d28089f656e25");
             var arhava = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e589654d28089f656e21");
@@ -73,12 +79,12 @@ namespace SukkotMeNET.Services
             {
                 res.AddOrMergeRange(new OrderItem[]
                 {
-                    lulav.ToOrderItem(0, lulav.Prices.Length-1, set.Qty),
+                    lulav.ToOrderItem(0, lulav.Prices.Length-1, set.Qty + (set.Id is Constants.General.IsraeliSetItemId ? (int)(set.Qty * 0.2) : 0)),
                     hadas.ToOrderItem(0, hadas.Prices.Length-1, set.Qty),
                     arhava.ToOrderItem(0, 0, set.Qty),
                     koishaklach.ToOrderItem(0, 0, set.Qty),
                     plasticBag.ToOrderItem(0, 0, set.Qty),
-                    new OrderItem()
+                    new()
                     {
                         Id = set.Id,
                         Name = set.Name.Replace("set", "Esrog", StringComparison.OrdinalIgnoreCase),

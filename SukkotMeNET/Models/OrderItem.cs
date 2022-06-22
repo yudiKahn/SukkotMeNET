@@ -41,5 +41,7 @@ namespace SukkotMeNET.Models
 
         [BsonElement("byAdmin")]
         public bool ByAdmin { get; set; }
+
+        public override string ToString() => $"{Name} {PriceType} {Option}";
     }
 }

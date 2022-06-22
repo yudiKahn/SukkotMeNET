@@ -6,7 +6,7 @@ namespace SukkotMeNET.Services
     public class AppStateService
     {
         public User? User { get; set; }
-
+        
         public Cart? Cart { get; set; }
 
         public IEnumerable<Item> ShopItems { get; set; }
