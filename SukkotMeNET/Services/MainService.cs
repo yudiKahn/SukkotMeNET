@@ -150,6 +150,7 @@ namespace SukkotMeNET.Services
             {
                 var order = new Order
                 {
+                    Id = ObjectId.GenerateNewId().ToString(),
                     Items = _AppState.Cart.Items,
                     UserId = _AppState.User.Id,
                     CreatedAt = DateTime.Now

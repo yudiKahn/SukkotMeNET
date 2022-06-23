@@ -23,7 +23,8 @@ namespace SukkotMeNET.Services
 
             Dictionary<string, string> htmlValues = new()
             {
-                {"OrderId", order.Id },
+                {"OrderId", order.Id[..4] },
+                {"OrderIdFull", order.Id },
                 {"Created", order.CreatedAt.ToString("MMMM dd yyyy hh:mm") },
                 {"UserName", $"{user.FirstName} {user.LastName}"  },
                 {"UserEmail", user.Email },
@@ -39,12 +40,12 @@ namespace SukkotMeNET.Services
                     </tr>"
 
                 )) },
-                {"SetsItems", string.Join(' ', GetItemsIncludedInSets(order.Items).OrderBy(i => i.Name).Select(item => 
+                {"ItemsInTheBox", string.Join(' ', GetItemsInTheBox(order.Items).OrderBy(i => i.Name).Select(item => 
                     $@"<tr>
                         <td colspan={'"'}3{'"'}>
                             <input type={'"'}checkbox{'"'}/> {item.Name} <small>{item.PriceType} {item.Option}</small>
                         </td>
-                        <td>{item.Qty}</td>
+                        <td style={'"'}text-align:right;{'"'}>{item.Qty}</td>
                     </tr>")) },
                 {"PaymentMethod", @$"<input type={'"'}checkbox{'"'}/> Check &nbsp; 
                                     <input type={'"'}checkbox{'"'}/> CashApp &nbsp;
@@ -59,12 +60,9 @@ namespace SukkotMeNET.Services
         }
 
 
-        public List<OrderItem> GetItemsIncludedInSets(List<OrderItem> items)
+        public List<OrderItem> GetItemsInTheBox(List<OrderItem> items)
         {
-            var res = new List<OrderItem>();
-            var sets = items.Where(i => i.Id is Constants.General.IsraeliSetItemId or Constants.General.YaneverSetItemId);
-
-            //When ordering a set the customer giraeliSetQtyets:
+            //When ordering a set the customer gets:
             //esrog, Egyptien lulav, hadas רובו חיים נאה,  aruvos, koishaklach & plastic bag
             //for yanever set over 50$ he gets also hadas כולו חיים נאה
             //
@@ -75,32 +73,41 @@ namespace SukkotMeNET.Services
             var koishaklach = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e645514ed3ae2d40d911");
             var plasticBag = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e5f0654d28089f656e29");
 
-            foreach (var set in sets)
+            var res = new List<OrderItem>();
+            
+            items.ForEach(i =>
             {
-                res.AddOrMergeRange(new OrderItem[]
+                if (i.Id is Constants.General.IsraeliSetItemId or Constants.General.YaneverSetItemId)
                 {
-                    lulav.ToOrderItem(0, lulav.Prices.Length-1, set.Qty + (set.Id is Constants.General.IsraeliSetItemId ? (int)(set.Qty * 0.2) : 0)),
-                    hadas.ToOrderItem(0, hadas.Prices.Length-1, set.Qty),
-                    arhava.ToOrderItem(0, 0, set.Qty),
-                    koishaklach.ToOrderItem(0, 0, set.Qty),
-                    plasticBag.ToOrderItem(0, 0, set.Qty),
-                    new()
+                    res.AddOrMergeRange(new[]
                     {
-                        Id = set.Id,
-                        Name = set.Name.Replace("set", "Esrog", StringComparison.OrdinalIgnoreCase),
-                        Option = set.Option,
-                        PriceType = set.PriceType,
-                        Qty = set.Qty
-                    }
-                });
-            }
+                        lulav.ToOrderItem(0, lulav.Prices.Length - 1, i.Qty + (i.Id is Constants.General.IsraeliSetItemId ? (int)(i.Qty * 0.2) : 0)),
+                        hadas.ToOrderItem(0, hadas.Prices.Length - 1, i.Qty),
+                        arhava.ToOrderItem(0, 0, i.Qty),
+                        koishaklach.ToOrderItem(0, 0, i.Qty),
+                        plasticBag.ToOrderItem(0, 0, i.Qty),
+                        new()
+                        {
+                            Id = i.Id,
+                            Name = i.Name.Replace("set", "Esrog", StringComparison.OrdinalIgnoreCase),
+                            Option = i.Option,
+                            PriceType = i.PriceType,
+                            Qty = i.Qty
+                        }
+                    });
+                }
+                else
+                {
+                    res.AddOrMerge(i);
+                }
 
-
-            foreach (var set in sets.Where(s => s.Id == Constants.General.YaneverSetItemId && s.Price >= 50))
-            {
-                res.AddOrMerge(hadas.ToOrderItem(0, hadas.Prices.Length - 2, set.Qty));
-            }
-
+                if (i.Id == Constants.General.YaneverSetItemId && i.Price >= 50)
+                {
+                    res.AddOrMerge(hadas.ToOrderItem(0, hadas.Prices.Length - 2, i.Qty));
+                }
+            });
+            
+            
             return res;
         }
     }

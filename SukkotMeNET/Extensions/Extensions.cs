@@ -13,6 +13,7 @@ namespace SukkotMeNET.Extensions
 
         public static string GetItemIcon(this Item item)
         {
+
             var name = $"{item.Name.ToLower()}";
             if (name.Contains("lulav"))
                 return "/images/lulav.png";
@@ -20,6 +21,10 @@ namespace SukkotMeNET.Extensions
                 return "/images/hadas.png";
             else if (name.Contains("aruvos") || name.Contains("hoshnos"))
                 return "/images/harava.png";
+            else if (name.Contains("set"))
+                return "/images/set.png";
+            else if (name.Contains("schach"))
+                return "/images/schach.png";
             else
                 return "/images/esrog.png";
         }
