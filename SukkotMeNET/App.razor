@@ -1,5 +1,6 @@
 ﻿@using SukkotMeNET.Pages
 @using SukkotMeNET.Services
+@using SukkotMeNET.Models
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
@@ -34,16 +35,29 @@
     IJSRuntime _Js { get; set; }
     [Inject]
     MainService _Service { get; set; }
+    [Inject]
+    AppStateService _State { get; set; }
 
     protected override async void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
+        if(_State?.User?.Id?.Any() == true)
+            return;
+
         var token = await _Js.InvokeAsync<string>(Constants.JavaScriptFunctions.LocalStorageGet, "token");
         if(token != null)
         {
+            _Service.AddAlert(new Alert("Hello", "We recognize you've already been here. Trying to log you in..."));
             var isTokenValid = await _Service.LoginUserFromLocalStorage(token);
             if (!isTokenValid)
+            {
                 await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
+                _Service.AddAlert(new Alert("Fail", "Login failed.", AlertType.Error));
+            }
+            else
+            {
+                _Service.AddAlert(new Alert("Login successful", "Welcome back!", AlertType.Success));
+            }
         }
     }
 }

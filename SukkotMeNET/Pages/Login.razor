@@ -61,7 +61,7 @@
                 throw new Exception("Login failed, check your credentials");
             else
             {
-                _Service.AddAlert(new Alert("Welcome back!", "", AlertType.Success));
+                _Service.AddAlert(new Alert($"{loggedUser.FirstName}, Welcome back!", "", AlertType.Success));
                 await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageSet, "token", loggedUser.Id);
                 _NavManager.NavigateTo("/");
             }

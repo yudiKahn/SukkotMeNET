@@ -3,49 +3,70 @@
 @using SukkotMeNET.Services
 @inject AppStateService AppState
 
-<div class="w-full bg-white dark:bg-gray-800 grid place-content-center py-5 flex-grow" style="min-height:80vh;">
-    <div class="container">
-        <div class="rounded-lg shadow-lg overflow-hidden">
-            <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
-                <h3 class="text-2xl leading-8 font-extrabold text-gray-900 sm:text-3xl sm:leading-9">
-                    @string.Format(AppState?.UserOrders?.Count > 0 ? $"{AppState?.User?.FirstName}, Here is your orders" : "You have no orders yet")
-                </h3>
-                <div class="flex items-center mt-8">
-                    <h4 class="flex-shrink-0 pr-4 bg-white text-sm leading-5 tracking-wider font-semibold uppercase" style="color:#c6a530;">
-                        @(AppState?.UserOrders?.Count ?? 0) Orders
-                    </h4>
-                    <div class="flex-1 border-t-2 border-gray-200" style="border-style:solid;"></div>
-                </div>
-                <div class="mt-8">
-                    <ul class="pl-0">
-                        @foreach (var order in AppState?.UserOrders)
-                        {
-                            <li>
-                                <NavLink href=@string.Format($"/user/order/{order.Id}") class="flex items-start cursor-pointer mt-2">
-                                    <div class="flex-shrink-0">
-                                        <i class="fa fa-shopping-bag"></i>
-                                    </div>
-                                    <div class="ml-3 text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline divide-y divide-slate-700">
-                                        <p class="text-gray-700 flex-shrink-0">
-                                            items: @(order.Items.Count())
-                                        </p>
-                                        <div class="flex-shrink-0 mt-1 md:mt-0 text-right">
-                                            total: <span class="text-lg text-gray-800 font-bold">$@order.Items.GetTotal().ToString("0.00")</span>
-                                            <br/>
-                                            from: @order.CreatedAt.ToString("dd MMM yy")
-                                        </div>
-                                    </div>
-                                </NavLink>
-                            </li>
-                        }
-                    </ul>
+
+<section class="py-1 dark:bg-gray-800">
+    <div class="w-full lg:w-8/12 xl:w-1/2 mb-12 xl:mb-0 px-4 mx-auto mt-24">
+        <div class="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-900 w-full mb-6 shadow-lg rounded">
+            <div class="rounded-t mb-0 px-6 py-3 border-0">
+                <div class="flex flex-wrap items-center">
+                    <div class="relative w-full max-w-full flex-grow flex-1">
+                        <h3 class="font-semibold text-base dark:text-gray-200">
+                            @string.Format($"{AppState.User.FirstName}'s Orders")
+                        </h3>
+                    </div>
                 </div>
             </div>
-            <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
-                <NavLink href="/shop" class="cursor-pointer mt-6 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-gray-400 text-lg leading-6 font-medium rounded-md text-gray-700">
-                    Go Shopping
-                </NavLink>
+
+            <div class="block w-full overflow-x-auto">
+                <table class="items-center bg-transparent w-full border-collapse">
+                    <thead>
+                    <tr>
+                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            CREATED AT
+                        </th>
+                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            ITEMS
+                        </th>
+                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            PAYMENT
+                        </th>
+                        <th class="px-6 bg-blueGray-50 text-red-400 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            Delete
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    @foreach (var order in AppState?.UserOrders)
+                    {
+                        <tr class="hover:bg-gray-100 cursor-pointer w-full">
+                            <th class="dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
+                                @order.CreatedAt.ToString("dd MMM yyyy hh:mm")
+                            </th>
+                            <td class="dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                @order.Items.Count()
+                            </td>
+                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                @order.PaymentMethod
+                            </td>
+                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
+                                <i class="fas fa-trash text-red-400 cursor-pointer"></i>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+
+                </table>
+                
+                <div class="table">
+                    <a class="table-row" href="/mylink">
+                        <div class="table-cell">...</div>
+                        <div class="table-cell">...</div>
+                        <div class="table-cell">...</div>
+                    </a>
+                </div>      
+
             </div>
         </div>
     </div>
-</div>
+</section>

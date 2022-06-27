@@ -25,6 +25,8 @@ namespace SukkotMeNET.Extensions
                 return "/images/set.png";
             else if (name.Contains("schach"))
                 return "/images/schach.png";
+            else if (name.Contains("koisaklach"))
+                return "/images/koishklach.png";
             else
                 return "/images/esrog.png";
         }
