@@ -46,11 +46,7 @@ namespace SukkotMeNET.Services
                             <input type={'"'}checkbox{'"'}/> {item.Name} <small>{item.PriceType} {item.Option}</small>
                         </td>
                         <td style={'"'}text-align:right;{'"'}>{item.Qty}</td>
-                    </tr>")) },
-                {"PaymentMethod", @$"<input type={'"'}checkbox{'"'}/> Check &nbsp; 
-                                    <input type={'"'}checkbox{'"'}/> CashApp &nbsp;
-                                    <input type={'"'}checkbox{'"'}/> PayPal &nbsp;
-                                    <input type={'"'}checkbox{'"'}/> Zell"}
+                    </tr>")) }
             };
 
             var newHtml = Regex.Replace(html, @"\[(.+?)\]", m => htmlValues[m.Groups[1].Value.Trim()]);

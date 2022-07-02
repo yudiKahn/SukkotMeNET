@@ -1,6 +1,5 @@
 ﻿@page "/shop"
 @using SukkotMeNET.Extensions
-@using SukkotMeNET.Interfaces
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
 @inject AppStateService _State
@@ -11,22 +10,24 @@
         <div class="flex flex-wrap -mx-4">
             @foreach (var item in _State.ShopItems)
             {
-                <div @onclick="() => SelectItem(item)" class="w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4">
-                    <div class="c-card block bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden">
-                        <div>
-                            <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;" src=@item.GetItemIcon() alt="logo" />
-                        </div>
-                        <div class="p-3 items-center text-sm text-gray-600">
-                            <h5 class="font-bold">@item.Name</h5>
-                            <p class="my-1">@item.Prices.GetFriednlyRange('$')</p>
+                if (item.Prices.Any(p => p > 0))
+                {
+                    <div @onclick="() => SelectItem(item)" class="w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4">
+                        <div class="c-card block bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden">
+                            <div>
+                                <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;" src=@item.GetItemIcon() alt="logo" />
+                            </div>
+                            <div class="p-3 items-center text-sm text-gray-600">
+                                <h5 class="font-bold">@item.Name</h5>
+                                <p class="my-1">@item.Prices.GetFriednlyRange('$')</p>
 
-                            <button class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
-                                Add To Cart
-                            </button>
+                                <button class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
+                                    Add To Cart
+                                </button>
+                            </div>
                         </div>
-
                     </div>
-                </div>
+                }
             }
         </div>
     </div>

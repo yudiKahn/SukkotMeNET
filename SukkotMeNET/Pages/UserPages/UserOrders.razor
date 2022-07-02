@@ -2,7 +2,7 @@
 @using SukkotMeNET.Extensions
 @using SukkotMeNET.Services
 @inject AppStateService AppState
-
+@inject MainService Service
 
 <section class="py-1 dark:bg-gray-800">
     <div class="w-full lg:w-8/12 xl:w-1/2 mb-12 xl:mb-0 px-4 mx-auto mt-24">
@@ -18,54 +18,64 @@
             </div>
 
             <div class="block w-full overflow-x-auto">
-                <table class="items-center bg-transparent w-full border-collapse">
-                    <thead>
-                    <tr>
-                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                <div class="table w-full">
+                    <div class="table-row">
+                        <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
                             CREATED AT
-                        </th>
-                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            ITEMS
-                        </th>
-                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            PAYMENT
-                        </th>
-                        <th class="px-6 bg-blueGray-50 text-red-400 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            Delete
-                        </th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
+                        </div>
+                        <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            ITEMS QTY
+                        </div>
+                        <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            STATUS
+                        </div>
+                    </div>
                     @foreach (var order in AppState?.UserOrders)
                     {
-                        <tr class="hover:bg-gray-100 cursor-pointer w-full">
-                            <th class="dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
+                        <NavLink class="table-row hover:bg-gray-100" href=@string.Format($"/user/order/{order.Id}")>
+                            <div class="table-cell dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm font-bold whitespace-nowrap p-4 text-left text-blueGray-700">
                                 @order.CreatedAt.ToString("dd MMM yyyy hh:mm")
-                            </th>
-                            <td class="dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                            </div>
+                            <div class="table-cell dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-4">
                                 @order.Items.Count()
-                            </td>
-                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                @order.PaymentMethod
-                            </td>
-                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
-                                <i class="fas fa-trash text-red-400 cursor-pointer"></i>
-                            </td>
-                        </tr>
+                            </div>
+                            <div class="table-cell dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                <div class="table">
+                                    <div class="table-row">
+                                        <div class="table-cell">
+                                            Paid:
+                                        </div>
+                                        <div class="table-cell">
+                                            <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsPaid ? "green-200" : "yellow-400")>
+                                                <i class=@string.Format("fa fa-{0}", order.IsPaid ? "check" : "times")></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="table-cell">
+                                            Packed:
+                                        </div>
+                                        <div class="table-cell">
+                                            <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsPacked ? "green-200" : "yellow-400")>
+                                                <i class=@string.Format("fa fa-{0}", order.IsPacked ? "check" : "times")></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="table-row">
+                                        <div class="table-cell">
+                                            Shipped: &nbsp;
+                                        </div>
+                                        <div class="table-cell">
+                                            <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsShipped ? "green-200" : "yellow-400")>
+                                                <i class=@string.Format("fa fa-{0}", order.IsShipped ? "check" : "times")></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </NavLink>
                     }
-                    </tbody>
-
-                </table>
-                
-                <div class="table">
-                    <a class="table-row" href="/mylink">
-                        <div class="table-cell">...</div>
-                        <div class="table-cell">...</div>
-                        <div class="table-cell">...</div>
-                    </a>
-                </div>      
-
+                </div>
             </div>
         </div>
     </div>

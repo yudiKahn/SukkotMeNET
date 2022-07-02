@@ -39,7 +39,7 @@ namespace SukkotMeNET.Services
                     throw new Exception("Unknown error (0x1), Please contact developer");
                 if (itemClone.Qty < 1)
                     throw new Exception("Quantity cannot be less then one");
-                
+
                 if (_AppState.Cart == null)
                 {
                     Console.WriteLine("Cart is null");
@@ -169,6 +169,23 @@ namespace SukkotMeNET.Services
             {
                 return false;
             }
+        }
+
+        public async Task<bool> RemoveOrderAsync(Order order)
+        {
+            if (order is not null && !order.IsShipped)
+            {
+                var res = await _Repository.OrdersRepository.DeleteFirstAsync(o => o.Id == order.Id);
+                if (res)
+                {
+                    _AppState?.UserOrders?.Remove(order);
+                    StateHasChanged?.Invoke(this, null);
+                }
+
+                return res;
+            }
+
+            return false;
         }
 
         //Admin
