@@ -34,9 +34,9 @@
                                 <li class="mb-4">
                                     <div class="flex items-start">
                                         <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
-                                            <a href="/shop/item/${v._id}" class="text-gray-700 flex-shrink-0">
+                                            <div class="text-gray-700 flex-shrink-0">
                                                 @item.Name <small>@item.PriceType @item.Option</small>
-                                            </a>
+                                            </div>
                                             <div class="flex-shrink-0 mt-1 md:mt-0">
                                                 <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
                                                 <span class="text-lg text-gray-800 font-bold">
@@ -63,6 +63,11 @@
                                     <span class="text-lg text-gray-800 font-bold">$@State.Cart.Items.GetTotal().ToString("N2")</span>
                                 </div>
                             </li>
+                            <li class="mt-5">
+                                <div>Comment:</div>
+                                <textarea @bind="@State.Cart.Comment" maxlength="100" style="max-height: 100px;" class="w-full shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
+                            </li>
+                            
                         </ul>
                     </div>
                 </div>
@@ -85,6 +90,10 @@
                     </h2>
                     <NavLink href="/shop" class="max-w-md underline mx-auto mt-3 text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
                         Go Back Shopping
+                    </NavLink>
+                    &nbsp;&nbsp;|&nbsp;
+                    <NavLink href="/user/orders" class="max-w-md underline mx-auto mt-3 text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                        View orders
                     </NavLink>
                 </div>
             </section>

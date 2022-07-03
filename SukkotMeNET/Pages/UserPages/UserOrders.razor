@@ -4,79 +4,95 @@
 @inject AppStateService AppState
 @inject MainService Service
 
-<section class="py-1 dark:bg-gray-800">
-    <div class="w-full lg:w-8/12 xl:w-1/2 mb-12 xl:mb-0 px-4 mx-auto mt-24">
-        <div class="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-900 w-full mb-6 shadow-lg rounded">
-            <div class="rounded-t mb-0 px-6 py-3 border-0">
-                <div class="flex flex-wrap items-center">
-                    <div class="relative w-full max-w-full flex-grow flex-1">
-                        <h3 class="font-semibold text-base dark:text-gray-200">
-                            @string.Format($"{AppState.User.FirstName}'s Orders")
-                        </h3>
+<section class="py-1 dark:bg-gray-800 min-h-screen">
+    @if (AppState?.UserOrders?.Any() == true)
+    {
+        <div class="w-full lg:w-8/12 xl:w-1/2 mb-12 xl:mb-0 px-4 mx-auto mt-24">
+            <div class="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-900 w-full mb-6 shadow-lg rounded">
+                <div class="rounded-t mb-0 px-6 py-3 border-0">
+                    <div class="flex flex-wrap items-center">
+                        <div class="relative w-full max-w-full flex-grow flex-1">
+                            <h3 class="font-semibold text-base dark:text-gray-200">
+                                @string.Format($"{AppState.User.FirstName}'s Orders")
+                            </h3>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="block w-full overflow-x-auto">
-                <div class="table w-full">
-                    <div class="table-row">
-                        <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            CREATED AT
-                        </div>
-                        <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            ITEMS QTY
-                        </div>
-                        <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            STATUS
-                        </div>
-                    </div>
-                    @foreach (var order in AppState?.UserOrders)
-                    {
-                        <NavLink class="table-row hover:bg-gray-100" href=@string.Format($"/user/order/{order.Id}")>
-                            <div class="table-cell dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm font-bold whitespace-nowrap p-4 text-left text-blueGray-700">
-                                @order.CreatedAt.ToString("dd MMM yyyy hh:mm")
+                <div class="block w-full overflow-x-auto">
+                    <div class="table w-full">
+                        <div class="table-row">
+                            <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                CREATED AT
                             </div>
-                            <div class="table-cell dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-4">
-                                @order.Items.Count()
+                            <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                ITEMS QTY
                             </div>
-                            <div class="table-cell dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                <div class="table">
-                                    <div class="table-row">
-                                        <div class="table-cell">
-                                            Paid:
-                                        </div>
-                                        <div class="table-cell">
-                                            <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsPaid ? "green-200" : "yellow-400")>
-                                                <i class=@string.Format("fa fa-{0}", order.IsPaid ? "check" : "times")></i>
+                            <div class="table-cell px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                STATUS
+                            </div>
+                        </div>
+                        @foreach (var order in AppState?.UserOrders)
+                        {
+                            <NavLink class="table-row hover:bg-gray-100" href=@string.Format($"/user/order/{order.Id}")>
+                                <div class="table-cell dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm font-bold whitespace-nowrap p-4 text-left text-blueGray-700">
+                                    @order.CreatedAt.ToString("dd MMM yyyy hh:mm")
+                                </div>
+                                <div class="table-cell dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm whitespace-nowrap p-4">
+                                    @order.Items.Count()
+                                </div>
+                                <div class="table-cell dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    <div class="table">
+                                        <div class="table-row">
+                                            <div class="table-cell">
+                                                Paid:
+                                            </div>
+                                            <div class="table-cell">
+                                                <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsPaid ? "green-200" : "yellow-400")>
+                                                    <i class=@string.Format("fa fa-{0}", order.IsPaid ? "check" : "times")></i>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="table-row">
-                                        <div class="table-cell">
-                                            Packed:
-                                        </div>
-                                        <div class="table-cell">
-                                            <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsPacked ? "green-200" : "yellow-400")>
-                                                <i class=@string.Format("fa fa-{0}", order.IsPacked ? "check" : "times")></i>
+                                        <div class="table-row">
+                                            <div class="table-cell">
+                                                Packed:
+                                            </div>
+                                            <div class="table-cell">
+                                                <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsPacked ? "green-200" : "yellow-400")>
+                                                    <i class=@string.Format("fa fa-{0}", order.IsPacked ? "check" : "times")></i>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="table-row">
-                                        <div class="table-cell">
-                                            Shipped: &nbsp;
-                                        </div>
-                                        <div class="table-cell">
-                                            <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsShipped ? "green-200" : "yellow-400")>
-                                                <i class=@string.Format("fa fa-{0}", order.IsShipped ? "check" : "times")></i>
+                                        <div class="table-row">
+                                            <div class="table-cell">
+                                                Shipped: &nbsp;
+                                            </div>
+                                            <div class="table-cell">
+                                                <div class=@string.Format("text-white w-4 h-4 bg-{0} rounded-full grid place-content-center", order.IsShipped ? "green-200" : "yellow-400")>
+                                                    <i class=@string.Format("fa fa-{0}", order.IsShipped ? "check" : "times")></i>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </NavLink>
-                    }
+                            </NavLink>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <section class="py-20 bg-white" style="min-height: 80vh;">
+            <div class="px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-extrabold tracking-tight text-green-600 my-6 sm:text-4xl md:text-5xl xl:text-6xl">
+                    No orders found...
+                </h2>
+                <NavLink href="/shop" class="max-w-md underline mx-auto mt-3 text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                    Go Shopping
+                </NavLink>
+            </div>
+        </section>
+    }
 </section>

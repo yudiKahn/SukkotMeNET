@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
+using SukkotMeNET.Configuration;
 using SukkotMeNET.Extensions;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
@@ -13,6 +14,7 @@ namespace SukkotMeNET.Services
         readonly IRepositoryService _Repository;
         readonly EmailService _EmailService;
         readonly InvoiceService _InvoiceService;
+        readonly ApplicationConfiguration _Configuration;
 
         public event EventHandler StateHasChanged;
 
@@ -20,12 +22,14 @@ namespace SukkotMeNET.Services
             AppStateService appState,
             IRepositoryService repositoryService,
             EmailService emailService,
-            InvoiceService invoiceService)
+            InvoiceService invoiceService, 
+            ApplicationConfiguration configuration)
         {
             _AppState = appState;
             _Repository = repositoryService;
             _EmailService = emailService;
             _InvoiceService = invoiceService;
+            _Configuration = configuration;
         }
 
         //Cart
@@ -143,7 +147,7 @@ namespace SukkotMeNET.Services
         //Order
         public async Task<bool> CreateOrderFromCart()
         {
-            if (_AppState?.Cart is null || _AppState.User is null)
+            if (_AppState.Cart is null || _AppState.User is null)
                 return await Task.FromResult(false);
 
             try
@@ -153,16 +157,20 @@ namespace SukkotMeNET.Services
                     Id = ObjectId.GenerateNewId().ToString(),
                     Items = _AppState.Cart.Items,
                     UserId = _AppState.User.Id,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = DateTime.Now,
+                    Comment = _AppState.Cart.Comment
                 };
                 var invoice = _InvoiceService.GetInvoiceHtml(order, _AppState.User);
 
 
                 await _Repository.OrdersRepository.WriteAsync(order);
-                await _EmailService.SendAsync(_AppState.User.Email, "Order Invoice", invoice);
+                await _EmailService.SendAsync("Order Invoice", invoice, _AppState.User.Email, _Configuration.SmtpAddress);
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
 
                 _AppState.Cart = new Cart();
+                _AppState.UserOrders.Add(order);
+
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             catch
@@ -178,7 +186,7 @@ namespace SukkotMeNET.Services
                 var res = await _Repository.OrdersRepository.DeleteFirstAsync(o => o.Id == order.Id);
                 if (res)
                 {
-                    _AppState?.UserOrders?.Remove(order);
+                    _AppState.UserOrders.Remove(order);
                     StateHasChanged?.Invoke(this, null);
                 }
 
@@ -194,7 +202,7 @@ namespace SukkotMeNET.Services
             try
             {
                 var html = _InvoiceService.GetInvoiceHtml(order, user);
-                await _EmailService.SendAsync(user.Email, "Order Invoice", html);
+                await _EmailService.SendAsync("Order Invoice", html, user.Email);
 
                 return true;
             }

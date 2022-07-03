@@ -7,11 +7,11 @@ namespace SukkotMeNET.Services
     {
         public User? User { get; set; }
         
-        public Cart? Cart { get; set; }
+        public Cart Cart { get; set; }
 
         public IEnumerable<Item> ShopItems { get; set; }
 
-        public List<Order>? UserOrders { get; set; }
+        public List<Order> UserOrders { get; set; }
 
         public List<Alert> Alerts { get; set; }
 

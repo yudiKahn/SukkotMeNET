@@ -1,6 +1,7 @@
 ﻿using SukkotMeNET.Configuration;
 using System.Net;
 using System.Net.Mail;
+using SukkotMeNET.Models;
 
 namespace SukkotMeNET.Services
 {
@@ -12,10 +13,12 @@ namespace SukkotMeNET.Services
             _AppConfig = emailConfig;
         }
 
-        public async Task<bool> SendAsync(string to, string subject, string body)
+        public async Task<bool> SendAsync(string subject, string body, params string[] to)
         {
             try
             {
+                if (to.Length == 0)
+                    throw new Exception();
                 var smtp = new SmtpClient
                 {
                     Host = _AppConfig.SmtpHost,
@@ -33,7 +36,10 @@ namespace SukkotMeNET.Services
                     IsBodyHtml = true,
                     Body = body
                 };
-                msg.To.Add(new MailAddress(to));
+                foreach (var t in to)
+                {
+                    msg.To.Add(new MailAddress(t));
+                }
 
                 await smtp.SendMailAsync(msg);
 

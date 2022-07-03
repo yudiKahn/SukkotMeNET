@@ -37,7 +37,7 @@
                     </thead>
 
                     <tbody>
-                        @foreach (var order in _State.AdminState.AllOrders)
+                        @foreach (var order in _State.AdminState.AllOrders.OrderByDescending(o => o.CreatedAt))
                         {
                             @if (string.IsNullOrEmpty(userId) || order.UserId == userId)
                             {

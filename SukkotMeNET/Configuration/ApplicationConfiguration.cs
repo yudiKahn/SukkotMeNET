@@ -2,11 +2,13 @@
 {
     public class ApplicationConfiguration
     {
+        //email:
         public string SmtpHost { get; set; }
         public int SmtpPort { get; set; }
         public string SmtpAddress { get; set; }
         public string SmtpPassword { get; set; }
 
+        //database:
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
 

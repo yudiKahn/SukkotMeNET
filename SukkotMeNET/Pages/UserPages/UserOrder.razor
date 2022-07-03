@@ -5,92 +5,84 @@
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
 
-<section class="py-1 bg-blueGray-50 flex-grow dark:bg-gray-800" style="min-height:80vh;">
-    @if (_Order is not null)
-    {
-        <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 mx-auto mt-24">
-            <div class="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-900 w-full mb-6 shadow-lg rounded ">
-                <div class="rounded-t mb-0 px-6 py-3 border-0">
-                    <div class="flex flex-wrap items-center">
-                        <div class="relative w-full max-w-full flex-grow flex-1">
-                            <h3 class="font-semibold text-base text-blueGray-700 dark:text-gray-200">Order Items</h3>
-                        </div>
+<div class="w-full bg-white grid place-content-center py-3 flex-grow dark:bg-gray-800" style="min-height: 80vh;">
+    <div class="container">
+        @if (_Order is not null)
+        {
+            <div class="rounded-lg shadow-lg overflow-hidden">
+                <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
+                    <h3 class="text-2xl leading-8 font-extrabold text-gray-900 sm:text-3xl sm:leading-9">
+                        Order #@_Order.Id[..6]
+                    </h3>
+                    <small>
+                        Paid: <i class=@string.Format("fa fa-{0} text-gray-900", _Order.IsPaid ? "check" : "times")></i>
+                        ,&nbsp;
+                        Packed: <i class=@string.Format("fa fa-{0} text-gray-900", _Order.IsPacked ? "check" : "times")></i>
+                        ,&nbsp;
+                        Shipped: <i class=@string.Format("fa fa-{0} text-gray-900", _Order.IsShipped ? "check" : "times")></i>
+                    </small>
+
+                    <div class="mt-8">
+
+                        <ul class="pl-0">
+                            @foreach (var item in _Order.Items)
+                            {
+                                <li class="mb-4">
+                                    <div class="flex items-start">
+                                        <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
+                                            <a href="/shop/item/${v._id}" class="text-gray-700 flex-shrink-0">
+                                                @item.Name <small>@item.PriceType @item.Option</small>
+                                            </a>
+                                            <div class="flex-shrink-0 mt-1 md:mt-0">
+                                                <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
+                                                <span class="text-lg text-gray-800 font-bold">
+                                                    $@((item.Qty * item.Price).ToString("N1"))
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            }
+
+
+                            <li class="mt-10">
+                                <div class="flex justify-end">
+                                    Total: &nbsp;&nbsp;
+                                    <span class="text-lg text-gray-800 font-bold">$@_Order.Items.GetTotal().ToString("N2")</span>
+                                </div>
+                            </li>
+                            @if (_Order.Comment?.Any() == true)
+                            {
+                                <li class="mt-5">
+                                    <div>Comment:</div>
+                                    <p>&#8220;@(_Order.Comment)&#8221;</p>
+                                </li>
+                            }
+                        </ul>
                     </div>
                 </div>
-
-                <div class="block w-full overflow-x-auto">
-                    <table class="items-center bg-transparent w-full border-collapse ">
-                        <thead>
-                        <tr>
-                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Item
-                            </th>
-                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Price
-                            </th>
-                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Qty
-                            </th>
-                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Subtotal
-                            </th>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        @foreach (var item in _Order.Items)
-                        {
-                            <tr>
-                                <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left  dark:text-gray-200 text-blueGray-700">
-                                    @item.Name
-                                </th>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                    $@item.Price.ToString("0.00")
-                                </td>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                    @item.Qty
-                                </td>
-                                <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                    $@($"{item.Qty * item.Price:N2}")
-                                </td>
-                            </tr>
-                        }
-                        <tr>
-                            <td></td>
-                            <th class="text-right border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                Total:
-                            </th>
-                            <td class="text-left border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                $@_Order.Items.GetTotal().ToString("0.00")
-                            </td>
-                        </tr>
-                        </tbody>
-
-                        <tfoot class="py-4">
-                        <tr>
-                            <td class="w-full px-6">
-                                <h3 class="font-semibold text-base text-blueGray-700 dark:text-gray-200">Order Actions</h3>
-                            </td>
-                        </tr>
-                        <tr class="flex px-3 py-2">
-                            <td>
-                                <button @onclick="DeleteOrder" class="mx-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full">
-                                    Delete
-                                </button>
-                            </td>
-                            <td>
-                                <button class="block mx-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full">
-                                    Modify
-                                </button>
-                            </td>
-                        </tr>
-                        </tfoot>
-                    </table>
+                <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
+                    <button @onclick="DeleteOrder" class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
+                        Delete order
+                    </button>
                 </div>
             </div>
-        </div>
-    }
-</section>
+        }
+        else
+        {
+            <section class="py-20 bg-white" style="min-height: 80vh;">
+                <div class="px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-extrabold tracking-tight text-green-600 my-6 sm:text-4xl md:text-5xl xl:text-6xl">
+                        Cart Is Empty...
+                    </h2>
+                    <NavLink href="/shop" class="max-w-md underline mx-auto mt-3 text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                        Go Back Shopping
+                    </NavLink>
+                </div>
+            </section>
+        }
+    </div>
+</div>
 
 @code {
     [Parameter] public string orderId { get; set; }
@@ -100,6 +92,7 @@
     [Inject] public NavigationManager Nav { get; set; }
 
     Order _Order;
+    bool _CanEditOrder = false;
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -114,7 +107,7 @@
         {
             var oldOrderId = _Order?.Id;
             _Order = State.UserOrders.FirstOrDefault(o => o.Id == orderId);
-            if(_Order?.Id != oldOrderId)
+            if (_Order?.Id != oldOrderId)
                 InvokeAsync(this.StateHasChanged);
         }
     }
@@ -123,8 +116,16 @@
     {
         if (await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"To delete order?"))
         {
-            if(await Service.RemoveOrderAsync(_Order))
+            if (await Service.RemoveOrderAsync(_Order))
                 Nav.NavigateTo("/user/orders");
         }
+    }
+
+    void ToggleEditOrder()
+    {
+        if (_Order.IsShipped || _Order.IsPacked)
+            return;
+
+        _CanEditOrder = !_CanEditOrder;
     }
 }

@@ -23,7 +23,7 @@ namespace SukkotMeNET.Services
 
             Dictionary<string, string> htmlValues = new()
             {
-                {"OrderId", order.Id[..4] },
+                {"OrderId", order.Id[..6] },
                 {"OrderIdFull", order.Id },
                 {"Created", order.CreatedAt.ToString("MMMM dd yyyy hh:mm") },
                 {"UserName", $"{user.FirstName} {user.LastName}"  },
