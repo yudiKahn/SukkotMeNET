@@ -15,7 +15,7 @@
                     <h3 class="text-2xl leading-8 font-extrabold text-gray-900 sm:text-3xl sm:leading-9">
                         @string.Format($"{State?.User?.FirstName}, Here is your cart" )
                     </h3>
-                    
+
                     <div class="mt-8">
 
                         <ul class="pl-0">
@@ -65,9 +65,9 @@
                             </li>
                             <li class="mt-5">
                                 <div>Comment:</div>
-                                <textarea @bind="@State.Cart.Comment" maxlength="100" style="max-height: 100px;" class="w-full shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
+                                <textarea @bind="@State.Cart.Comment" maxlength="100" style="max-height: 100px;" class="w-full shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                             </li>
-                            
+
                         </ul>
                     </div>
                 </div>
@@ -105,6 +105,7 @@
 @code {
     [Inject] public AppStateService State { get; set; }
     [Inject] IJSRuntime _Js { get; set; }
+    [Inject] public NavigationManager Nav { get; set; }
 
     public bool CanEditQty { get; set; } = false;
 
@@ -119,8 +120,11 @@
     async void CreateOrderFromCart()
     {
         var res = await Service.CreateOrderFromCart();
-        if(res)
+        if (res is not null)
+        {
             Service.AddAlert(new Alert("Success", "Order created successfully", AlertType.Success));
+            Nav.NavigateTo($"/user/order/{res.Id}/invoice");
+        }
         else
             Service.AddAlert(new Alert("Failed", "Failed creating order", AlertType.Error));
     }

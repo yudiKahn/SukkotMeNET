@@ -145,10 +145,10 @@ namespace SukkotMeNET.Services
         }
 
         //Order
-        public async Task<bool> CreateOrderFromCart()
+        public async Task<Order?> CreateOrderFromCart()
         {
             if (_AppState.Cart is null || _AppState.User is null)
-                return await Task.FromResult(false);
+                return await Task.FromResult(default(Order));
 
             try
             {
@@ -171,11 +171,11 @@ namespace SukkotMeNET.Services
                 _AppState.UserOrders.Add(order);
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
-                return true;
+                return order;
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 
