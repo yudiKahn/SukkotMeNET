@@ -27,6 +27,53 @@
     </div>
 }
 
+<span class="fixed text-white bg-green-500 z-40 rounded-r-md py-3 mt-5 cursor-pointer" style="writing-mode: tb; font-size: 20px;"
+      @onclick="() => _ShowShmittahPopup = true">
+    <b><i class="fa fa-info-circle" aria-hidden="true"></i> SHMITTAH</b>
+</span>
+
+@if (_ShowShmittahPopup)
+{
+    <div class="fixed w-full h-full top-0 z-50 bg-white">
+        <div class="text-right p-2">
+            <bold><i class="fa fa-times fa-2x cursor-pointer" @onclick="() => _ShowShmittahPopup = false"></i></bold>
+        </div>
+        <div class="w-full m-3 text-center">
+            <div class="mx-auto w-2/3">
+                בס״ד
+                <br />
+                <h1 class="heading">ISRAELI ESROG SHMITTAH AWARENESS</h1>
+
+                Please be aware that all our esrogim from Eretz Yisrael need to be
+                treated with kedushas shviis. As you can see, they are all kosher to use
+                because of Otzar Beis Din, but they retain the status of shmitta fruit
+                <br />
+                that needs to be treated appropriately.
+                <br />
+                <b>One important example:</b> After sukkos it is ideal to return all esrogim to
+                Israel (you can return them to me) or at least make sure that they are
+                not discarded in a wrong way (have people return them to you). It must
+                first be left out to rot (shrivel entirely?) and only afterwards can be put
+                in the trash, and even then only after being put in a plastic bag. It
+                seems that making it into jam is not necessarily ok, and certainly not
+                <br />
+                using with cloves a besomim.
+                <br />
+                Other items, for example, how to avoid “doing business with shviis
+                produce”: one concept is that extra fee people pay you this year is for
+                the Lulav and other items, while the esrog comes as a gift or at not
+                <br />
+                more than the price stipulated by the Bais din.
+                <br />
+                <b class="underline">
+                    Note: This page is only intended to draw your awareness to the issues.
+                    As with all items of Halachah, contact your local orthodox rov.
+                </b>
+            </div>
+        </div>
+    </div>
+}
+
 <CascadingValue Value="this" Name="ErrorComponent">
     @Body
 </CascadingValue>
@@ -34,6 +81,8 @@
 <Footer />
 
 @code {
+    bool _ShowShmittahPopup = false;
+
     protected override void OnInitialized()
     {
         MainService.StateHasChanged += (sender, e) => InvokeAsync(this.StateHasChanged);

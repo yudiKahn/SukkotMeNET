@@ -164,7 +164,7 @@ namespace SukkotMeNET.Services
 
 
                 await _Repository.OrdersRepository.WriteAsync(order);
-                await _EmailService.SendAsync("Order Invoice", invoice, _AppState.User.Email, _Configuration.SmtpAddress);
+                await _EmailService.SendAsync("Order Invoice", invoice, _AppState.User.Email, "chabad18@hotmail.com");
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
 
                 _AppState.Cart = new Cart();
