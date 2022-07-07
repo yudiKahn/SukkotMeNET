@@ -5,7 +5,7 @@ namespace SukkotMeNET.Services
 {
     public class AppStateService
     {
-        public User? User { get; set; }
+        public User User { get; set; }
         
         public Cart Cart { get; set; }
 
@@ -19,6 +19,8 @@ namespace SukkotMeNET.Services
 
         public AppStateService()
         {
+            User = new User();
+            Cart = new Cart();
             AdminState = new AdminState();
             UserOrders = new List<Order>();
             Alerts = new List<Alert>();

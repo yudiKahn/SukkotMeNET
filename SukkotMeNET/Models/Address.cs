@@ -7,15 +7,15 @@ namespace SukkotMeNET.Models
     {
         [Required]
         [BsonElement("street")]
-        public string Street { get; set; }
+        public string Street { get; set; } = string.Empty;
 
         [Required]
         [BsonElement("city")]
-        public string City { get; set; }
+        public string City { get; set; } = string.Empty;
 
         [Required]
         [BsonElement("state")]
-        public string State { get; set; }
+        public string State { get; set; } = string.Empty;
 
         [Required]
         [BsonElement("zip")]

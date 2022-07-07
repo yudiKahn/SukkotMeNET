@@ -1,35 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
-using MongoDB.Bson;
-using SukkotMeNET.Configuration;
+﻿using MongoDB.Bson;
 using SukkotMeNET.Extensions;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
-using SukkotMeNET.Pages;
 
 namespace SukkotMeNET.Services
 {
-    public class MainService : BackgroundService
+    public class MainStateService
     {
         readonly AppStateService _AppState;
         readonly IRepositoryService _Repository;
         readonly EmailService _EmailService;
         readonly InvoiceService _InvoiceService;
-        readonly ApplicationConfiguration _Configuration;
 
-        public event EventHandler StateHasChanged;
+        public event EventHandler? StateHasChanged;
 
-        public MainService(
+        public MainStateService(
             AppStateService appState,
             IRepositoryService repositoryService,
             EmailService emailService,
-            InvoiceService invoiceService, 
-            ApplicationConfiguration configuration)
+            InvoiceService invoiceService)
         {
             _AppState = appState;
             _Repository = repositoryService;
             _EmailService = emailService;
             _InvoiceService = invoiceService;
-            _Configuration = configuration;
         }
 
         //Cart
@@ -44,11 +38,11 @@ namespace SukkotMeNET.Services
                 if (itemClone.Qty < 1)
                     throw new Exception("Quantity cannot be less then one");
 
-                if (_AppState.Cart == null)
+                /*if (_AppState.Cart == null)
                 {
                     Console.WriteLine("Cart is null");
                     _ = await InitUserCart();
-                }
+                }*/
 
                 _AppState.Cart.Items.AddOrMerge(itemClone);
 
@@ -73,28 +67,30 @@ namespace SukkotMeNET.Services
 
         public async void SaveCurrentCart()
         {
-            if (_AppState.Cart == null || _AppState.User == null)
-                return;
+            /*if (_AppState.Cart is null || _AppState.User == null)
+                return;*/
             await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart);
         }
 
         //Login
         public async Task<User?> LoginAsync(User user)
         {
-            string email = user.Email;
-            string password = user.Password;
+            var email = user.Email;
+            var password = user.Password;
 
             var users = await _Repository.UsersRepository.ReadAllAsync(u => u.Email == email);
-            var user1 = users.FirstOrDefault(u => BCrypt.Net.BCrypt.Verify(password, u?.Password));
-
-            _AppState.User = user1;
+            var user1 = users.FirstOrDefault(u => BCrypt.Net.BCrypt.Verify(password, u.Password));
 
             if (user1 != null)
             {
+                _AppState.User = user1;
+
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
 
                 Task.Run(InitUserCart).Wait();
                 InitUserOrders();
+                InitCartItems();
+
                 if (user1.IsAdmin)
                     InitAdminState();
             }
@@ -104,7 +100,7 @@ namespace SukkotMeNET.Services
 
         public async Task<bool> LoginUserFromLocalStorage(string token)
         {
-            if (_AppState.User is null)
+            if (string.IsNullOrEmpty(_AppState.User.Id))
             {
                 var user = await _Repository.UsersRepository.ReadFirstAsync(u => u.Id == token);
                 if (user != null)
@@ -114,6 +110,8 @@ namespace SukkotMeNET.Services
 
                     Task.Run(InitUserCart).Wait();
                     InitUserOrders();
+                    InitCartItems();
+
                     if (user.IsAdmin)
                         InitAdminState();
                     return true;
@@ -125,8 +123,8 @@ namespace SukkotMeNET.Services
 
         public void Logout()
         {
-            _AppState.User = null;
-            _AppState.Cart = null;
+            _AppState.User = new User();
+            _AppState.Cart = new Cart();
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -135,7 +133,7 @@ namespace SukkotMeNET.Services
         {
             _AppState.Alerts.Add(alert);
             StateHasChanged?.Invoke(this, EventArgs.Empty);
-            Task.Delay(4000).ContinueWith(t => RemoveAlert(alert));
+            Task.Delay(4000).ContinueWith(_ => RemoveAlert(alert));
         }
 
         public void RemoveAlert(Alert alert)
@@ -147,7 +145,7 @@ namespace SukkotMeNET.Services
         //Order
         public async Task<Order?> CreateOrderFromCart()
         {
-            if (_AppState.Cart is null || _AppState.User is null)
+            if (string.IsNullOrEmpty(_AppState.Cart.Id) || string.IsNullOrEmpty(_AppState.User.Id))
                 return await Task.FromResult(default(Order));
 
             try
@@ -179,7 +177,7 @@ namespace SukkotMeNET.Services
             }
         }
 
-        public async Task<bool> RemoveOrderAsync(Order order)
+        public async Task<bool> RemoveOrderAsync(Order? order)
         {
             if (order is not null && !order.IsShipped)
             {
@@ -187,7 +185,7 @@ namespace SukkotMeNET.Services
                 if (res)
                 {
                     _AppState.UserOrders.Remove(order);
-                    StateHasChanged?.Invoke(this, null);
+                    StateHasChanged?.Invoke(this, EventArgs.Empty);
                 }
 
                 return res;
@@ -215,12 +213,11 @@ namespace SukkotMeNET.Services
 
         async Task<bool> InitUserCart()
         {
-            if (_AppState.User == null)
+            if (string.IsNullOrEmpty(_AppState.User.Id))
                 return false;
 
             try
             {
-
                 var userId = _AppState.User.Id;
                 var cart = await _Repository.CartsRepository.ReadFirstAsync(c => c.UserId == userId);
                 if (cart != null)
@@ -234,7 +231,7 @@ namespace SukkotMeNET.Services
                     _AppState.Cart.UserId = _AppState.User.Id;
                 }
 
-                StateHasChanged.Invoke(this, EventArgs.Empty);
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
                 return true;
             }
             catch
@@ -245,14 +242,14 @@ namespace SukkotMeNET.Services
 
         async void InitUserOrders()
         {
-            if (_AppState.User == null)
+            if (string.IsNullOrEmpty(_AppState.User.Id))
                 return;
 
             var userId = _AppState.User.Id;
             var orders = await _Repository.OrdersRepository.ReadAllAsync(o => o.UserId == userId);
-            _AppState.UserOrders = orders?.ToList();
+            _AppState.UserOrders = orders.ToList();
 
-            StateHasChanged.Invoke(this, EventArgs.Empty);
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
         async void InitAdminState()
@@ -263,13 +260,12 @@ namespace SukkotMeNET.Services
             var users = await _Repository.UsersRepository.ReadAllAsync();
             _AppState.AdminState.AllUsers = users.ToList();
 
-            StateHasChanged.Invoke(this, EventArgs.Empty);
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        async void InitCartItems()
         {
-            //init shop items
-            _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync() ?? Array.Empty<Item>();
+            _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync();
         }
     }
 }

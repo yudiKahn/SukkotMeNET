@@ -33,7 +33,7 @@
     </div>
 </div>
 
-@if (SelectedItem != null)
+@if (_SelectedItem != null)
 {
     <div class="fixed w-full h-full top-0 z-50 bg-opacity-50 bg-white" @onclick="() => SelectItem(null)">
         <div class="grid justify-center w-full h-full">
@@ -41,26 +41,26 @@
                 <div @onclick:stopPropagation="true" class="relative z-10 h-auto py-10 px-7 overflow-hidden bg-white dark:bg-gray-800 border-b-2 border-gray-300 dark:border-gray-900 rounded-lg shadow-2xl">
                     <EditForm Model="@OrderItem" OnSubmit="@OnSubmit">
                         <h3 class="mb-6 text-2xl font-medium dark:text-gray-300">
-                            @SelectedItem.Name
+                            @_SelectedItem.Name
                         </h3>
 
                         <select @onchange="e => OnPriceSelectChange(Convert.ToInt32(e.Value))"
                             required class="block w-full px-4 py-3 mb-4 border border-2 border-transparent border-gray-200 rounded-lg focus:ring focus:ring-green-500 focus:outline-none">
-                            @for (int i = 0; i < SelectedItem.Prices.Length; i++)
+                            @for (int i = 0; i < _SelectedItem.Prices.Length; i++)
                             {
                                 <option value="@i">
-                                    $@SelectedItem.Prices[i]
-                                    @if (SelectedItem.PricesTypes.ElementAtOrDefault(i) != null)
+                                    $@_SelectedItem.Prices[i]
+                                    @if (_SelectedItem.PricesTypes.ElementAtOrDefault(i) != null)
                                     {
-                                        <span> - @SelectedItem.PricesTypes[i]</span>
+                                        <span> - @_SelectedItem.PricesTypes[i]</span>
                                     }
                                 </option>
                             }
                         </select>
-                        @if (SelectedItem.Options.Length > 1)
+                        @if (_SelectedItem.Options.Length > 1)
                         {
                             <select @bind="OrderItem.Option" required class="block w-full px-4 py-3 mb-4 border border-2 border-transparent border-gray-200 rounded-lg focus:ring focus:ring-green-500 focus:outline-none">
-                                @foreach (var option in SelectedItem.Options)
+                                @foreach (var option in _SelectedItem.Options)
                                 {
                                     <option value="@option">@option</option>
                                 }
@@ -89,21 +89,21 @@
 
 @code {
     [Inject]
-    MainService MainService { get; set; }
+    MainStateService MainService { get; set; }
 
-    Item SelectedItem = null;
+    Item? _SelectedItem;
 
     void SelectItem(Item? item)
     {
-        SelectedItem = item;
+        _SelectedItem = item;
 
         if (item != null)
         {
-            OrderItem.Id = SelectedItem.Id;
+            OrderItem.Id = _SelectedItem.Id;
             OrderItem.Qty = 1;
-            OrderItem.Price = SelectedItem.Prices.FirstOrDefault();
-            OrderItem.PriceType = SelectedItem.PricesTypes.FirstOrDefault();
-            OrderItem.Option = SelectedItem.Options.FirstOrDefault();
+            OrderItem.Price = _SelectedItem.Prices.FirstOrDefault();
+            OrderItem.PriceType = _SelectedItem.PricesTypes.FirstOrDefault();
+            OrderItem.Option = _SelectedItem.Options.FirstOrDefault();
             OrderItem.Name = item.Name;
         }
 
@@ -114,10 +114,10 @@
 
     void OnPriceSelectChange(int index)
     {
-        if (SelectedItem != null)
+        if (_SelectedItem != null)
         {
-            OrderItem.Price = SelectedItem.Prices[index];
-            OrderItem.PriceType = SelectedItem.PricesTypes.ElementAtOrDefault(index);
+            OrderItem.Price = _SelectedItem.Prices[index];
+            OrderItem.PriceType = _SelectedItem.PricesTypes.ElementAtOrDefault(index);
         }
     }
 

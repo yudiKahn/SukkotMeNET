@@ -1,109 +1,39 @@
 ﻿@page "/admin/order"
 @page "/admin/order/{orderId}"
 @using MongoDB.Bson
-@using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
+@using CoreHtmlToImage
 
 <section class="py-1 bg-blueGray-50 flex-grow dark:bg-gray-800" style="min-height:80vh;">
     @if (_Order is not null)
     {
-        <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 mx-auto mt-24">
-            <div class="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-900 w-full mb-6 shadow-lg rounded ">
-                <div class="rounded-t mb-0 px-4 py-3 border-0">
-                    <div class="flex flex-wrap items-center">
-                        <div class="relative w-full px-4 max-w-full flex-grow flex-1">
-                            <h3 class="font-semibold text-base text-blueGray-700 dark:text-gray-200">Order Items</h3>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="block w-full overflow-x-auto">
-                    <table class="items-center bg-transparent w-full border-collapse ">
-                        <thead>
-                            <tr>
-                                <th class="px-6 bg-blueGray-50 dark:text-gray-200 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Item
-                                </th>
-                                <th class="px-6 bg-blueGray-50 dark:text-gray-200 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Price
-                                </th>
-                                <th class="px-6 bg-blueGray-50 dark:text-gray-200 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                    Qty
-                                </th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach (var item in _Order.Items)
-                            {
-                                <tr>
-                                    <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left  dark:text-gray-200 text-blueGray-700">
-                                        @item.Name
-                                    </th>
-                                    <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                        $@item.Price.ToString("0.00")
-                                    </td>
-                                    <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                        @item.Qty
-                                    </td>
-                                </tr>
-                            }
-                            <tr>
-                                <td></td>
-                                <th class="text-right border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                    Total:
-                                </th>
-                                <td class="text-left border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 dark:text-gray-200">
-                                    $@_Order.Items.GetTotal().ToString("0.00")
-                                </td>
-                            </tr>
-                        </tbody>
-
-                        <tfoot class="py-4">
-                            <tr>
-                                <td class="w-full px-4">
-                                    <h3 class="font-semibold text-base text-blueGray-700 dark:text-gray-200">Order Actions</h3>
-                                </td>
-                            </tr>
-                            <tr class="flex px-3 py-2">
-                                <td>
-                                    <button class="mx-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full">
-                                        Delete
-                                    </button>
-                                </td>
-                                <td>
-                                    <button class="block mx-2 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full">
-                                        Modify
-                                    </button>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <img src="@_ImgSrc" class="mx-auto xl:w-2/3"/>
     }
 </section>
-@*<div class="relative overflow-hidden bg-white dark:bg-gray-900 flex-grow">
-      <div class="container mx-auto px-6 md:px-12 relative z-10 flex py-32 xl:py-40">
-        <h1 class="drop-shadow-lg text-4xl font-extrabold tracking-tight text-green-600 sm:text-5xl md:text-4xl lg:text-5xl xl:text-6xl">
-            Can't find order...
-        </h1>
-      </div>
-    </div>
-*@
-@code {
-    [Parameter] public string orderId { get; set; }
-    [Inject] public AppStateService State { get; set; }
 
-    Order _Order;
+
+@code {
+    [Parameter] public string? OrderId { get; set; }
+    [Inject] public AppStateService State { get; set; }
+    [Inject] public InvoiceService _InvoiceService { get; set; }
+
+    Order? _Order;
+    string _ImgSrc = string.Empty;
 
     protected override void OnInitialized()
     {
-        if (ObjectId.TryParse(orderId, out var objId))
+        if (ObjectId.TryParse(OrderId, out _))
         {
-            _Order = State.AdminState?.AllOrders.FirstOrDefault(o => o.Id == orderId);
+            _Order = State.AdminState.AllOrders.FirstOrDefault(o => o.Id == OrderId);
+            var user = State.AdminState.AllUsers.FirstOrDefault(u => u.Id == _Order.UserId);
+
+            if (_Order is not null && user is not null)
+            {
+                var bytes = new HtmlConverter().FromHtmlString(_InvoiceService.GetInvoiceHtml(_Order, user));
+                _ImgSrc = string.Format("data:image/9j/4AAQ;base64,{0}", Convert.ToBase64String(bytes));
+            }
         }
     }
 

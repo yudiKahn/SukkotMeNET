@@ -21,13 +21,13 @@ else
 
 @code {
     [Parameter]
-    public string FaIcon { get; set; }
+    public string FaIcon { get; set; } = string.Empty;
     [Parameter]
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
     [Parameter]
-    public string Text { get; set; }
+    public string Text { get; set; } = string.Empty;
     [Parameter]
-    public string Link { get; set; }
+    public string Link { get; set; } = string.Empty;
     [Parameter]
     public EventCallback<MouseEventArgs> Onclick { get; set; }
 

@@ -18,18 +18,18 @@ namespace SukkotMeNET.Models
             return res != null;
         }
 
-        public async Task<IEnumerable<T?>> ReadAllAsync(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> ReadAllAsync(Expression<Func<T, bool>> predicate)
         {
             var res = await _Collection.FindAsync(predicate);
             var items = await res.ToListAsync();
-            return items;
+            return items ?? new List<T>();
         }
 
-        public async Task<IEnumerable<T>?> ReadAllAsync()
+        public async Task<IEnumerable<T>> ReadAllAsync()
         {
             var res = _Collection.Find((item) => true);
             var items = await res.ToListAsync();
-            return items;
+            return items ?? new List<T>();
         }
 
         public async Task<T?> ReadFirstAsync(Expression<Func<T, bool>> predicate)

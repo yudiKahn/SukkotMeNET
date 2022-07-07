@@ -3,18 +3,18 @@
     public class ApplicationConfiguration
     {
         //email:
-        public string SmtpHost { get; set; }
+        public string SmtpHost { get; set; } = string.Empty;
         public int SmtpPort { get; set; }
-        public string SmtpAddress { get; set; }
-        public string SmtpPassword { get; set; }
+        public string SmtpAddress { get; set; } = string.Empty;
+        public string SmtpPassword { get; set; } = string.Empty;
 
         //database:
-        public string ConnectionString { get; set; }
-        public string DatabaseName { get; set; }
+        public string ConnectionString { get; set; } = string.Empty;
+        public string DatabaseName { get; set; } = string.Empty;
 
-        public string DBUsersCollectionName { get; set; }
-        public string DBItemsCollectionName { get; set; }
-        public string DBCartsCollectionName { get; set; }
-        public string DBOrdersCollectionName { get; set; }
+        public string DBUsersCollectionName { get; set; } = string.Empty;
+        public string DBItemsCollectionName { get; set; } = string.Empty;
+        public string DBCartsCollectionName { get; set; } = string.Empty;
+        public string DBOrdersCollectionName { get; set; } = string.Empty;
     }
 }

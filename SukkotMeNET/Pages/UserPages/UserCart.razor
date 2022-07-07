@@ -3,7 +3,7 @@
 @using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
-@inject MainService Service
+@inject MainStateService Service
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
 <div class="w-full bg-white grid place-content-center py-3 flex-grow dark:bg-gray-800" style="min-height: 80vh;">
@@ -73,7 +73,7 @@
                 </div>
                 <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
                     <button @onclick="@CreateOrderFromCart" class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                        Make an order
+                        Submit an order
                     </button>
                     <NavLink href="/shop" class="mt-6 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-gray-400 text-lg leading-6 font-medium rounded-md text-gray-700">
                         Go Shopping
@@ -107,7 +107,7 @@
     [Inject] IJSRuntime _Js { get; set; }
     [Inject] public NavigationManager Nav { get; set; }
 
-    public bool CanEditQty { get; set; } = false;
+    public bool CanEditQty { get; set; }
 
     async void Delete(OrderItem item)
     {

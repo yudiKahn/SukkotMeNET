@@ -91,13 +91,13 @@
 </div>
 
 @code {
-    [Parameter] public string orderId { get; set; }
+    [Parameter] public string? OrderId { get; set; }
     [Inject] public AppStateService State { get; set; }
     [Inject] public IJSRuntime _Js { get; set; }
-    [Inject] public MainService Service { get; set; }
+    [Inject] public MainStateService Service { get; set; }
     [Inject] public NavigationManager Nav { get; set; }
 
-    Order _Order;
+    Order? _Order;
     bool _CanEditOrder = false;
 
     protected override void OnAfterRender(bool firstRender)
@@ -109,10 +109,10 @@
             Service.StateHasChanged += (e, s) => InvokeAsync(this.StateHasChanged);
         }
 
-        if (ObjectId.TryParse(orderId, out var objId))
+        if (ObjectId.TryParse(OrderId, out var objId))
         {
             var oldOrderId = _Order?.Id;
-            _Order = State.UserOrders.FirstOrDefault(o => o.Id == orderId);
+            _Order = State.UserOrders.FirstOrDefault(o => o.Id == OrderId);
             if (_Order?.Id != oldOrderId)
                 InvokeAsync(this.StateHasChanged);
         }

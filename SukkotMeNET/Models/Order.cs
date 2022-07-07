@@ -9,17 +9,17 @@ namespace SukkotMeNET.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         [BsonElement("id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         [BsonRepresentation(BsonType.ObjectId)]
         [BsonElement("userId")]
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         [BsonElement("items")]
-        public List<OrderItem> Items { get; set; }
+        public List<OrderItem> Items { get; set; } = new();
 
         [BsonElement("comment")]
-        public string Comment { get; set; }
+        public string Comment { get; set; } = string.Empty;
 
         [BsonElement("isPaid")]
         public bool IsPaid { get; set; }

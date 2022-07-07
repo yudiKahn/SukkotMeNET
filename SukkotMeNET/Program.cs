@@ -23,20 +23,28 @@ namespace SukkotMeNET
             builder.Services.AddSingleton(appConfig);
 
 
-            builder.Services.AddSingleton<IAuthorizationHandler, AuthorizationHandlerService>();
+            builder.Services.AddScoped<IAuthorizationHandler, AuthorizationHandlerService>();
             builder.Services.AddAuthorization(config =>
             {
                 config.AddPolicy(Constants.Policies.IsAdmin, policy => policy.Requirements.Add(new AdminRequirement()));
                 config.AddPolicy(Constants.Policies.IsUser, policy => policy.Requirements.Add(new UserRequirement()));
                 config.AddPolicy(Constants.Policies.IsGuest, policy => policy.Requirements.Add(new GuestRequirement()));
             });
+            
+            builder.Services.AddScoped<AppStateService>();
+            builder.Services.AddScoped<MainStateService>();
+            builder.Services.AddScoped<InvoiceService>();
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
-            builder.Services.AddSingleton<AppStateService>();
             builder.Services.AddSingleton<EmailService>();
-            builder.Services.AddHostedService<MainService>();
-            builder.Services.AddSingleton<MainService>();
-            builder.Services.AddSingleton<InvoiceService>();
+            
+            //hsts try:
+            builder.Services.AddHsts(options =>
+            {
+                options.Preload = true;
+                options.IncludeSubDomains = true;
+                options.MaxAge = TimeSpan.FromMinutes(1);
+            });
 
             var app = builder.Build();
 
@@ -44,7 +52,6 @@ namespace SukkotMeNET
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

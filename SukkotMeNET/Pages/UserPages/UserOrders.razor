@@ -2,7 +2,7 @@
 @using SukkotMeNET.Extensions
 @using SukkotMeNET.Services
 @inject AppStateService AppState
-@inject MainService Service
+@inject MainStateService Service
 
 <section class="py-1 dark:bg-gray-800 min-h-screen">
     @if (AppState?.UserOrders?.Any() == true)

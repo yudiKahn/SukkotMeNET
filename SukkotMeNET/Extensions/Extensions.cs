@@ -1,9 +1,4 @@
 ﻿using SukkotMeNET.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SukkotMeNET.Extensions
 {
@@ -48,7 +43,7 @@ namespace SukkotMeNET.Extensions
 
         public static T Clone<T>(this T obj)
         {
-            T res = (T)Activator.CreateInstance(obj.GetType());
+            var res = (T)Activator.CreateInstance(obj.GetType());
 
             foreach (var prop in obj.GetType().GetProperties())
             {

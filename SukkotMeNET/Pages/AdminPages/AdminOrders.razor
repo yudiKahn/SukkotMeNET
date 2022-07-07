@@ -39,7 +39,7 @@
                     <tbody>
                         @foreach (var order in _State.AdminState.AllOrders.OrderByDescending(o => o.CreatedAt))
                         {
-                            @if (string.IsNullOrEmpty(userId) || order.UserId == userId)
+                            @if (string.IsNullOrEmpty(UserId) || order.UserId == UserId)
                             {
                                 <tr>
                                     <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
@@ -74,9 +74,9 @@
 </section>
 
 @code {
-    [Parameter] public string userId { get; set; }
+    [Parameter] public string? UserId { get; set; }
     [Inject] IJSRuntime _Js { get; set; }
-    [Inject] MainService Service { get; set; }
+    [Inject] MainStateService Service { get; set; }
 
     async void SendInvoice(Order order)
     {
