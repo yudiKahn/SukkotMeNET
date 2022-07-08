@@ -194,6 +194,32 @@ namespace SukkotMeNET.Services
             return false;
         }
 
+        public async Task<bool> ToggleOrderStatus(Order order, string prop)
+        {
+            if (string.IsNullOrEmpty(order.Id))
+                return false;
+
+            switch (prop)
+            {
+                case nameof(Order.IsPacked):
+                    order.IsPacked = !order.IsPacked;
+                    break;
+                case nameof(Order.IsShipped):
+                    order.IsShipped = !order.IsShipped;
+                    break;
+                case nameof(Order.IsPaid):
+                    order.IsPaid = !order.IsPaid;
+                    break;
+                default:
+                    return false;
+            }
+
+            var res = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order);
+            if(res is not null)
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+            return res is not null;
+        }
+
         //Admin
         public async Task<bool> SendInvoiceFromAdminAsync(Order order, User user)
         {

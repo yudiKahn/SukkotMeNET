@@ -1,15 +1,121 @@
 ﻿@page "/admin/order"
 @page "/admin/order/{orderId}"
 @using MongoDB.Bson
+@using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
-@using CoreHtmlToImage
 
 <section class="py-1 bg-blueGray-50 flex-grow dark:bg-gray-800" style="min-height:80vh;">
     @if (_Order is not null)
     {
+        <div class="mx-auto mt-4 px-3 py-2 shadow" style="width:21cm;">
+            <div class="text-right">ב"ה</div>
+            <table class="w-full text-center">
+                <tr>
+                    <td colspan="4">
+                        <div class="">
+                            <b>Yanky Kahn</b> | <b>+18186052066</b> | <b>18253 topham st. Tarazana CA 91335</b>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="h-5"></tr>
+                <tr>
+                    <td colspan="2" class="text-left">
+                        <b>Customer information:</b><br />
+                        @string.Format($"{State.User.FirstName} {State.User.LastName}")<br />
+                        @State.User.Email <br />
+                        @State.User.PhoneNumber <br />
+                        @State.User.Address <br />
 
-        <img src="@_ImgSrc" class="mx-auto xl:w-2/3"/>
+                    </td>
+                    <td colspan="2" class="text-right align-top">
+                        <br />
+                        Invoice: #@_Order.Id[..6]<br />
+                        Created: @_Order.CreatedAt.ToString("dd MMM yyyy hh:mm")<br />
+                    </td>
+                </tr>
+                
+                <tr class="h-8"></tr>
+                <tr>
+                    <td colspan="4" class="text-left">
+                        <b>Orderd items:</b>
+                    </td>
+                </tr>
+
+                <tr class="bg-gray-300 px-1 font-bold border-b-4 border-gray-400 border-solid">
+                    <td class="text-left">Item</td>
+                    <td>Qty</td>
+                    <td>Price</td>
+                    <td style="text-align:right;">Subtotal</td>
+                </tr>
+
+                @foreach (var item in _Order.Items.OrderBy(i => i.Name))
+                {
+                    <tr>
+                        <td class="text-left">
+                            <input type="checkbox" disabled="disabled"/> @item.Name <small>@item.PriceType @item.Option</small>
+                        </td>
+                        <td>@item.Qty</td>
+                        <td>@item.Price</td>
+                        <td class="text-right">$@string.Format($"{item.Qty * item.Price:N2}")</td>
+                    </tr>
+                }
+                <tr>
+                    <td colspan="3"></td>
+                    <td style="text-align:right;">Total: $@_Order.Items.GetTotal().ToString("N2")</td>
+                </tr>
+
+                <tr>
+                    <td colspan="4" class="text-left">
+                        <b>Items in the box:</b>
+                    </td>
+                </tr>
+
+                <tr class="bg-gray-300 px-1 font-bold border-b-4 border-gray-400 border-solid">
+                    <td colspan="3" class="text-left">Item</td>
+                    <td style="text-align:right;">Qty</td>
+                </tr>
+                
+                @foreach (var item in _InvoiceService.GetItemsInTheBox(_Order.Items).OrderBy(i => i.Name))
+                {
+                    <tr>
+                        <td colspan="3" class="text-left">
+                            <input type="checkbox" disabled="disabled"/> @item.Name <small>@item.PriceType @item.Option</small>
+                        </td>
+                        <td class="text-right">@item.Qty</td>
+                    </tr>
+                }
+
+                <tr class="h-5"></tr>
+                <tr class="bg-gray-300 px-1 font-bold border-b-4 border-gray-400 border-solid">
+                    <td colspan="2" class="text-left">Payment Method</td>
+
+                    <td colspan="2"></td>
+                </tr>
+
+                <tr class="text-left">
+                    <td colspan="2">
+                        <input type="checkbox" disabled="disabled"/> Check 
+                        <small>18253 topham st. Tarazana CA 91335</small>
+                        <input type="checkbox" disabled="disabled"/> CashApp 
+                        <small>8186052066</small>
+                        <br />
+                        <input type="checkbox" disabled="disabled"/> PayPal 
+                        <small>chabad18@hotmail.com</small>
+                        <input type="checkbox" disabled="disabled"/> Zelle 
+                        <small>chabad18@hotmail.com</small>
+                    </td>
+
+                    <td colspan="2"></td>
+                </tr>
+            </table>
+            <div class="text-center mt-8">
+                <h1 class="font-bold text-lg">Thank's for your buisness</h1>
+            </div>
+            <div style="text-align: left;">
+                <small>Order id: #@_Order.Id</small>
+            </div>
+        </div>
     }
 </section>
 
@@ -20,20 +126,12 @@
     [Inject] public InvoiceService _InvoiceService { get; set; }
 
     Order? _Order;
-    string _ImgSrc = string.Empty;
 
     protected override void OnInitialized()
     {
         if (ObjectId.TryParse(OrderId, out _))
         {
             _Order = State.AdminState.AllOrders.FirstOrDefault(o => o.Id == OrderId);
-            var user = State.AdminState.AllUsers.FirstOrDefault(u => u.Id == _Order.UserId);
-
-            if (_Order is not null && user is not null)
-            {
-                var bytes = new HtmlConverter().FromHtmlString(_InvoiceService.GetInvoiceHtml(_Order, user));
-                _ImgSrc = string.Format("data:image/9j/4AAQ;base64,{0}", Convert.ToBase64String(bytes));
-            }
         }
     }
 

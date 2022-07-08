@@ -39,7 +39,7 @@ namespace SukkotMeNET.Models
             return documents;
         }
 
-        public async Task<T> UpdateFirstAsync(Expression<Func<T, bool>> filter, T newValue, bool writeIfNotFound = true)
+        public async Task<T?> UpdateFirstAsync(Expression<Func<T, bool>> filter, T newValue, bool writeIfNotFound = true)
         {
             try
             {

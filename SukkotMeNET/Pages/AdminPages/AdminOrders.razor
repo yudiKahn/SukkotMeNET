@@ -30,9 +30,6 @@
                             <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
                                 View
                             </th>
-                            <th class="px-6 bg-blueGray-50 text-blueGray-500 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                Actions
-                            </th>
                         </tr>
                     </thead>
 
@@ -53,13 +50,36 @@
                                             <i class="fa fa-external-link"></i>
                                         </NavLink>
                                     </td>
-                                    <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                        <button @onclick="() => SendInvoice(order)" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-full">
+                                </tr>
+                                <tr>
+                                    <td class="w-full px-6 py-2 relative" colspan="3">
+                                        <button @onclick="() => SendInvoice(order)" class="bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full">
                                             Send Invoice
                                         </button>
-                                        <br/>
-                                        <button class="mt-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-2 rounded-full">
+
+                                        <button class="mt-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full">
                                             Payment reminder
+                                        </button>
+
+                                        <button @onclick="() => ToggleOrderStatus(order, nameof(Order.IsPacked))"
+                                                disabled=@_IsUpdatingStatus
+                                                class=@_BtnsClass>
+                                            <i class=@string.Format("fa fa-{0}", order.IsPacked ? "check" : "times")></i>
+                                            Packed
+                                        </button>
+
+                                        <button @onclick="() => ToggleOrderStatus(order, nameof(Order.IsShipped))"
+                                                disabled=@_IsUpdatingStatus
+                                                class=@_BtnsClass>
+                                            <i class=@string.Format("fa fa-{0}", order.IsShipped ? "check" : "times")></i>
+                                            Shipped
+                                        </button>
+
+                                        <button @onclick="() => ToggleOrderStatus(order, nameof(Order.IsPaid))"
+                                                disabled=@_IsUpdatingStatus
+                                                class=@_BtnsClass>
+                                            <i class=@string.Format("fa fa-{0}", order.IsPaid ? "check" : "times")></i>
+                                            Paid
                                         </button>
                                     </td>
                                 </tr>
@@ -78,6 +98,9 @@
     [Inject] IJSRuntime _Js { get; set; }
     [Inject] MainStateService Service { get; set; }
 
+    bool _IsUpdatingStatus;
+    string _BtnsClass = "mt-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full";
+
     async void SendInvoice(Order order)
     {
         var user = _State.AdminState.AllUsers.FirstOrDefault(u => u.Id == order.UserId);
@@ -86,5 +109,21 @@
         {
             var didSend = await Service.SendInvoiceFromAdminAsync(order,user);
         }
+    }
+    
+    protected override void OnInitialized()
+    {
+        Service.StateHasChanged += (e, s) => InvokeAsync(StateHasChanged);
+    }
+
+    async void ToggleOrderStatus(Order order, string prop)
+    {
+        _IsUpdatingStatus = true;
+        _BtnsClass = "opacity-75 mt-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full";
+        await Service.ToggleOrderStatus(order, prop);
+        _IsUpdatingStatus = false;
+        _BtnsClass = "mt-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full";
+
+        StateHasChanged();
     }
 }
