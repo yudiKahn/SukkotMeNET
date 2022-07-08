@@ -8,7 +8,10 @@
 <section class="py-1 bg-blueGray-50 flex-grow dark:bg-gray-800" style="min-height:80vh;">
     @if (_Order is not null)
     {
-        <div class="mx-auto mt-4 px-3 py-2 shadow" style="width:21cm;">
+        <div class="mx-auto mt-4 px-3 py-2 shadow relative" style="width: 21cm;">
+            <NavLink href=@string.Format($"/order/{_Order.Id}/edit") class="absolute grid place-content-center w-10 h-10 bg-gray-600 rounded-full">
+                <i class="fa fa-pencil text-white"></i>
+            </NavLink>
             <div class="text-right">ב"ה</div>
             <table class="w-full text-center">
                 <tr>
@@ -34,7 +37,7 @@
                         Created: @_Order.CreatedAt.ToString("dd MMM yyyy hh:mm")<br />
                     </td>
                 </tr>
-                
+
                 <tr class="h-8"></tr>
                 <tr>
                     <td colspan="4" class="text-left">
@@ -46,14 +49,14 @@
                     <td class="text-left">Item</td>
                     <td>Qty</td>
                     <td>Price</td>
-                    <td style="text-align:right;">Subtotal</td>
+                    <td style="text-align: right;">Subtotal</td>
                 </tr>
 
                 @foreach (var item in _Order.Items.OrderBy(i => i.Name))
                 {
                     <tr>
                         <td class="text-left">
-                            <input type="checkbox" disabled="disabled"/> @item.Name <small>@item.PriceType @item.Option</small>
+                            <input type="checkbox" disabled="disabled" /> @item.Name <small>@item.PriceType @item.Option</small>
                         </td>
                         <td>@item.Qty</td>
                         <td>@item.Price</td>
@@ -62,7 +65,7 @@
                 }
                 <tr>
                     <td colspan="3"></td>
-                    <td style="text-align:right;">Total: $@_Order.Items.GetTotal().ToString("N2")</td>
+                    <td style="text-align: right;">Total: $@_Order.Items.GetTotal().ToString("N2")</td>
                 </tr>
 
                 <tr>
@@ -73,14 +76,14 @@
 
                 <tr class="bg-gray-300 px-1 font-bold border-b-4 border-gray-400 border-solid">
                     <td colspan="3" class="text-left">Item</td>
-                    <td style="text-align:right;">Qty</td>
+                    <td style="text-align: right;">Qty</td>
                 </tr>
-                
+
                 @foreach (var item in _InvoiceService.GetItemsInTheBox(_Order.Items).OrderBy(i => i.Name))
                 {
                     <tr>
                         <td colspan="3" class="text-left">
-                            <input type="checkbox" disabled="disabled"/> @item.Name <small>@item.PriceType @item.Option</small>
+                            <input type="checkbox" disabled="disabled" /> @item.Name <small>@item.PriceType @item.Option</small>
                         </td>
                         <td class="text-right">@item.Qty</td>
                     </tr>
@@ -95,14 +98,14 @@
 
                 <tr class="text-left">
                     <td colspan="2">
-                        <input type="checkbox" disabled="disabled"/> Check 
+                        <input type="checkbox" disabled="disabled" /> Check
                         <small>18253 topham st. Tarazana CA 91335</small>
-                        <input type="checkbox" disabled="disabled"/> CashApp 
+                        <input type="checkbox" disabled="disabled" /> CashApp
                         <small>8186052066</small>
                         <br />
-                        <input type="checkbox" disabled="disabled"/> PayPal 
+                        <input type="checkbox" disabled="disabled" /> PayPal
                         <small>chabad18@hotmail.com</small>
-                        <input type="checkbox" disabled="disabled"/> Zelle 
+                        <input type="checkbox" disabled="disabled" /> Zelle
                         <small>chabad18@hotmail.com</small>
                     </td>
 

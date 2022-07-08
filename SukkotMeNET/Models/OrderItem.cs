@@ -10,13 +10,13 @@ namespace SukkotMeNET.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         [BsonElement("id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
         [BsonElement("category")]
-        public string Category { get; set; }
+        public string Category { get; set; } = string.Empty;
 
         [BsonElement("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [BsonElement("price")]
         public double Price { get; set; }
@@ -26,18 +26,9 @@ namespace SukkotMeNET.Models
 
         [BsonElement("option")]
         public string? Option { get; set; }
-
-        private int _Qty;
-
+        
         [BsonElement("q")]
-        public int Qty 
-        {
-            get => _Qty;
-            set
-            {
-                _Qty = value;
-            } 
-        }
+        public int Qty { get; set; }
 
         [BsonElement("byAdmin")]
         public bool ByAdmin { get; set; }

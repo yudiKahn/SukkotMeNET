@@ -2,6 +2,7 @@
 @using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
+@using MongoDB.Bson
 @inject AppStateService _State
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
@@ -22,7 +23,7 @@
                                 <p class="my-1">@item.Prices.GetFriednlyRange('$')</p>
 
                                 <button class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
-                                    Add To Cart
+                                    @string.Format(string.IsNullOrEmpty(ForOrderWithId) ? "Add To Cart" : "Add To Order")
                                 </button>
                             </div>
                         </div>
@@ -74,7 +75,7 @@
 
                         <div class="block">
                             <button class="w-full px-3 py-4 font-medium text-white bg-green-600 rounded-lg" type="submit">
-                                Add To Cart
+                                @string.Format(string.IsNullOrEmpty(ForOrderWithId) ? "Add To Cart" : "Add To Order")
                             </button>
                             <button type="button" @onclick="() => SelectItem(null)" class="w-full px-3 pt-3 font-medium text-gray-600 dark:text-gray-400">
                                 Go Back Shopping
@@ -88,6 +89,8 @@
 }
 
 @code {
+    [Parameter]
+    public string? ForOrderWithId { get; set; }
     [Inject]
     MainStateService MainService { get; set; }
 
@@ -123,7 +126,21 @@
 
     async void OnSubmit()
     {
-        _ = await MainService.AddItemToCart(OrderItem);
+        if (!string.IsNullOrEmpty(ForOrderWithId))
+        {
+            if (ObjectId.TryParse(ForOrderWithId, out _))
+            {
+                _ = await MainService.AddItemToOrder(OrderItem, ForOrderWithId);
+            }
+            else
+            {
+
+            }
+        }
+        else
+        {
+            _ = await MainService.AddItemToCart(OrderItem);
+        }
         SelectItem(null);
     }
 }

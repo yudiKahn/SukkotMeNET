@@ -220,6 +220,35 @@ namespace SukkotMeNET.Services
             return res is not null;
         }
 
+        public async Task<bool> AddItemToOrder(OrderItem item, string orderId)
+        {
+            try
+            {
+                var order = _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
+
+                if (order is null || (!_AppState.User.IsAdmin && _AppState.User.Id != order.UserId))
+                    return false;
+                
+                order.Items.AddOrMerge(item);
+
+                var res = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order);
+
+                if (_AppState.User.IsAdmin)
+                {
+                    var aOrder = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == orderId);
+                    aOrder = order;
+                }
+
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+
+                return res is not null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         //Admin
         public async Task<bool> SendInvoiceFromAdminAsync(Order order, User user)
         {

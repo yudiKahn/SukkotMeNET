@@ -33,8 +33,8 @@ namespace SukkotMeNET.Models
         [BsonElement("CreatedAt")]
         public DateTime CreatedAt { get; set; }
 
-        [BsonElement("createdAt")]
-        public DateTime createdAt { get; set; }
+        [BsonElement("ShippingCost")]
+        public double ShippingCost { get; set; }
 
     }
 }
