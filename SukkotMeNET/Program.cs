@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using SolidCompany.Wrappers.WkHtmlToImage.Registration;
 using SukkotMeNET.Configuration;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
@@ -37,14 +38,8 @@ namespace SukkotMeNET
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
             builder.Services.AddSingleton<EmailService>();
-            
-            //hsts try:
-            builder.Services.AddHsts(options =>
-            {
-                options.Preload = true;
-                options.IncludeSubDomains = true;
-                options.MaxAge = TimeSpan.FromMinutes(1);
-            });
+
+            builder.Services.AddHtmlToImageConversion();
 
             var app = builder.Build();
 

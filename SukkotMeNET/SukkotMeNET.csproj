@@ -8,7 +8,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.15.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.16.1" />
+    <PackageReference Include="SolidCompany.Wrappers.WkHtmlToImage" Version="1.4.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Assets\invoice.html">
