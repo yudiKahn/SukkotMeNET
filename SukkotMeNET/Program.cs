@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using SolidCompany.Wrappers.WkHtmlToImage.Registration;
 using SukkotMeNET.Configuration;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
@@ -38,9 +37,7 @@ namespace SukkotMeNET
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
             builder.Services.AddSingleton<EmailService>();
-
-            builder.Services.AddHtmlToImageConversion();
-
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

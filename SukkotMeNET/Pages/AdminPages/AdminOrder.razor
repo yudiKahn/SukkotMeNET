@@ -2,8 +2,6 @@
 @page "/admin/order/{orderId}"
 @inherits PageBase
 @using MongoDB.Bson
-@using SolidCompany.Wrappers.WkHtmlToImage
-@using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
 
@@ -24,7 +22,6 @@
     [Parameter] public string? OrderId { get; set; }
     [Inject] public AppStateService State { get; set; }
     [Inject] public InvoiceService _InvoiceService { get; set; }
-    [Inject] public IHtmlToImage HtmlToImage { get; set; }
     [Inject] public MainStateService Service { get; set; }
 
     Order? _Order;
@@ -44,12 +41,9 @@
             if (_Order is null || user is null)
                 return;
 
-            _InvoiceHtml = _InvoiceService.GetInvoiceHtml(_Order, user);
-            var stream = await HtmlToImage.CreateImageAsync(_InvoiceHtml, 800, ImageFormat.Jpg);
-
-            using var ms = new MemoryStream();
-            stream.CopyTo(ms);
-            _InvoiceImg = $"data:image/jpg;base64,{Convert.ToBase64String(ms.ToArray())}";
+            var html = _InvoiceService.GetInvoiceHtml(_Order, user);
+            var bytes = new CoreHtmlToImage.HtmlConverter().FromHtmlString(html);
+            _InvoiceImg = $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
             StateHasChanged();
         }
     }
