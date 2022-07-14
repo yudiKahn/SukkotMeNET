@@ -6,10 +6,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>7a61d8d0-295c-4d9a-8d37-0e0781658d55</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\yudik\.nuget\packages\select.htmltopdf.netcore\22.1.0\contentFiles\any\any\Select.Html.dep" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
+    <PackageReference Include="EvoPdf.HtmlToPdf.NetCore" Version="9.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.16.1" />
-    <PackageReference Include="Select.HtmlToPdf.NetCore" Version="22.1.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Assets\invoice.html">

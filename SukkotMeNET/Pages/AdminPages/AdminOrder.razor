@@ -2,7 +2,6 @@
 @page "/admin/order/{orderId}"
 @inherits PageBase
 @using MongoDB.Bson
-@using SelectPdf
 @using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
@@ -10,11 +9,6 @@
 <section class="py-1 bg-blueGray-50 flex-grow dark:bg-gray-800" style="min-height:80vh;">
     @if (_Order is not null)
     {
-        
-        <object data=@_InvoicePdf type="application/pdf" class="mx-auto w-3/4 xl:w-1/2 min-h-screen max-h-96">
-            <embed src=@_InvoicePdf type="application/pdf"/>
-        </object>
-        @*
         <div class="mx-auto mt-4 px-3 py-2 shadow relative" style="width: 21cm;">
             <NavLink href=@string.Format($"/order/{_Order.Id}/edit") class="absolute grid place-content-center w-10 h-10 bg-gray-600 rounded-full">
                 <i class="fa fa-pencil text-white"></i>
@@ -125,7 +119,7 @@
             <div style="text-align: left;">
                 <small>Order id: #@_Order.Id</small>
             </div>
-        </div>*@
+        </div>
     }
 </section>
 
@@ -136,28 +130,26 @@
     [Inject] public InvoiceService _InvoiceService { get; set; }
 
     Order? _Order;
-    string? _InvoicePdf
-    ;
+    string? _InvoicePdf;
 
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
-        
+
         if (ObjectId.TryParse(OrderId, out _))
         {
             _Order = State.AdminState.AllOrders.FirstOrDefault(o => o.Id == OrderId);
+            /*
+            <object data=@_InvoicePdf type="application/pdf" class="mx-auto w-3/4 xl:w-1/2 min-h-screen max-h-96">
+                <embed src=@_InvoicePdf type="application/pdf" />
+            </object>
+
             var user = State.AdminState.AllUsers.FirstOrDefault(u => u.Id == _Order?.UserId);
 
             if (_Order is null || user is null)
                 return;
 
-            var html = _InvoiceService.GetInvoiceHtml(_Order, user);
-
-            var doc = new HtmlToPdf().ConvertHtmlString(html);
-            var bytes = doc.Save();
-            var base64 = Convert.ToBase64String(bytes);
-            
-            _InvoicePdf = $"data:application/pdf;base64,{base64}";
+            var html = _InvoiceService.GetInvoiceHtml(_Order, user);*/
         }
     }
 
