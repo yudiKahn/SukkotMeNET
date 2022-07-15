@@ -66,23 +66,3 @@
         </div>
     </div>
 </section>
-
-@code
-{
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        base.OnAfterRenderAsync(firstRender);
-
-        try
-        {
-            var b = new EvoPdf.PdfConverter().GetPdfBytesFromHtmlString("<h1>hello</h1>");
-            var b64 = Convert.ToBase64String(b);
-            Console.WriteLine($"here is pdf >>>>>>>> {b64[..6]}...");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("pdf failed");
-        }
-        return Task.CompletedTask;
-    }
-                            }

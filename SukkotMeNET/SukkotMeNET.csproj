@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
-    <PackageReference Include="EvoPdf.HtmlToPdf.NetCore" Version="9.0.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.16.1" />
   </ItemGroup>
   <ItemGroup>
