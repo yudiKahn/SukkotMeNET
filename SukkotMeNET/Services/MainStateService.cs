@@ -321,6 +321,7 @@ namespace SukkotMeNET.Services
         async void InitCartItems()
         {
             _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync();
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }
