@@ -37,7 +37,7 @@ namespace SukkotMeNET
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
             builder.Services.AddSingleton<EmailService>();
-            
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

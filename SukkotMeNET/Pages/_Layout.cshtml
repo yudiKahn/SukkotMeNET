@@ -29,11 +29,14 @@
     <script src="_framework/blazor.server.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.8.0/alpine.js"></script>
     <script src="https://kit.fontawesome.com/dbd1de3adf.js" crossorigin="anonymous"></script>
-    <script>
-        function GetImageFromHTML(html) {
-            var data = `<svg xmlns="http://www.w3.org/2000/svg" width="800px" height="1000px">
-                                    <foreignObject width="100%" height="100%">${html}</foreignObject>
-                                </svg>`;
+    <script language="javascript">
+
+        
+
+        function GetImageFromHTML(html, width, height) {
+            var data = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}px" height="${height}px">
+                                                            <foreignObject width="100%" height="100%">${html}</foreignObject>
+                                                        </svg>`;
 
             var DOMURL = window.URL || window.webkitURL || window;
 

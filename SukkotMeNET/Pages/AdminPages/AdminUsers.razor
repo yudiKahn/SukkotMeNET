@@ -1,6 +1,9 @@
 ﻿@page "/admin/users"
 @using SukkotMeNET.Services
+@using SukkotMeNET.Models
+@inherits SukkotMeNET.Models.PageBase
 @inject AppStateService _State
+@inject MainStateService _Service
 @attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
 
 
@@ -69,7 +72,10 @@
                                     </NavLink>
                                 </td>
                                 <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
-                                    <i class="fas fa-trash text-red-400 cursor-pointer"></i>
+                                    @if (!user.IsAdmin)
+                                    {
+                                        <i @onclick="() => RemoveUser(user)" class="fas fa-trash text-red-400 cursor-pointer"></i>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -80,3 +86,16 @@
         </div>
     </div>
 </section>
+
+@code
+{
+    [Inject]
+    public IJSRuntime JS { get; set; }
+    async void RemoveUser(User? user)
+    {
+        if (user is not null && await JS.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"To delete {user.FirstName}?"))
+        {
+            await _Service.RemoveUserAsync(user);
+        }
+    }
+}

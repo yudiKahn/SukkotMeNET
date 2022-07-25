@@ -128,6 +128,29 @@ namespace SukkotMeNET.Services
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
+        //Register
+        public async Task RegisterAsync(User user)
+        {
+            var userExist = await _Repository.UsersRepository.ReadFirstAsync(u => u.Email == user.Email);
+            if (userExist is not null)
+                throw new Exception("User with this email address already exist");
+
+            var hashPass = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            if (hashPass is null)
+                throw new Exception("An error accord while saving user");
+
+            var pass = user.Password;
+            user.Password = hashPass;
+
+            var user1 = await _Repository.UsersRepository.WriteAsync(user);
+
+            if (user1 is null)
+                throw new Exception("An error accord while saving user");
+
+            user1.Password = pass;
+            await LoginAsync(user1);
+        }
+
         //Alerts
         public void AddAlert(Alert alert)
         {
@@ -263,6 +286,22 @@ namespace SukkotMeNET.Services
             {
                 return false;
             }
+        }
+
+        public async Task<bool> RemoveUserAsync(User user)
+        {
+            if (!_AppState.User.IsAdmin || user.IsAdmin)
+                return false;
+
+            var res = await _Repository.UsersRepository.DeleteFirstAsync(u => u.Id == user.Id);
+
+            if (res)
+            {
+                _AppState.AdminState.AllUsers.Remove(user);
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+            return res;
         }
 
 
