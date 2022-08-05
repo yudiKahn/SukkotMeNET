@@ -8,161 +8,7 @@
 
 <PageTitle>SukkotMeNET</PageTitle>
 
-
-<div class="sticky top-0 z-50 relative bg-white dark:bg-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6">
-        <div class="flex justify-between items-center border-b-2 border-gray-100 dark:border-gray-600 py-6 lg:justify-start lg:space-x-10">
-            <div class="flex justify-start lg:w-0 lg:flex-1">
-                <NavLink href="/" class="relative z-10 flex items-center w-auto text-2xl font-extrabold leading-none text-black dark:text-white select-none">
-                    sukkotMe<span class="text-green-600">.</span>
-                </NavLink>
-            </div>
-            <div class="-mr-2 -my-2 lg:hidden">
-                
-                <AuthorizeView Policy="@Constants.Policies.IsUser">
-                    <NavLink href="/user/cart" class="h-6 w-6 align-text-bottom relative">
-                        <i class="fa fa-shopping-cart text-gray-600" style="font-size:20px;"></i>
-                        <span class="absolute top-6 right-7 px-1 -mt-3 -mr-3 text-xs text-white bg-green-600 rounded-full">
-                            @(AppState?.Cart?.Items?.Count ?? 0)
-                        </span>
-                    </NavLink>
-                </AuthorizeView>
-
-                <button class="bg-white rounded-md dark:bg-gray-900 p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
-                        @onclick="ToggleNavbar">
-                    <span class="sr-only">Open menu</span>
-                    <svg class="h-6 w-6"
-                         xmlns="http://www.w3.org/2000/svg"
-                         fill="none"
-                         viewBox="0 0 24 24"
-                         stroke="currentColor"
-                         aria-hidden="true">
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M4 6h16M4 12h16M4 18h16"/>
-                    </svg>
-                </button>
-            </div>
-            <nav class="hidden lg:flex space-x-10" >
-                <NavLink href="/" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                    <span class="block">Home</span>
-                </NavLink>
-                <NavLink href="/gallery" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                    <span class="block">Gallery</span>
-                </NavLink>
-                <NavLink href="/shop" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                    <span class="block">Shop</span>
-                </NavLink>
-                <AuthorizeView Policy="@Constants.Policies.IsAdmin">
-                    <Authorized>
-                        <NavLink href="/admin" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                            <span class="block">Admin's Place</span>
-                        </NavLink>
-                    </Authorized>
-                </AuthorizeView>
-            </nav>
-            <div class="hidden lg:flex items-center justify-end lg:flex-1 lg:w-0">
-                <AuthorizeView Policy="@Constants.Policies.IsUser">
-                    <Authorized>
-                        <div>
-                            <NavLink href="/user/cart" class="relative inline-flex">
-                                <i class="fa fa-shopping-cart text-gray-600" style="font-size:25px;"></i>
-                                <span class="absolute top-6 right-7 px-1 -mt-3 -mr-3 text-xs text-white bg-green-600 rounded-full">
-                                    @(AppState?.Cart?.Items?.Count ?? 0)
-                                </span>
-                            </NavLink>
-                            &nbsp;
-                            <NavLink href="/user">
-                                <i class="fa fa-user-o text-gray-600" style="font-size:25px;"></i>
-                            </NavLink>
-                        </div>
-                    </Authorized>
-                    <NotAuthorized>
-                        <span class="inline-flex rounded-md shadow-sm">
-                            <NavLink href="/login" class="cursor-pointer inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-white whitespace-no-wrap bg-green-600 dark:bg-gray-900 border border-green-700 dark:text-green-700 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-green-900">
-                                Login
-                            </NavLink>
-                        </span>
-                    </NotAuthorized>
-                </AuthorizeView>
-            </div>
-        </div>
-    </div>
-
-    <div class="@OpenNavbarClass">
-        <div class="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white dark:bg-gray-800 divide-y-2 divide-gray-50">
-            <div class="pt-5 pb-6 px-5">
-                <div class="flex items-center justify-between">
-                    <div>
-                    </div>
-                    <div class="-mr-2">
-                        <button class="dark:bg-gray-900 bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-green-500"
-                                @onclick="ToggleNavbar">
-                            <span class="sr-only">Close menu</span>
-                            <svg class="h-6 w-6"
-                                 xmlns="http://www.w3.org/2000/svg"
-                                 fill="none"
-                                 viewBox="0 0 24 24"
-                                 stroke="currentColor"
-                                 aria-hidden="true">
-                                <path stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      stroke-width="2"
-                                      d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="py-6 px-5 space-y-6">
-                <div class="grid grid-cols-2 gap-y-4 gap-x-8">
-                    <NavLink href="/" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                        <span class="block">Home</span>
-                    </NavLink>
-                    <NavLink href="/gallery" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                        <span class="block">Gallery</span>
-                    </NavLink>
-                    <NavLink href="/shop" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                        <span class="block">Shop</span>
-                    </NavLink>
-                    <AuthorizeView Policy="@Constants.Policies.IsAdmin">
-                        <Authorized>
-                            <NavLink href="/admin" class="relative font-medium leading-6 text-gray-600 dark:text-gray-200 transition duration-150 ease-out hover:text-gray-900">
-                                <span class="block">Admin's Place</span>
-                            </NavLink>
-                        </Authorized>
-                    </AuthorizeView>
-                </div>
-                <div>
-                    <AuthorizeView Policy="@Constants.Policies.IsUser">
-                        <Authorized>
-                            <div>
-                                <NavLink href="/user/cart" class="relative inline-flex">
-                                    <i class="fa fa-shopping-cart text-gray-600" style="font-size:25px;"></i>
-                                    <span class="absolute top-6 right-7 px-1 -mt-3 -mr-3 text-xs text-white bg-green-600 rounded-full">
-                                        @(AppState?.Cart?.Items?.Count ?? 0)
-                                    </span>
-                                </NavLink>
-                                &nbsp;
-                                <NavLink href="/user">
-                                    <i class="fa fa-user-o text-gray-600" style="font-size:25px;"></i>
-                                </NavLink>
-                            </div>
-                        </Authorized>
-                        <NotAuthorized>
-                            <span class="inline-flex rounded-md shadow-sm">
-                                <NavLink href="/login" class="cursor-pointer inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-white whitespace-no-wrap bg-green-600 dark:bg-gray-900 border border-green-700 dark:text-green-700 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-green-900">
-                                    Login
-                                </NavLink>
-                            </span>
-                        </NotAuthorized>
-                    </AuthorizeView>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<Navbar />
 
 @if (State.Alerts.Any())
 {
@@ -180,69 +26,26 @@
     </div>
 }
 
-<span class="fixed text-white bg-green-500 z-40 rounded-r-md py-3 mt-5 cursor-pointer" style="writing-mode: tb; font-size: 20px;"
+<span class="fixed bottom-5 left-5 text-green-500 bg-white z-40 rounded-full"
       @onclick="() => _ShowShmittahPopup = true">
-    <b><i class="fa fa-info-circle" aria-hidden="true"></i> SHMITTAH</b>
+    <b><i class="fa fa-info-circle -m-3" style="font-size: 50px;" aria-hidden="true"></i></b>
 </span>
 
 @if (_ShowShmittahPopup)
 {
-    <div class="fixed w-full h-full top-0 z-50 bg-white">
-        <div class="text-right p-2">
-            <bold><i class="fa fa-times fa-2x cursor-pointer" @onclick="() => _ShowShmittahPopup = false"></i></bold>
-        </div>
-        <div class="w-full m-3 text-center">
-            <div class="mx-auto w-2/3">
-                בס״ד
-                <br />
-                <h1 class="heading">ISRAELI ESROG SHMITTAH AWARENESS</h1>
-
-                Please be aware that all our esrogim from Eretz Yisrael need to be
-                treated with kedushas shviis. As you can see, they are all kosher to use
-                because of Otzar Beis Din, but they retain the status of shmitta fruit
-                <br />
-                that needs to be treated appropriately.
-                <br />
-                <b>One important example:</b> After sukkos it is ideal to return all esrogim to
-                Israel (you can return them to me) or at least make sure that they are
-                not discarded in a wrong way (have people return them to you). It must
-                first be left out to rot (shrivel entirely?) and only afterwards can be put
-                in the trash, and even then only after being put in a plastic bag. It
-                seems that making it into jam is not necessarily ok, and certainly not
-                <br />
-                using with cloves a besomim.
-                <br />
-                Other items, for example, how to avoid “doing business with shviis
-                produce”: one concept is that extra fee people pay you this year is for
-                the Lulav and other items, while the esrog comes as a gift or at not
-                <br />
-                more than the price stipulated by the Bais din.
-                <br />
-                <b class="underline">
-                    Note: This page is only intended to draw your awareness to the issues.
-                    As with all items of Halachah, contact your local orthodox rov.
-                </b>
-            </div>
-        </div>
+    <div class="fixed p-5 w-screen h-screen top-0 z-50 bg-black bg-opacity-50">
+        <img src="/images/SHMITTAH-AWARENESS.jpg" class="max-w-full max-h-full rounded-md shadow-xl m-auto">
     </div>
 }
 
-<span @onclick="() => IsOpen = false">
-    <CascadingValue Value="this" Name="ErrorComponent">
-        @Body
-    </CascadingValue>
-</span>
+<CascadingValue Value="this" Name="ErrorComponent">
+    @Body
+</CascadingValue>
 
-<Footer/>
+<Footer />
 
 @code {
     bool _ShowShmittahPopup;
-
-    public bool IsOpen { get; set; }
-
-    string OpenNavbarClass => IsOpen ? "scale-100 transition ease-out duration-200 absolute top-0 inset-x-0 p-2 transition transform origin-top-right lg:hidden" : "hidden scale-95 absolute top-0 inset-x-0 p-2 transition transform origin-top-right lg:hidden";
-    
-    void ToggleNavbar() => IsOpen = !IsOpen;
 
     Action OnRemoveAlert(Alert alert) => () => MainService.RemoveAlert(alert);
 }
