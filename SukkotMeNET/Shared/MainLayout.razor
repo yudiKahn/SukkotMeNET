@@ -4,7 +4,6 @@
 @using SukkotMeNET.Services
 @inherits PageLayoutBase
 @inject AppStateService State
-@inject AppStateService AppState
 
 <PageTitle>SukkotMeNET</PageTitle>
 
@@ -12,29 +11,60 @@
 
 @if (State.Alerts.Any())
 {
-    <div class="fixed w-full h-full top-0 z-50 bg-opacity-50 bg-white">
+    <div class="fixed w-full h-full top-0 left-0 z-50">
         @foreach (var alert in State.Alerts)
         {
-            <div class="@string.Format($"relative bg-{alert.Type.ToFriendlyString()}-100 border-{alert.Type.ToFriendlyString()}-400 text-{alert.Type.ToFriendlyString()}-700 left-1/2 transform -translate-x-1/2 mt-5 border px-4 py-3 w-1/2 rounded")" role="alert">
+            <div class=@string.Format($"px-8 py-6 text-white flex bg-{alert.Type.ToFriendlyString()}-500 justify-between mx-3 md:mx-auto shadow-2xl rounded my-3 md:w-2/3 lg:1/2")>
+                <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 mr-6" viewBox="0 0 20 20" fill="currentColor">
+                        @if (alert.Type == AlertType.Success)
+                        {
+                            <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
+                        }
+                        else if (alert.Type == AlertType.Error)
+                        {
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        }
+                        else if (alert.Type == AlertType.Information)
+                        {
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                        }
+                    </svg>
+                    <p>
+                        <b>@alert.Title</b> @alert.Message
+                    </p>
+                </div>
+                <span>
+                    <svg class="fill-current h-6 w-6 text-white" role="button" @onclick="@OnRemoveAlert(alert)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <title>Close</title>
+                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+                    </svg>
+                </span>
+            </div>
+
+            @*<div class="@string.Format($"relative bg-{alert.Type.ToFriendlyString()}-100 border-{alert.Type.ToFriendlyString()}-400 text-{alert.Type.ToFriendlyString()}-700 left-1/2 transform -translate-x-1/2 mt-5 border px-4 py-3 w-1/2 rounded")" role="alert">
                 <strong class="font-bold">@alert.Title</strong>
                 <span class="block sm:inline">@alert.Message</span>
                 <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-                    <svg class="@string.Format($"fill-current h-6 w-6 text-{alert.Type.ToFriendlyString()}-500")" role="button" @onclick="@OnRemoveAlert(alert)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                    <svg class="@string.Format($"fill-current h-6 w-6 text-{alert.Type.ToFriendlyString()}-500")" role="button" @onclick="@OnRemoveAlert(alert)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
                 </span>
-            </div>
+            </div>*@
         }
     </div>
 }
 
 <span class="fixed bottom-5 left-5 text-green-500 bg-white z-40 rounded-full"
       @onclick="() => _ShowShmittahPopup = true">
-    <b><i class="fa fa-info-circle -m-3" style="font-size: 50px;" aria-hidden="true"></i></b>
+    <b><i class="fa fa-info-circle" style="font-size: 50px;" aria-hidden="true"></i></b>
 </span>
 
 @if (_ShowShmittahPopup)
 {
-    <div class="fixed p-5 w-screen h-screen top-0 z-50 bg-black bg-opacity-50">
-        <img src="/images/SHMITTAH-AWARENESS.jpg" class="max-w-full max-h-full rounded-md shadow-xl m-auto">
+    <div class="fixed p-5 w-screen h-screen top-0 z-50 bg-black bg-opacity-50" @onclick="() => _ShowShmittahPopup = false">
+        <div class="relative w-full h-full">
+            <img src="/images/SHMITTAH-AWARENESS.jpg"  @onclick:stopPropagation="true"
+                 class="max-w-full max-h-full rounded-md shadow-xl absolute inset-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        </div>
     </div>
 }
 

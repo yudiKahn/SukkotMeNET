@@ -6,7 +6,7 @@ namespace SukkotMeNET.Extensions
     {
         public static string ToFriendlyString(this AlertType alertType) => alertType switch
         {
-            AlertType.Information => "indigo",
+            AlertType.Information => "green",
             AlertType.Success => "green",
             _ => "red"
         };
