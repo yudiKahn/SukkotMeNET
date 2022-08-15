@@ -16,5 +16,8 @@
         public string DBItemsCollectionName { get; set; } = string.Empty;
         public string DBCartsCollectionName { get; set; } = string.Empty;
         public string DBOrdersCollectionName { get; set; } = string.Empty;
+
+        //jwt:
+        public string JwtSecret { get; set; }
     }
 }

@@ -1,9 +1,8 @@
 ﻿@page "/user/cart"
-@using SukkotMeNET.Components
 @using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
-@inject MainStateService Service
+@inherits PageBase
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
 <div class="w-full bg-white grid place-content-center py-3 flex-grow dark:bg-gray-800" style="min-height: 80vh;">
@@ -24,7 +23,7 @@
                                     <button type="button" @onclick="() => CanEditQty = !CanEditQty" class="rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
                                         @(CanEditQty ? "STOP EDIT" : "EDIT QUANTITY")
                                     </button>
-                                    <button type="button" disabled="@(!CanEditQty)" @onclick="Service.SaveCurrentCart" class=@string.Concat("rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer ", CanEditQty ? "":"opacity-50")>
+                                    <button type="button" disabled="@(!CanEditQty)" @onclick="MainService.SaveCurrentCart" class=@string.Concat("rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer ", CanEditQty ? "":"opacity-50")>
                                         SAVE
                                     </button>
                                 </div>
@@ -113,24 +112,19 @@
     {
         if (await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"To delete item?"))
         {
-            Service.RemoveItemFromCart(item);
+            MainService.RemoveItemFromCart(item);
         }
     }
 
     async void CreateOrderFromCart()
     {
-        var res = await Service.CreateOrderFromCart();
+        var res = await MainService.CreateOrderFromCart();
         if (res is not null)
         {
-            Service.AddAlert(new Alert("Success", "Order created successfully", AlertType.Success));
+            MainService.AddAlert(new Alert("Success", "Order created successfully", AlertType.Success));
             Nav.NavigateTo($"/user/order/{res.Id}/invoice");
         }
         else
-            Service.AddAlert(new Alert("Failed", "Failed creating order", AlertType.Error));
+            MainService.AddAlert(new Alert("Failed", "Failed creating order", AlertType.Error));
     }
-
-    protected override void OnInitialized()
-    {
-        Service.StateHasChanged += (e, s) => InvokeAsync(this.StateHasChanged);
     }
-}

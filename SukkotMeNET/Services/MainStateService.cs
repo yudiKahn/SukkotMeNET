@@ -38,11 +38,6 @@ namespace SukkotMeNET.Services
                 if (itemClone.Qty < 1)
                     throw new Exception("Quantity cannot be less then one");
 
-                /*if (_AppState.Cart == null)
-                {
-                    Console.WriteLine("Cart is null");
-                    _ = await InitUserCart();
-                }*/
 
                 _AppState.Cart.Items.AddOrMerge(itemClone);
 
@@ -67,8 +62,6 @@ namespace SukkotMeNET.Services
 
         public async void SaveCurrentCart()
         {
-            /*if (_AppState.Cart is null || _AppState.User == null)
-                return;*/
             await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart);
         }
 
@@ -154,9 +147,12 @@ namespace SukkotMeNET.Services
         //Alerts
         public void AddAlert(Alert alert)
         {
-            _AppState.Alerts.Add(alert);
-            StateHasChanged?.Invoke(this, EventArgs.Empty);
-            Task.Delay(4000).ContinueWith(_ => RemoveAlert(alert));
+            new Thread(() =>
+            {
+                _AppState.Alerts.Add(alert);
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+                Task.Delay(4000).ContinueWith(_ => RemoveAlert(alert));
+            }).Start();
         }
 
         public void RemoveAlert(Alert alert)
@@ -247,7 +243,9 @@ namespace SukkotMeNET.Services
         {
             try
             {
-                var order = _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
+                var order = _AppState.User.IsAdmin ? 
+                    _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == orderId) :
+                    _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
 
                 if (order is null || (!_AppState.User.IsAdmin && _AppState.User.Id != order.UserId))
                     return false;
