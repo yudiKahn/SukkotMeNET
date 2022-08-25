@@ -234,7 +234,7 @@ namespace SukkotMeNET.Services
             }
 
             var res = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order);
-            if(res is not null)
+            if (res is not null)
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
             return res is not null;
         }
@@ -243,31 +243,58 @@ namespace SukkotMeNET.Services
         {
             try
             {
-                var order = _AppState.User.IsAdmin ? 
-                    _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == orderId) :
-                    _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
+                Order? order = new Order();
 
-                if (order is null || (!_AppState.User.IsAdmin && _AppState.User.Id != order.UserId))
-                    return false;
-                
-                order.Items.AddOrMerge(item);
-
-                var res = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order);
+                order = _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
+                if(_AppState.User.Id == order?.UserId)    
+                    order?.Items.AddOrMerge(item);
 
                 if (_AppState.User.IsAdmin)
                 {
-                    var aOrder = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == orderId);
-                    aOrder = order;
+                    order = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == orderId);
+                    order?.Items.AddOrMerge(item);
                 }
+
+                order?.Items.AddOrMerge(item);
+                
+                if(order != null)
+                    order = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == orderId, order);
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
 
-                return res is not null;
+                return order is not null;
             }
             catch
             {
                 return false;
             }
+        }
+
+        public async Task<bool> SetShipmentPrice(string oId, double price)
+        {
+            var order = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == oId);
+            if (order is null) return false;
+
+            order.ShippingCost = price;
+            await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == oId, order, false);
+            return true;
+        }
+
+        public async Task<bool> RemoveItemFromOrder(Order? order, OrderItem item)
+        {
+            if(order is null) return false;
+
+            order.Items.Remove(item);
+
+            if (_AppState.User.IsAdmin)
+                _AppState.AdminState.AllOrders.First(o => o.Id == order.Id).Items.Remove(item);
+            if(_AppState.User.Id == order.UserId)
+                _AppState.UserOrders.First(o => o.Id == order.Id).Items.Remove(item);
+
+            await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order);
+            
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
+            return true;
         }
 
         //Admin

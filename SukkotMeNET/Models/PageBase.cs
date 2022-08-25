@@ -12,7 +12,7 @@ namespace SukkotMeNET.Models
 
         public void Dispose()
         {
-            MainService.StateHasChanged -= InvokeStateHasChanged;
+            MainService.StateHasChanged -= OnStateHasChanged;
         }
 
         public bool SetProperty<T>(ref T prop, T val)
@@ -33,7 +33,7 @@ namespace SukkotMeNET.Models
 
             _UsedOnAfterRender = true;
             if (firstRender)
-                MainService.StateHasChanged += InvokeStateHasChanged;
+                MainService.StateHasChanged += OnStateHasChanged;
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -44,10 +44,12 @@ namespace SukkotMeNET.Models
             _UsedOnAfterRender = true;
             if (firstRender)
             {
-                MainService.StateHasChanged += InvokeStateHasChanged;
+                MainService.StateHasChanged += OnStateHasChanged;
             }
         }
 
-        void InvokeStateHasChanged(object? sender, EventArgs args) => InvokeAsync(StateHasChanged);
+        public virtual void OnStateHasChanged(object? sender, EventArgs args) => InvokeAsync(StateHasChanged);
+
+
     }
 }

@@ -1,9 +1,8 @@
 ﻿@page "/admin/orders"
 @page "/admin/orders/{userId}"
-@using SukkotMeNET.Interfaces
 @using SukkotMeNET.Models
-@using MongoDB.Bson
 @using SukkotMeNET.Services
+@inherits PageBase
 @inject AppStateService _State
 
 <section class="py-1 bg-blueGray-50">
@@ -81,6 +80,12 @@
                                             <i class=@string.Format("fa fa-{0}", order.IsPaid ? "check" : "times")></i>
                                             Paid
                                         </button>
+                                        
+                                        <button @onclick="() => SetShipmentPrice(order.Id)"
+                                            disabled=@_IsUpdatingStatus
+                                                class=@_BtnsClass>
+                                            Shipment price
+                                        </button>
                                     </td>
                                 </tr>
                             }
@@ -96,7 +101,6 @@
 @code {
     [Parameter] public string? UserId { get; set; }
     [Inject] IJSRuntime _Js { get; set; }
-    [Inject] MainStateService Service { get; set; }
 
     bool _IsUpdatingStatus;
     string _BtnsClass = "mt-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full";
@@ -107,23 +111,28 @@
 
         if (user != null && await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"To send invoice to {user.Email}?"))
         {
-            var didSend = await Service.SendInvoiceFromAdminAsync(order,user);
+            var didSend = await MainService.SendInvoiceFromAdminAsync(order,user);
         }
-    }
-    
-    protected override void OnInitialized()
-    {
-        Service.StateHasChanged += (e, s) => InvokeAsync(StateHasChanged);
     }
 
     async void ToggleOrderStatus(Order order, string prop)
     {
         _IsUpdatingStatus = true;
         _BtnsClass = "opacity-75 mt-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full";
-        await Service.ToggleOrderStatus(order, prop);
+        await MainService.ToggleOrderStatus(order, prop);
         _IsUpdatingStatus = false;
         _BtnsClass = "mt-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full";
 
         StateHasChanged();
+    }
+
+    async void SetShipmentPrice(string oId)
+    {
+        var price = await _Js.InvokeAsync<string>(Constants.JavaScriptFunctions.Prompt, "Please enter shipment price");
+
+        if (double.TryParse(price, out var p))
+        {
+            await MainService.SetShipmentPrice(oId, p);
+        }
     }
 }

@@ -46,10 +46,12 @@ namespace SukkotMeNET.Services
                             <input type={'"'}checkbox{'"'}/> {item.Name} <small>{item.PriceType} {item.Option}</small>
                         </td>
                         <td style={'"'}text-align:right;{'"'}>{item.Qty}</td>
-                    </tr>")) }
+                    </tr>")) },
+                { "ShippingCost", $"${order.ShippingCost:N2}" },
             };
 
-            var newHtml = Regex.Replace(html, @"\[(.+?)\]", m => htmlValues[m.Groups[1].Value.Trim()]);
+            var newHtml = Regex.Replace(html, @"\[(.+?)\]", m => 
+                htmlValues.TryGetValue(m.Groups[1].Value.Trim(), out var v) ? v : "");
 
             return newHtml;
 

@@ -108,6 +108,19 @@
             var oldOrderId = _Order?.Id;
             _Order = State.UserOrders.FirstOrDefault(o => o.Id == OrderId);
             if (_Order?.Id != oldOrderId)
+                InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public override void OnStateHasChanged(object? sender, EventArgs args)
+    {
+        base.OnStateHasChanged(sender, args);
+
+        if (ObjectId.TryParse(OrderId, out _))
+        {
+            var oldOrderId = _Order?.Id;
+            _Order = State.UserOrders.FirstOrDefault(o => o.Id == OrderId);
+            if (_Order?.Id != oldOrderId)
                 InvokeAsync(this.StateHasChanged);
         }
     }
