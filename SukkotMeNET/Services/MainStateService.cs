@@ -329,6 +329,22 @@ namespace SukkotMeNET.Services
             return res;
         }
 
+        public async Task<bool> ChangeUserPassword(string email, string newPass)
+        {
+            email = email.ToLower();
+
+            if(!_AppState.User.IsAdmin) return false;
+
+            var user = _AppState.AdminState.AllUsers.FirstOrDefault(u => u.Email.ToLower() == email);
+            if(user == null) return false;
+
+            var hashPass = BCrypt.Net.BCrypt.HashPassword(newPass);
+            user.Password = hashPass;
+
+            var u1 = await _Repository.UsersRepository.UpdateFirstAsync(u => u.Email.ToLower() == email, user);
+
+            return u1?.Password == hashPass;
+        }
 
         async Task<bool> InitUserCart()
         {
