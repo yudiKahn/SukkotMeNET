@@ -71,7 +71,7 @@ namespace SukkotMeNET.Services
             var email = user.Email;
             var password = user.Password;
 
-            var users = await _Repository.UsersRepository.ReadAllAsync(u => u.Email == email);
+            var users = await _Repository.UsersRepository.ReadAllAsync(u => u.Email.ToLower() == email.ToLower());
             var user1 = users.FirstOrDefault(u => BCrypt.Net.BCrypt.Verify(password, u.Password));
 
             if (user1 != null)
