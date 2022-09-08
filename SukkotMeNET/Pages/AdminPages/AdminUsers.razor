@@ -3,7 +3,6 @@
 @using SukkotMeNET.Models
 @inherits SukkotMeNET.Models.PageBase
 @inject AppStateService _State
-@inject MainStateService _Service
 @attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
 
 
@@ -11,6 +10,7 @@
 
 <section class="py-1 dark:bg-gray-800">
     <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 mx-auto mt-24">
+        
         <div class="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-900 w-full mb-6 shadow-lg rounded">
             <div class="rounded-t mb-0 px-4 py-3 border-0">
                 <div class="flex flex-wrap items-center">
@@ -18,6 +18,15 @@
                         <h3 class="font-semibold text-base dark:text-gray-200">
                             Users
                         </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-t mb-0 px-4 py-3 border-0">
+                <div class="flex flex-wrap items-center">
+                    <div class="relative w-full px-4 max-w-full flex-grow flex-1">
+                        <input placeholder="Filter by name" @bind="FilterName"  @bind:event="oninput" 
+                               class="p-3 appearance-none block w-full md:w-1/2 text-gray-700 rounded leading-tight"/>
                     </div>
                 </div>
             </div>
@@ -47,7 +56,7 @@
                     <tbody>
                         @foreach (var user in _State.AdminState.AllUsers)
                         {
-                            <tr>
+                            <tr hidden="@(!string.IsNullOrEmpty(FilterName) && !$"{user.FirstName.ToLower()} {user.LastName.ToLower()}".Contains(FilterName))">
                                 <th class="dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
                                     @if (user.IsAdmin)
                                     {
@@ -91,11 +100,20 @@
 {
     [Inject]
     public IJSRuntime JS { get; set; }
+
+    string _FilterName = "";
+
+    public string FilterName
+    {
+        get => _FilterName;
+        set => SetProperty(ref _FilterName, value);
+    }
+
     async void RemoveUser(User? user)
     {
         if (user is not null && await JS.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"To delete {user.FirstName}?"))
         {
-            await _Service.RemoveUserAsync(user);
+            await MainService.RemoveUserAsync(user);
         }
     }
 }
