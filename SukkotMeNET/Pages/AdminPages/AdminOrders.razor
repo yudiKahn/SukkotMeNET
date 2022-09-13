@@ -15,6 +15,15 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="rounded-t mb-0 px-4 py-3 border-0">
+                <div class="flex flex-wrap items-center">
+                    <div class="relative w-full px-4 max-w-full flex-grow flex-1">
+                        <input placeholder="Filter by name" @bind="FilterName"  @bind:event="oninput" 
+                               class="p-3 appearance-none block w-full md:w-1/2 text-gray-700 rounded leading-tight"/>
+                    </div>
+                </div>
+            </div>
 
             <div class="block w-full overflow-x-auto">
                 <table class="items-center bg-transparent w-full border-collapse ">
@@ -33,26 +42,38 @@
                     </thead>
 
                     <tbody>
-                        @foreach (var order in _State.AdminState.AllOrders.OrderByDescending(o => o.CreatedAt))
-                        {
-                            @if (string.IsNullOrEmpty(UserId) || order.UserId == UserId)
+                        @foreach (var o in _State.AdminState.AllOrders.Join(
+                            _State.AdminState.AllUsers,
+                            o => o.UserId,
+                            u => u.Id,
+                            (o,u) => new
                             {
-                                <tr>
+                                User = u,
+                                Order = o
+                            }).OrderByDescending(o => o.Order.CreatedAt))
+                        {
+                            @if (string.IsNullOrEmpty(UserId) || o.Order.UserId == UserId)
+                            {
+                                <tr hidden="@(!string.IsNullOrEmpty(FilterName) && !$"{o.User.FirstName.ToLower()} {o.User.LastName.ToLower()}".Contains(FilterName.ToLower()))">
                                     <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
-                                        @(order.CreatedAt == default ? "--" : order.CreatedAt.ToString("dd MMM yyyy hh:mm"))
+                                        @(o.Order.CreatedAt == default ? "2019" : o.Order.CreatedAt.ToString("dd MMM yyyy hh:mm"))
                                     </th>
                                     <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                        @_State.AdminState.AllUsers.FirstOrDefault(u => u.Id == order.UserId)
+                                        @o.User
                                     </td>
                                     <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                        <NavLink href=@string.Format($"/admin/order/{order.Id}")>
+                                        <NavLink href=@string.Format($"/admin/order/{o.Order.Id}")>
                                             <i class="fa fa-external-link"></i>
                                         </NavLink>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr hidden="@(!string.IsNullOrEmpty(FilterName) && !$"{o.User.FirstName.ToLower()} {o.User.LastName.ToLower()}".Contains(FilterName.ToLower()))">
                                     <td class="w-full px-6 py-2 relative" colspan="3">
-                                        <button @onclick="() => SendInvoice(order)" class="bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full">
+                                        <button @onclick="() => DeleteOrder(o.Order)" class="bg-red-400 hover:bg-red-500 text-white font-bold text-sm py-1 px-2 rounded-full">
+                                            Delete
+                                        </button>
+
+                                        <button @onclick="() => SendInvoice(o.Order)" class="bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full">
                                             Send Invoice
                                         </button>
 
@@ -60,28 +81,28 @@
                                             Payment reminder
                                         </button>
 
-                                        <button @onclick="() => ToggleOrderStatus(order, nameof(Order.IsPacked))"
+                                        <button @onclick="() => ToggleOrderStatus(o.Order, nameof(Order.IsPacked))"
                                                 disabled=@_IsUpdatingStatus
                                                 class=@_BtnsClass>
-                                            <i class=@string.Format("fa fa-{0}", order.IsPacked ? "check" : "times")></i>
+                                            <i class=@string.Format("fa fa-{0}", o.Order.IsPacked ? "check" : "times")></i>
                                             Packed
                                         </button>
 
-                                        <button @onclick="() => ToggleOrderStatus(order, nameof(Order.IsShipped))"
+                                        <button @onclick="() => ToggleOrderStatus(o.Order, nameof(Order.IsShipped))"
                                                 disabled=@_IsUpdatingStatus
                                                 class=@_BtnsClass>
-                                            <i class=@string.Format("fa fa-{0}", order.IsShipped ? "check" : "times")></i>
+                                            <i class=@string.Format("fa fa-{0}", o.Order.IsShipped ? "check" : "times")></i>
                                             Shipped
                                         </button>
 
-                                        <button @onclick="() => ToggleOrderStatus(order, nameof(Order.IsPaid))"
+                                        <button @onclick="() => ToggleOrderStatus(o.Order, nameof(Order.IsPaid))"
                                                 disabled=@_IsUpdatingStatus
                                                 class=@_BtnsClass>
-                                            <i class=@string.Format("fa fa-{0}", order.IsPaid ? "check" : "times")></i>
+                                            <i class=@string.Format("fa fa-{0}", o.Order.IsPaid ? "check" : "times")></i>
                                             Paid
                                         </button>
                                         
-                                        <button @onclick="() => SetShipmentPrice(order.Id)"
+                                        <button @onclick="() => SetShipmentPrice(o.Order.Id)"
                                             disabled=@_IsUpdatingStatus
                                                 class=@_BtnsClass>
                                             Shipment price
@@ -104,6 +125,24 @@
 
     bool _IsUpdatingStatus;
     string _BtnsClass = "mt-1 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded-full";
+
+    
+    string _FilterName = "";
+
+    public string FilterName
+    {
+        get => _FilterName;
+        set => SetProperty(ref _FilterName, value);
+    }
+
+    async void DeleteOrder(Order order)
+    {
+        if (await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, "To delete order?"))
+        {
+            var ok = await MainService.RemoveOrderAsync(order);
+            MainService.AddAlert(new Alert(ok ? "Removed" : "Error", ok ? "" : "Cannot remove order", ok ? AlertType.Success : AlertType.Error));
+        }
+    }
 
     async void SendInvoice(Order order)
     {

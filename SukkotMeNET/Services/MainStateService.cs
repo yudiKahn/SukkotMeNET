@@ -165,7 +165,7 @@ namespace SukkotMeNET.Services
         public async Task<Order?> CreateOrderFromCart()
         {
             if (string.IsNullOrEmpty(_AppState.Cart.Id) || string.IsNullOrEmpty(_AppState.User.Id))
-                return await Task.FromResult(default(Order));
+                return null;
 
             try
             {
@@ -180,7 +180,7 @@ namespace SukkotMeNET.Services
                 var invoice = _InvoiceService.GetInvoiceHtml(order, _AppState.User);
 
 
-                await _Repository.OrdersRepository.WriteAsync(order);
+                var o = await _Repository.OrdersRepository.WriteAsync(order);
                 await _EmailService.SendAsync("Order Invoice", invoice, _AppState.User.Email, "chabad18@hotmail.com");
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
 
@@ -188,7 +188,7 @@ namespace SukkotMeNET.Services
                 _AppState.UserOrders.Add(order);
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
-                return order;
+                return o;
             }
             catch
             {
@@ -203,7 +203,9 @@ namespace SukkotMeNET.Services
                 var res = await _Repository.OrdersRepository.DeleteFirstAsync(o => o.Id == order.Id);
                 if (res)
                 {
-                    _AppState.UserOrders.Remove(order);
+                    _AppState.AdminState?.AllOrders?.Remove(order);
+                    if(order.UserId == _AppState.User.Id)
+                        _AppState.UserOrders.Remove(order);
                     StateHasChanged?.Invoke(this, EventArgs.Empty);
                 }
 
