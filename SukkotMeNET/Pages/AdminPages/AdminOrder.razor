@@ -40,7 +40,7 @@
     [Inject]
     public IJSRuntime Js { get; set; }
 
-    int _Height = 1000;
+    int _Height = 800;
     int _Width = 800;
 
     Order? _Order;
@@ -86,7 +86,7 @@
                 var html = _InvoiceService.GetInvoiceHtml(_Order, user);
                 InvoicePdf = await Js.InvokeAsync<string>(
                     Constants.JavaScriptFunctions.GetImageFromHTML, 
-                    html, _Width, _Height
+                    html, _Width, _Height + _Order.Items.Count * 100
                     );
                 Message = "Invoice loaded";
             }

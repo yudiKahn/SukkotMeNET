@@ -30,7 +30,7 @@ namespace SukkotMeNET.Services
                 {"UserEmail", user.Email },
                 {"UserPhone", user.PhoneNumber },
                 {"UserAddress", user.Address?.ToString() ?? "" },
-                {"Total", order.Items.GetTotal().ToString("N2") },
+                {"Total", order.Items.GetTotal(order.ShippingCost).ToString("N2") },
                 {"Items", string.Join(' ',order.Items.OrderBy(i => i.Name).Select(item =>
                 $@"<tr>
                         <td><input type={'"'}checkbox{'"'}/> {item.Name} <small>{item.PriceType} {item.Option}</small></td>

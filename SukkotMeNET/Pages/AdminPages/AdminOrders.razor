@@ -56,7 +56,7 @@
                             {
                                 <tr hidden="@(!string.IsNullOrEmpty(FilterName) && !$"{o.User.FirstName.ToLower()} {o.User.LastName.ToLower()}".Contains(FilterName.ToLower()))">
                                     <th class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
-                                        @(o.Order.CreatedAt == default ? "2019" : o.Order.CreatedAt.ToString("dd MMM yyyy hh:mm"))
+                                        @(o.Order.CreatedAt == default ? "2019/20" : o.Order.CreatedAt.ToString("dd MMM yyyy hh:mm"))
                                     </th>
                                     <td class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                         @o.User

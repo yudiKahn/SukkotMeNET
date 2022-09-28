@@ -13,9 +13,9 @@ namespace SukkotMeNET.Extensions
             return $"{currency}{numbers.ElementAt(0)} - {currency}{numbers.ElementAt(numbers.Count() - 1)}";
         }
 
-        public static double GetTotal(this IEnumerable<OrderItem> items)
+        public static double GetTotal(this IEnumerable<OrderItem> items, double shipment = 0D)
         {
-            var res = 0.0;
+            var res = shipment;
 
             foreach(var item in items)
             {
