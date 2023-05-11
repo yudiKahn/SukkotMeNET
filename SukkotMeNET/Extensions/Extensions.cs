@@ -43,9 +43,9 @@ namespace SukkotMeNET.Extensions
             };
         }
 
-        public static T Clone<T>(this T obj)
+        public static T Clone<T>(this T obj) where T : class, new()
         {
-            var res = (T)Activator.CreateInstance(obj.GetType());
+            var res = new T();
 
             foreach (var prop in obj.GetType().GetProperties())
             {

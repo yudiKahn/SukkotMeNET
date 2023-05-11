@@ -4,13 +4,11 @@ namespace SukkotMeNET.Extensions
 {
     public static class IEnumerableExtensions
     {
-        public static string GetFriednlyRange<T>(this IEnumerable<T> numbers,char currency = '$')
+        public static string GetFriendlyRange(this double[] values,char currency = '$')
         {
-            if (!numbers.Any())
+            if (!values.Any())
                 return string.Empty;
-            else if (numbers.Count() == 1)
-                return $"{currency}{numbers.ElementAt(0)}";
-            return $"{currency}{numbers.ElementAt(0)} - {currency}{numbers.ElementAt(numbers.Count() - 1)}";
+            return values.Length == 1 ? $"{currency}{values[0]}" : $"{currency}{values[0]} - {currency}{values[^1]}";
         }
 
         public static double GetTotal(this IEnumerable<OrderItem> items, double shipment = 0D)

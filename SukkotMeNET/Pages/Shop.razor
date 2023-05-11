@@ -10,7 +10,7 @@
 <div class="antialiased bg-gray-200 dark:bg-gray-800 text-gray-900 font-sans p-6 flex-grow">
     <div class="container mx-auto">
         <div class="flex flex-wrap -mx-4">
-            @foreach (var item in State.ShopItems)
+            @foreach (var item in State.ShopItems.OrderBy(i => i.Name))
             {
                 if (item.Prices.Any(p => p > 0))
                 {
@@ -21,7 +21,7 @@
                             </div>
                             <div class="p-3 items-center text-sm text-gray-600">
                                 <h5 class="font-bold">@item.Name</h5>
-                                <p class="my-1">@item.Prices.GetFriednlyRange('$')</p>
+                                <p class="my-1">@item.Prices.GetFriendlyRange('$')</p>
 
                                 <button class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
                                     @string.Format(string.IsNullOrEmpty(ForOrderWithId) ? "Add To Cart" : "Add To Order")
