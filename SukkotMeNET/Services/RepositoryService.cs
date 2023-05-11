@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using System.Text;
+using Microsoft.Extensions.Options;
 using SukkotMeNET.Configuration;
 using MongoDB.Driver;
 using SukkotMeNET.Interfaces;
@@ -8,10 +9,10 @@ namespace SukkotMeNET.Services
 {
     public class RepositoryService : IRepositoryService
     {
-        public RepositoryBase<User> UsersRepository { get; private set; }
-        public RepositoryBase<Item> ItemsRepository { get; private set; }
-        public RepositoryBase<Cart> CartsRepository { get; private set; }
-        public RepositoryBase<Order> OrdersRepository { get; private set; }
+        public RepositoryBase<User> UsersRepository { get; }
+        public RepositoryBase<Item> ItemsRepository { get; }
+        public RepositoryBase<Cart> CartsRepository { get; }
+        public RepositoryBase<Order> OrdersRepository { get; }
 
         public RepositoryService(ApplicationConfiguration appConfig)
         {

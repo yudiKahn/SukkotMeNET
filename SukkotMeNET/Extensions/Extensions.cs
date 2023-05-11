@@ -12,18 +12,20 @@ namespace SukkotMeNET.Extensions
             var name = $"{item.Name.ToLower()}";
             if (name.Contains("lulav"))
                 return "/images/lulav.png";
-            else if (name.Contains("hadas"))
+            if (name.Contains("hadas"))
                 return "/images/hadas.png";
-            else if (name.Contains("aruvos") || name.Contains("hoshnos"))
+            if (name.Contains("aruvos") || name.Contains("hoshnos"))
                 return "/images/harava.png";
-            else if (name.Contains("set"))
+            if (name.Contains("set"))
                 return "/images/set.png";
-            else if (name.Contains("schach"))
+            if (name.Contains("schach"))
                 return "/images/schach.png";
-            else if (name.Contains("koisaklach"))
+            if (name.Contains("koisaklach"))
                 return "/images/koishklach.png";
-            else
-                return "/images/esrog.png";
+            if (name.Contains("sukkah"))
+                return "/images/sukkah.png";
+
+            return "/images/esrog.png";
         }
 
         #endregion

@@ -405,5 +405,22 @@ namespace SukkotMeNET.Services
             _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync();
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
+
+        public async Task<BackupResult> Backup()
+        {
+            var users = await _Repository.UsersRepository.ReadAllAsync();
+            var usersJson = System.Text.Json.JsonSerializer.Serialize(users);
+
+            var items = await _Repository.ItemsRepository.ReadAllAsync();
+            var itemsJson = System.Text.Json.JsonSerializer.Serialize(items);
+
+            var carts = await _Repository.CartsRepository.ReadAllAsync();
+            var cartsJson = System.Text.Json.JsonSerializer.Serialize(carts);
+
+            var orders = await _Repository.OrdersRepository.ReadAllAsync();
+            var ordersJson = System.Text.Json.JsonSerializer.Serialize(orders);
+
+            return new BackupResult(ordersJson, itemsJson, cartsJson, usersJson);
+        }
     }
 }

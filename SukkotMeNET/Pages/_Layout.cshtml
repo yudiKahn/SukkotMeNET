@@ -22,11 +22,10 @@
     <script src="https://kit.fontawesome.com/dbd1de3adf.js" crossorigin="anonymous"></script>
     <script language="javascript">
 
-
         function GetImageFromHTML(html, width, height) {
             const data = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}px" height="${height}px">
-                                                                                                            <foreignObject width="100%" height="100%">${html}</foreignObject>
-                                                                                                        </svg>`;
+                                                                                                                    <foreignObject width="100%" height="100%">${html}</foreignObject>
+                                                                                                                </svg>`;
 
             const domUrl = window.URL || window.webkitURL || window;
 
@@ -37,133 +36,6 @@
 
             return domUrl.createObjectURL(svg);
         }
-
-                            //function GetImageFromHTML(html, width, height) {
-                            //    return _SVGToImage({
-                            //        svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${width}px" height="${height}px">
-                            //                        <foreignObject width="100%" height="100%">${html}</foreignObject>
-                            //                    </svg>`,
-                            //        mimetype: "image/jpg",
-                            //        width: width,
-                            //        height: height,
-                            //        quality: 1,
-                            //        outputFormat: "base64"
-                            //    });
-                            //}
-
-                            //function _SVGToImage(settings) {
-                            //    var _settings = {
-                            //        svg: null,
-                            //        mimetype: "image/png",
-                            //        quality: 0.92,
-                            //        width: "auto",
-                            //        height: "auto",
-                            //        outputFormat: "base64"
-                            //    };
-
-                            //    for (var key in settings) {
-                            //        _settings[key] = settings[key];
-                            //    }
-
-                            //    var svgNode;
-
-                            //    if (typeof (_settings.svg) == "string") {
-                            //        var SVGContainer = document.createElement("div");
-                            //        SVGContainer.style.display = "none";
-                            //        SVGContainer.innerHTML = _settings.svg;
-                            //        svgNode = SVGContainer.firstElementChild;
-                            //    } else {
-                            //        svgNode = _settings.svg;
-                            //    }
-
-                            //    var canvas = document.createElement('canvas');
-                            //    var context = canvas.getContext('2d');
-
-                            //    var svgXml = new XMLSerializer().serializeToString(svgNode);
-                            //    var svgBase64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgXml)));
-                            //    var image = new Image();
-
-                            //    var imgLoaded = false;
-
-                            //    image.onload = function() {
-                            //        var finalWidth, finalHeight;
-
-                            //        if (_settings.width === "auto" && _settings.height !== "auto") {
-                            //            finalWidth = (this.width / this.height) * _settings.height;
-                            //        } else if (_settings.width === "auto") {
-                            //            finalWidth = this.naturalWidth;
-                            //        } else {
-                            //            finalWidth = _settings.width;
-                            //        }
-
-                            //        if (_settings.height === "auto" && _settings.width !== "auto") {
-                            //            finalHeight = (this.height / this.width) * _settings.width;
-                            //        } else if (_settings.height === "auto") {
-                            //            finalHeight = this.naturalHeight;
-                            //        } else {
-                            //            finalHeight = _settings.height;
-                            //        }
-
-                            //        canvas.width = finalWidth;
-                            //        canvas.height = finalHeight;
-
-                            //        context.drawImage(this, 0, 0, finalWidth, finalHeight);
-
-                            //        imgLoaded = true;
-                            //    };
-
-                            //    image.src = svgBase64;
-
-                            //    setTimeout(() => {
-                            //        imgLoaded = true;
-                            //    }, 2000);
-
-                            //    while (!imgLoaded) {
-
-                            //    }
-
-                            //    var res = null;
-
-                            //    if (_settings.outputFormat == "blob") {
-                            //        canvas.toBlob(function(blob) {
-                            //            res = blob;
-                            //        }, _settings.mimetype, _settings.quality);
-                            //    } else {
-                            //        res = canvas.toDataURL(_settings.mimetype, _settings.quality);
-                            //    }
-
-                            //    setTimeout(() => {
-                            //        res = "";
-                            //    }, 2000);
-
-                            //    while (res === null) {
-
-                            //    }
-
-                            //    return res;
-                            //}
-
-                            //function DownloadImage(html, width, height, fileName) {
-                            //    _SVGToImage({
-                            //        svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${width}px" height="${height}px">
-                            //                        <foreignObject width="100%" height="100%">${html}</foreignObject>
-                            //                    </svg>`,
-                            //        mimetype: "image/jpg",
-                            //        width: width,
-                            //        height: height,
-                            //        quality: 1,
-                            //        outputFormat: "base64"
-                            //    }).then(function(outputData) {
-                            //        var link = document.createElement("a");
-                            //        link.opacity = 0;
-                            //        link.download = fileName + ".jpg";
-                            //        link.href = outputData;
-                            //        document.body.appendChild(link);
-                            //        link.click();
-                            //        document.body.removeChild(link);
-
-                            //    }).catch(function(err) { });
-                            //}
     </script>
 </body>
 </html>

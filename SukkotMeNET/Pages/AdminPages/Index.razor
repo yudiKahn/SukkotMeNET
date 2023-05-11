@@ -20,7 +20,7 @@
             <Card FaIcon="fa-shopping-basket" Title="Items"
                   Text="Each of our plan will provide you and your team with certifications" />
             
-            <Card FaIcon="fa-hdd" Title="Backup data"
+            <Card FaIcon="fa-hdd" Title="Backup data" Onclick="@Backup"
                   Text="Each of our plan will provide you and your team with certifications" />
             
             <Card FaIcon="fa-key" Title="Change password" Link="/admin/changepassword"
@@ -40,10 +40,15 @@
     [Inject] public NavigationManager Navigation { get; set; }
     [Inject] public IJSRuntime Js { get; set; }
 
-    private async void Logout()
+    async void Logout()
     {
         await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
         Service.Logout();
         Navigation.NavigateTo("/login");
+    }
+
+    async void Backup()
+    {
+        var data = await Service.Backup();
     }
 }
