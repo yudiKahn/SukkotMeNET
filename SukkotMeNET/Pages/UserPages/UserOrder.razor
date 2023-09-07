@@ -3,7 +3,10 @@
 @using SukkotMeNET.Extensions
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
+@using SukkotMeNET.Components
 @inherits PageBase
+
+<CopyOrderPopup @ref="_CopyOrderPopup" />
 
 <div class="w-full bg-white py-3 flex-grow dark:bg-gray-800" style="min-height: 80vh;">
     <div class="container mx-auto px-5 lg:w-1/2 xl:w-1/3">
@@ -15,11 +18,11 @@
                         Order #@_Order.Id[..6]
                     </h3>
                     <small>
-                        Paid: <i class=@string.Format("fa fa-{0} text-gray-900", _Order.IsPaid ? "check" : "times")></i>
+                        Paid: <i class=@($"fa fa-{(_Order.IsPaid ? "check" : "times")} text-gray-900")></i>
                         ,&nbsp;
-                        Packed: <i class=@string.Format("fa fa-{0} text-gray-900", _Order.IsPacked ? "check" : "times")></i>
+                        Packed: <i class=@($"fa fa-{(_Order.IsPacked ? "check" : "times")} text-gray-900")></i>
                         ,&nbsp;
-                        Shipped: <i class=@string.Format("fa fa-{0} text-gray-900", _Order.IsShipped ? "check" : "times")></i>
+                        Shipped: <i class=@($"fa fa-{(_Order.IsShipped ? "check" : "times")} text-gray-900")></i>
                     </small>
 
                     <div class="mt-8">
@@ -62,14 +65,25 @@
                     </div>
                 </div>
                 <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
-                    <button @onclick="DeleteOrder" class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                        Delete order
-                    </button>
-                    <NavLink href=@string.Format($"/user/order/{_Order.Id}/invoice") class="w-full my-3 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
+                    @if (_IsOldOrder)
+                    {
+                        <button @onclick="DeleteOrder" class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
+                            Delete order
+                        </button>
+                    
+                        <NavLink href=@string.Format($"/order/{OrderId}/edit") class="w-full my-3 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
+                            Edit order
+                        </NavLink>
+                    }
+                    else
+                    {
+                        <button @onclick="CopyOrder" class="w-full mb-3 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
+                            Reorder
+                        </button>
+                    }
+
+                    <NavLink href=@string.Format($"/user/order/{_Order.Id}/invoice") class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
                         Show invoice
-                    </NavLink>
-                    <NavLink href=@string.Format($"/order/{OrderId}/edit") class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                        Edit order
                     </NavLink>
                 </div>
             </div>
@@ -97,18 +111,30 @@
     [Inject] public NavigationManager Nav { get; set; }
 
     Order? _Order;
-    bool _CanEditOrder = false;
+    bool _IsOldOrder = false;
+    CopyOrderPopup _CopyOrderPopup;
 
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
 
-        if (ObjectId.TryParse(OrderId, out var objId))
+        if (firstRender)
         {
-            var oldOrderId = _Order?.Id;
-            _Order = State.UserOrders.FirstOrDefault(o => o.Id == OrderId);
-            if (_Order?.Id != oldOrderId)
-                InvokeAsync(StateHasChanged);
+            _CopyOrderPopup.Closed += CopyOrderPopupOnClosed;
+        }
+
+        SetOrder();
+    }
+
+    async void CopyOrderPopupOnClosed(object? sender, bool e)
+    {
+        if (e)
+        {
+            var ok = await MainService.RecreateOrderFromOldOrder(_Order);
+            if (ok)
+            {
+                Nav.NavigateTo("/user/orders");
+            }
         }
     }
 
@@ -116,12 +142,22 @@
     {
         base.OnStateHasChanged(sender, args);
 
+        SetOrder();
+    }
+
+    void SetOrder()
+    {
         if (ObjectId.TryParse(OrderId, out _))
         {
             var oldOrderId = _Order?.Id;
             _Order = State.UserOrders.FirstOrDefault(o => o.Id == OrderId);
+
+            _IsOldOrder = _Order?.CreatedAt >= DateTime.Now.AddMonths(-1);
+
             if (_Order?.Id != oldOrderId)
-                InvokeAsync(this.StateHasChanged);
+            {
+                InvokeAsync(StateHasChanged);
+            }
         }
     }
 
@@ -132,5 +168,10 @@
             if (await MainService.RemoveOrderAsync(_Order))
                 Nav.NavigateTo("/user/orders");
         }
+    }
+
+    void CopyOrder()
+    {
+        _CopyOrderPopup.Show(_Order!);
     }
 }
