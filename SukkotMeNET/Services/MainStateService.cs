@@ -162,6 +162,37 @@ namespace SukkotMeNET.Services
         }
 
         //Order
+        public async Task<bool> RecreateOrderFromOldOrder(Order oldOrder)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(_AppState.User.Id))
+                    throw new Exception("Failed to create order. Please try again later");
+
+                var order = new Order
+                {
+                    Id = ObjectId.GenerateNewId().ToString(),
+                    Items = oldOrder.Items.Select(i => i).ToList(),
+                    UserId = _AppState.User.Id,
+                    CreatedAt = DateTime.Now,
+                };
+
+                var o = await _Repository.OrdersRepository.WriteAsync(order);
+                if (o is not null)
+                {
+                    _AppState.UserOrders.Add(o);
+                    return true;
+                }
+
+                throw new Exception("Failed to create order. Please try again later");
+            }
+            catch (Exception e)
+            {
+                AddAlert(new Alert("Error", e.Message, AlertType.Error));
+                return false;
+            }
+        }
+
         public async Task<Order?> CreateOrderFromCart()
         {
             if (string.IsNullOrEmpty(_AppState.Cart.Id) || string.IsNullOrEmpty(_AppState.User.Id))
