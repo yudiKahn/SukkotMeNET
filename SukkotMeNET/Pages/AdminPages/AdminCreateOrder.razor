@@ -1,0 +1,81 @@
+﻿@page "/admin/createorder"
+
+@using SukkotMeNET.Services
+@using SukkotMeNET.Models
+@inherits SukkotMeNET.Models.PageBase
+@inject AppStateService _State
+@attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
+
+
+<div class="antialiased bg-gray-200 dark:bg-gray-800 text-gray-900 font-sans p-6 flex-grow">
+    <h1 class="font-bold tracking-tight text-gray-900 dark:text-gray-200 text-lg">
+        <span class="text-green-600">Pick </span>
+        <span>a user</span>
+    </h1>
+    <select @bind="SelectedUser" class="w-full md:w-1/2 ">
+        @foreach (var user in _State.AdminState.AllUsers.OrderBy(u => u.FirstName + u.LastName))
+        {
+            <option value="@user.Id">@user.FirstName @user.LastName @user.Email</option>
+        }
+    </select>
+    
+    <button @onclick="@CreateOrder" disabled="@string.IsNullOrWhiteSpace(SelectedUser)" class="flex items-center w-full md:w-1/2 px-4 py-2 mt-3 text-lg text-white bg-green-600 rounded-md">
+        Order
+    </button>
+</div>
+
+<div style="position: relative;">
+    @if (string.IsNullOrWhiteSpace(SelectedUser))
+    {
+        <div style="position: absolute; width: 100%; height:100%; left:0; top:0; background: white; opacity: 0.5;">
+
+        </div>
+    }
+    <Shop ForUserId="@SelectedUser"/>
+</div>
+
+@code {
+
+    [Inject] IJSRuntime _Js { get; set; }
+    [Inject] public NavigationManager Nav { get; set; }
+    
+    private string? _SelectedUser;
+
+    public string? SelectedUser
+    {
+        get => _SelectedUser;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(_SelectedUser) && !string.IsNullOrWhiteSpace(value))
+            {
+                SetFirstTime(value);
+            }
+            else
+            {
+                MainService.ClearCart();
+                _SelectedUser = value;
+            }
+        }
+    }
+
+    async void SetFirstTime(string val)
+    {
+        if (await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"Changing users will discard current cart. Ok?"))
+        {
+            MainService.ClearCart();
+            _SelectedUser = val;
+        }
+    }
+
+    async void CreateOrder()
+    {
+        var res = await MainService.CreateOrderFromCart(SelectedUser);
+        if (res is not null)
+        {
+            MainService.AddAlert(new Alert("Success", "Order created successfully", AlertType.Success));
+            Nav.NavigateTo($"/user/order/{res.Id}/invoice");
+        }
+        else
+            MainService.AddAlert(new Alert("Failed", "Failed creating order", AlertType.Error));
+    }
+}

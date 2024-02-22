@@ -3,11 +3,11 @@ using System.Linq.Expressions;
 
 namespace SukkotMeNET.Models
 {
-    public class RepositoryBase<T>
+    public class MongoRepository<T>
     {
         readonly IMongoCollection<T> _Collection;
 
-        public RepositoryBase(IMongoCollection<T> collection)
+        public MongoRepository(IMongoCollection<T> collection)
         {
             _Collection = collection;
         }

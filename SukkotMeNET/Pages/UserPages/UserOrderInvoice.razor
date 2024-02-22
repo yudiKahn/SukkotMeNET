@@ -71,7 +71,17 @@
                 if (_Order is null || State.User is null)
                     throw new Exception();
 
-                var html = _InvoiceService.GetInvoiceHtml(_Order, State.User);
+                var user = State.User;
+                if (_Order.UserId != user.Id)
+                {
+                    var x = State.AdminState.AllUsers.FirstOrDefault(u => u.Id == _Order.UserId);
+                    if (x != null)
+                    {
+                        user = x;
+                    }
+                }
+
+                var html = _InvoiceService.GetInvoiceHtml(_Order, user);
                 InvoicePdf = await Js.InvokeAsync<string>(
                     Constants.JavaScriptFunctions.GetImageFromHTML, 
                     html, _Width, _Height

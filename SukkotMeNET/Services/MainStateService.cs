@@ -27,7 +27,7 @@ namespace SukkotMeNET.Services
         }
 
         //Cart
-        public async Task<bool> AddItemToCart(OrderItem item)
+        public async Task<bool> AddItemToCart(OrderItem item,string? userId = null)
         {
             try
             {
@@ -41,7 +41,9 @@ namespace SukkotMeNET.Services
 
                 _AppState.Cart.Items.AddOrMerge(itemClone);
 
-                await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart, false);
+                await _Repository.CartsRepository.UpdateFirstAsync(
+                    c => c.UserId == (userId ?? _AppState.User.Id),
+                    _AppState.Cart, false);
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
                 return true;
@@ -57,6 +59,13 @@ namespace SukkotMeNET.Services
         {
             _AppState.Cart.Items.Remove(item);
             await _Repository.CartsRepository.UpdateFirstAsync(c => c.Id == _AppState.Cart.Id, _AppState.Cart);
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public async void ClearCart()
+        {
+            _AppState.Cart.Items.Clear();
+            await _Repository.CartsRepository.DeleteFirstAsync(c => c.Id == _AppState.Cart.Id);
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -193,27 +202,39 @@ namespace SukkotMeNET.Services
             }
         }
 
-        public async Task<Order?> CreateOrderFromCart()
+        public async Task<Order?> CreateOrderFromCart(string? forUserId = null)
         {
             if (string.IsNullOrEmpty(_AppState.Cart.Id) || string.IsNullOrEmpty(_AppState.User.Id))
                 return null;
 
             try
             {
+                var user = _AppState.User;
+
+                if (!string.IsNullOrWhiteSpace(forUserId))
+                {
+                    var x = _AppState.AdminState.AllUsers.FirstOrDefault(u => u.Id == forUserId);
+                    if (x != null)
+                    {
+                        user = x;
+                    }
+                }
+
                 var order = new Order
                 {
                     Id = ObjectId.GenerateNewId().ToString(),
                     Items = _AppState.Cart.Items,
-                    UserId = _AppState.User.Id,
+                    UserId = user.Id,
                     CreatedAt = DateTime.Now,
                     Comment = _AppState.Cart.Comment
                 };
-                var invoice = _InvoiceService.GetInvoiceHtml(order, _AppState.User);
+
+                var invoice = _InvoiceService.GetInvoiceHtml(order, user);
 
 
                 var o = await _Repository.OrdersRepository.WriteAsync(order);
-                await _EmailService.SendAsync("Order Invoice", invoice, _AppState.User.Email, "chabad18@hotmail.com");
-                await _Repository.CartsRepository.DeleteFirstAsync(c => c.UserId == _AppState.User.Id && c.Id == _AppState.Cart.Id);
+                var ok = await _EmailService.SendAsync("Order Invoice", invoice, user.Email);
+                await _Repository.CartsRepository.DeleteFirstAsync(c => c.Id == _AppState.Cart.Id);
 
                 _AppState.Cart = new Cart();
                 _AppState.UserOrders.Add(order);

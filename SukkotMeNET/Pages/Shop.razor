@@ -99,6 +99,9 @@
     [Parameter]
     public string? ForOrderWithId { get; set; }
 
+    [Parameter]
+    public string? ForUserId { get; set; }
+
     Item? _SelectedItem;
 
     void SelectItem(Item? item)
@@ -137,6 +140,10 @@
             {
                 _ = await MainService.AddItemToOrder(OrderItem, ForOrderWithId);
             }
+        }
+        else if (!string.IsNullOrWhiteSpace(ForUserId))
+        {
+            _ = await MainService.AddItemToCart(OrderItem, ForUserId);
         }
         else
         {
