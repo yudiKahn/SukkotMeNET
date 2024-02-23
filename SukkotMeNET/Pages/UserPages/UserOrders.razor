@@ -30,7 +30,7 @@
                                 STATUS
                             </div>
                         </div>
-                        @foreach (var order in AppState.UserOrders)
+                        @foreach (var order in AppState.UserOrders.OrderByDescending(o => o.CreatedAt))
                         {
                             <NavLink class="table-row hover:bg-gray-100" href=@string.Format($"/user/order/{order.Id}")>
                                 <div class="table-cell dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-sm font-bold whitespace-nowrap p-4 text-left text-blueGray-700">
