@@ -19,13 +19,16 @@
         }
     </select>
     
-    <button @onclick="@CreateOrder" disabled="@string.IsNullOrWhiteSpace(SelectedUser)" class="flex items-center w-full md:w-1/2 px-4 py-2 mt-3 text-lg text-white bg-green-600 rounded-md">
-        Order
+    <button @onclick="@CreateOrder" 
+            type="button"
+            disabled="@(string.IsNullOrWhiteSpace(SelectedUser) || IsBusy)" 
+            class=@($"flex items-center w-full md:w-1/2 px-4 py-2 mt-3 text-lg text-white bg-green-600 rounded-md {(string.IsNullOrWhiteSpace(SelectedUser) || IsBusy ? "opacity-25" : "")}")>
+        Create Order
     </button>
 </div>
 
 <div style="position: relative;">
-    @if (string.IsNullOrWhiteSpace(SelectedUser))
+    @if (string.IsNullOrWhiteSpace(SelectedUser) || IsBusy)
     {
         <div style="position: absolute; width: 100%; height:100%; left:0; top:0; background: white; opacity: 0.5;">
 
@@ -58,6 +61,8 @@
         }
     }
 
+    public bool IsBusy { get; set; } = false;
+
     async void SetFirstTime(string val)
     {
         if (await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"Changing users will discard current cart. Ok?"))
@@ -69,13 +74,25 @@
 
     async void CreateOrder()
     {
-        var res = await MainService.CreateOrderFromCart(SelectedUser);
-        if (res is not null)
+        try
         {
-            MainService.AddAlert(new Alert("Success", "Order created successfully", AlertType.Success));
-            Nav.NavigateTo($"/user/order/{res.Id}/invoice");
+            IsBusy = true;
+            var res = await MainService.CreateOrderFromCart(SelectedUser);
+            if (res is not null)
+            {
+                MainService.AddAlert(new Alert("Success", "Order created successfully", AlertType.Success));
+                Nav.NavigateTo($"/user/order/{res.Id}/invoice");
+            }
+            else
+                MainService.AddAlert(new Alert("Failed", "Failed creating order", AlertType.Error));
         }
-        else
+        catch (Exception ex)
+        {
             MainService.AddAlert(new Alert("Failed", "Failed creating order", AlertType.Error));
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 }

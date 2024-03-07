@@ -1,0 +1,19 @@
+.coupun {
+    padding: 7px 13px;
+    position: relative;
+    min-width: 55px;
+    min-height: 35px;
+    vertical-align: middle;
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.coupun::before {
+    content: "";
+    position: absolute;
+    inset: 0px;
+    z-index: -1;
+    border: 2px dashed white;
+    border-radius: 5px;
+}
