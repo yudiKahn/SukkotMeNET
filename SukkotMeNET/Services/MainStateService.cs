@@ -131,7 +131,7 @@ namespace SukkotMeNET.Services
         }
 
         //Register
-        public async Task RegisterAsync(User user)
+        public async Task RegisterAsync(User user, bool? skipLogin)
         {
             var userExist = await _Repository.UsersRepository.ReadFirstAsync(u => u.Email == user.Email);
             if (userExist is not null)
@@ -150,6 +150,8 @@ namespace SukkotMeNET.Services
                 throw new Exception("An error accord while saving user");
 
             user1.Password = pass;
+
+            if(skipLogin == true) return;
             await LoginAsync(user1);
         }
 

@@ -13,15 +13,17 @@
         <span>a user</span>
     </h1>
     <select @bind="SelectedUser" class="w-full md:w-1/2 ">
+        <option value="" selected>Select user</option>
+        <option value="-1">Create new user</option>
         @foreach (var user in _State.AdminState.AllUsers.OrderBy(u => u.FirstName + u.LastName))
         {
             <option value="@user.Id">@user.FirstName @user.LastName @user.Email</option>
         }
     </select>
-    
-    <button @onclick="@CreateOrder" 
+
+    <button @onclick="@CreateOrder"
             type="button"
-            disabled="@(string.IsNullOrWhiteSpace(SelectedUser) || IsBusy)" 
+            disabled="@(string.IsNullOrWhiteSpace(SelectedUser) || IsBusy)"
             class=@($"flex items-center w-full md:w-1/2 px-4 py-2 mt-3 text-lg text-white bg-green-600 rounded-md {(string.IsNullOrWhiteSpace(SelectedUser) || IsBusy ? "opacity-25" : "")}")>
         Create Order
     </button>
@@ -31,17 +33,16 @@
     @if (string.IsNullOrWhiteSpace(SelectedUser) || IsBusy)
     {
         <div style="position: absolute; width: 100%; height:100%; left:0; top:0; background: white; opacity: 0.5;">
-
         </div>
     }
-    <Shop ForUserId="@SelectedUser"/>
+    <Shop ForUserId="@SelectedUser" />
 </div>
 
 @code {
 
     [Inject] IJSRuntime _Js { get; set; }
     [Inject] public NavigationManager Nav { get; set; }
-    
+
     private string? _SelectedUser;
 
     public string? SelectedUser
@@ -51,7 +52,14 @@
         {
             if (string.IsNullOrWhiteSpace(_SelectedUser) && !string.IsNullOrWhiteSpace(value))
             {
-                SetFirstTime(value);
+                if (value == "-1")
+                {
+                    Nav.NavigateTo("/register/true");
+                }
+                else
+                {
+                    SetFirstTime(value);
+                }
             }
             else
             {
