@@ -3,43 +3,56 @@
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
 @using MongoDB.Bson
+@using SukkotMeNET.Components
 @inherits PageBase
 @inject AppStateService State
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
-<div class="bg-green-500 place-content-center hover:bg-green-700 text-white sticky top-0 relative p-4 flex flex-wrap">
+@* <div class="bg-green-500 place-content-center hover:bg-green-700 text-white sticky top-0 relative p-4 flex flex-wrap">
     
     <div class="align-center">Get a 10% Discount now!</div>
     <div class="coupun mx-2">10% off</div>
-</div>
+</div> *@
+
+
 <div class="antialiased bg-gray-200 dark:bg-gray-800 text-gray-900 font-sans p-6 flex-grow">
     <div class="container mx-auto">
         <div class="flex flex-wrap -mx-4">
             @foreach (var item in State.ShopItems.OrderBy(i => i.Name))
             {
-                if (item.Prices.Any(p => p > 0))
-                {
-                    <div @onclick="() => SelectItem(item)" class="w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4">
-                        <div class="c-card block bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden">
-                            <div>
-                                <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;" src=@item.GetItemIcon() alt="logo" />
-                            </div>
-                            <div class="p-3 items-center text-sm text-gray-600">
-                                <h5 class="font-bold">@item.Name</h5>
-                                <p class="my-1">@item.Prices.GetFriendlyRange('$')</p>
+                if(item.Prices.All(p => p <= 0)) continue;
 
-                                <button class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
-                                    @string.Format(string.IsNullOrEmpty(ForOrderWithId) ? "Add To Cart" : "Add To Order")
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                if (item.Prices.Length > 1)
+                {
+                    <Slider>
+                        @for (var i = 0; i < item.Prices.Length; i++)
+                        {
+                            <ItemCard 
+                                Item="item"
+                                Qty="@(State.Cart.Items.FirstOrDefault(i => i.Id == item.Id)?.Qty ?? 0)"
+                                ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
+                                AddItem="AddItem"
+                                SubtractItem="SubtractItem"
+                                PriceOption="i"
+                            />
+                        }
+                    </Slider>
+                }
+                else
+                {
+                    <ItemCard 
+                        Item="item"
+                        Qty="@(State.Cart.Items.FirstOrDefault(i => i.Id == item.Id)?.Qty ?? 0)"
+                        ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
+                        AddItem="AddItem"
+                        SubtractItem="SubtractItem"
+                    />
                 }
             }
         </div>
     </div>
 </div>
-
+@* 
 @if (_SelectedItem != null)
 {
     <div class="fixed w-full h-full top-0 z-50 bg-opacity-50 bg-white" @onclick="() => SelectItem(null)">
@@ -56,7 +69,6 @@
                         <h3 class="mb-6 text-2xl font-medium dark:text-gray-300">
                             @_SelectedItem.Name
                         </h3>
-
                         <select @onchange="e => OnPriceSelectChange(Convert.ToInt32(e.Value))"
                                 required class="block w-full px-4 py-3 mb-4 border border-2 border-transparent border-gray-200 rounded-lg focus:ring focus:ring-green-500 focus:outline-none">
                             @for (int i = 0; i < _SelectedItem.Prices.Length; i++)
@@ -90,7 +102,7 @@
                                 @string.Format(string.IsNullOrEmpty(ForOrderWithId) ? "Add To Cart" : "Add To Order")
                             </button>
                             <button type="button" @onclick="() => SelectItem(null)" class="w-full px-3 pt-3 font-medium text-gray-600 dark:text-gray-400">
-                                Go Back Shopping
+                                Back
                             </button>
                         </div>
                     </EditForm>
@@ -98,7 +110,7 @@
             </div>
         </div>
     </div>
-}
+} *@
 
 @code {
     [Parameter]
@@ -107,38 +119,21 @@
     [Parameter]
     public string? ForUserId { get; set; }
 
-    Item? _SelectedItem;
-
-    void SelectItem(Item? item)
-    {
-        _SelectedItem = item;
-
-        if (item != null)
-        {
-            OrderItem.Id = _SelectedItem.Id;
-            OrderItem.Qty = 1;
-            OrderItem.Price = _SelectedItem.Prices.FirstOrDefault();
-            OrderItem.PriceType = _SelectedItem.PricesTypes.FirstOrDefault();
-            OrderItem.Option = _SelectedItem.Options.FirstOrDefault();
-            OrderItem.Name = item.Name;
-        }
-
-        StateHasChanged();
-    }
-
     OrderItem OrderItem = new OrderItem();
 
-    void OnPriceSelectChange(int index)
+    async void AddItem(Item item, int priceInx, int n = 1)
     {
-        if (_SelectedItem != null)
-        {
-            OrderItem.Price = _SelectedItem.Prices[index];
-            OrderItem.PriceType = _SelectedItem.PricesTypes.ElementAtOrDefault(index);
-        }
-    }
+        if(item.Prices.Length < priceInx + 1) return;
 
-    async void OnSubmit()
-    {
+        var priceType = item.PricesTypes.Any() ? item.PricesTypes[priceInx] : string.Empty;
+        OrderItem.Id = item.Id;
+        OrderItem.Qty = n;
+        OrderItem.Price = item.Prices[priceInx];
+        OrderItem.PriceType = priceType;
+        OrderItem.Option = item.Options.FirstOrDefault(); //todo:
+        OrderItem.Name = item.Name;
+        OrderItem.Category = item.Category;
+
         if (!string.IsNullOrEmpty(ForOrderWithId))
         {
             if (ObjectId.TryParse(ForOrderWithId, out _))
@@ -154,6 +149,36 @@
         {
             _ = await MainService.AddItemToCart(OrderItem);
         }
-        SelectItem(null);
     }
+
+    async void SubtractItem(Item item, int priceInx, int n = 1)
+    {
+        if (item.Prices.Length < priceInx + 1) return;
+
+        var priceType = item.PricesTypes.Any() ? item.PricesTypes[priceInx] : string.Empty;
+        OrderItem.Id = item.Id;
+        OrderItem.Qty = -Math.Abs(n);
+        OrderItem.Price = item.Prices[priceInx];
+        OrderItem.PriceType = priceType;
+        OrderItem.Option = item.Options.FirstOrDefault(); //todo:
+        OrderItem.Name = item.Name;
+        OrderItem.Category = item.Category;
+
+        if (!string.IsNullOrEmpty(ForOrderWithId))
+        {
+            if (ObjectId.TryParse(ForOrderWithId, out _))
+            {
+                _ = await MainService.AddItemToOrder(OrderItem, ForOrderWithId);
+            }
+        }
+        else if (!string.IsNullOrWhiteSpace(ForUserId))
+        {
+            _ = await MainService.AddItemToCart(OrderItem, ForUserId);
+        }
+        else
+        {
+            _ = await MainService.AddItemToCart(OrderItem);
+        }
+    }
+
 }

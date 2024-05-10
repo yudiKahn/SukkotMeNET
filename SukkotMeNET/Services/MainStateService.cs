@@ -35,8 +35,8 @@ namespace SukkotMeNET.Services
 
                 if (itemClone == null)
                     throw new Exception("Unknown error (0x1), Please contact developer");
-                if (itemClone.Qty < 1)
-                    throw new Exception("Quantity cannot be less then one");
+                //if (itemClone.Qty < 1)
+                //    throw new Exception("Quantity cannot be less then one");
 
 
                 _AppState.Cart.Items.AddOrMerge(itemClone);

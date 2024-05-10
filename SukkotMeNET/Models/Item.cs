@@ -14,8 +14,8 @@ namespace SukkotMeNET.Models
         [BsonElement("name")]
         public string Name { get; set; } = string.Empty;
 
-        /*[BsonElement("category")]
-        public string Category { get; set; }*/
+        [BsonElement("category")]
+        public required string Category { get; set; }
 
         [BsonElement("prices")] 
         public double[] Prices { get; set; } = Array.Empty<double>();

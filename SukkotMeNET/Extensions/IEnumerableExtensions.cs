@@ -30,13 +30,17 @@ namespace SukkotMeNET.Extensions
             var existItem = items.FirstOrDefault(i => 
                 i.Name == newItem.Name && i.Option == newItem.Option && Math.Abs(i.Price - newItem.Price) == 0.0 && i.PriceType == newItem.PriceType && i.ByAdmin == newItem.ByAdmin);
             
-            if(existItem == null)
+            if(existItem == null && newItem.Qty > 0)
             {
                 items.Add(newItem);
             }
-            else
+            else if(existItem != null)
             {
                 existItem.Qty += newItem.Qty;
+                if (existItem.Qty < 1)
+                {
+                    items.Remove(existItem);
+                }
             }
         }
 

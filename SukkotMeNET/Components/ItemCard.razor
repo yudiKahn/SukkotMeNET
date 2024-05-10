@@ -1,0 +1,88 @@
+﻿@using SukkotMeNET.Extensions
+@using SukkotMeNET.Models
+
+
+
+@if (Item != null)
+{
+    <div class="@(PriceOption == null ? "w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4" : "")">
+        <div class="c-card block w-full bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden">
+            <div>
+                <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;" 
+                     src=@Item.GetItemIcon() alt="logo" />
+            </div>
+            <div class="p-3 items-center text-sm text-gray-600">
+                <h5 class="font-bold">
+                    @Item.Name
+                    @if (Item.PricesTypes.Any())
+                    {
+                        <i style="font-weight: normal;"> - @Item.PricesTypes[_PriceOption]</i>
+                    }
+                </h5>
+                @* <p class="my-1">@Item.Prices.GetFriendlyRange('$')</p> *@
+                <p class="my-1">$@Item.Prices[_PriceOption]</p>
+
+                @if (!ForOrderWithId)
+                {
+                    @if (Qty > 0)
+                    {
+                        <button @onclick="OnSubtractItem" type="button" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="mx-3">@Qty</span>
+                    }
+                    <button @onclick="OnAddItem" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                }
+                else
+                {
+                    <button @onclick="OnAddItem" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
+                        Add to order
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+
+}
+
+@code {
+    [Parameter]
+    public Item? Item { get; set; }
+
+    [Parameter]
+    public int Qty { get; set; }
+
+    [Parameter]
+    public bool ForOrderWithId { get; set; }
+
+    [Parameter]
+    public Action<Item, int, int>? AddItem { get; set; }
+
+    [Parameter]
+    public Action<Item, int, int>? SubtractItem { get; set; }
+
+    int _PriceOption => PriceOption ?? 0;
+
+    [Parameter] 
+    public int? PriceOption { get; set; }
+
+    void OnAddItem()
+    {
+        if(AddItem is null) return;
+        Qty += 1;
+        StateHasChanged();
+
+        AddItem.Invoke(Item!, _PriceOption, 1);
+    }
+
+    void OnSubtractItem()
+    {
+        if (SubtractItem is null) return;
+        Qty -= 1;
+        StateHasChanged();
+
+        SubtractItem.Invoke(Item!, _PriceOption, -1);
+    }
+}
