@@ -3,27 +3,29 @@ using MongoDB.Driver;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
 
-namespace SukkotMeNET.Services
+namespace SukkotMeNET.Services;
+
+public class RepositoryService : IRepositoryService
 {
-    public class RepositoryService : IRepositoryService
+    public IRepository<User> UsersRepository { get; }
+    public IRepository<Item> ItemsRepository { get; }
+    public IRepository<Cart> CartsRepository { get; }
+    public IRepository<Order> OrdersRepository { get; }
+
+    public RepositoryService(ApplicationConfiguration appConfig)
     {
-        public MongoRepository<User> UsersRepository { get; }
-        public MongoRepository<Item> ItemsRepository { get; }
-        public MongoRepository<Cart> CartsRepository { get; }
-        public MongoRepository<Order> OrdersRepository { get; }
+        var client = new MongoClient(appConfig.ConnectionString);
+        IMongoDatabase? db = client.GetDatabase(appConfig.DatabaseName);
 
-        public RepositoryService(ApplicationConfiguration appConfig)
-        {
-            var client = new MongoClient(appConfig.ConnectionString);
-            var db = client.GetDatabase(appConfig.DatabaseName);
+        UsersRepository =  CreateMongoRepo<User>(db, appConfig.DBUsersCollectionName); 
+        ItemsRepository =  CreateMongoRepo<Item>(db, appConfig.DBItemsCollectionName);
+        CartsRepository =  CreateMongoRepo<Cart>(db, appConfig.DBCartsCollectionName); 
+        OrdersRepository = CreateMongoRepo<Order>(db, appConfig.DBOrdersCollectionName);
+    }
 
-            UsersRepository = new MongoRepository<User>(db.GetCollection<User>(appConfig.DBUsersCollectionName)); 
-            
-            ItemsRepository = new MongoRepository<Item>(db.GetCollection<Item>(appConfig.DBItemsCollectionName));
-
-            CartsRepository = new MongoRepository<Cart>(db.GetCollection<Cart>(appConfig.DBCartsCollectionName)); 
-
-            OrdersRepository = new MongoRepository<Order>(db.GetCollection<Order>(appConfig.DBOrdersCollectionName));
-        }
+    IRepository<T> CreateMongoRepo<T>(IMongoDatabase db, string table)
+    {
+        return new Interfaces.MongoRepository<T>(db, table);
     }
 }
+
