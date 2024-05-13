@@ -6,11 +6,30 @@
 @if (Item != null)
 {
     <div class="@(PriceOption == null ? "w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4" : "")">
-        <div class="c-card block w-full bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden">
+        <div class="flex flex-col space-y-4 justify-between c-card block w-full h-full bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden">
             <div>
-                <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;" 
+                <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;"
                      src=@Item.GetItemIcon() alt="logo" />
             </div>
+
+            @if (Item.Options.Length > 1)
+            {
+                <div class="relative flex mx-3 my-1 flex-col rounded-xl bg-white bg-clip-border shadow-md"
+                    style="width: fit-content;">
+                    <nav class="flex flex-row gap-1">
+                        @foreach (var o in Item.Options)
+                        {
+                            <button @onclick="() => SelectedOption = o"
+                                    class="@(SelectedOption == o ? "bg-green-500 text-white" : "") flex items-center p-0 transition-all rounded-lg border-none focus:bg-green-500 focus:text-white focus:border-none">
+                                <label class="flex items-center w-full px-3 py-2 text-sm">
+                                    @o
+                                </label>
+                            </button>
+                        }
+                    </nav>
+                </div>
+            }
+
             <div class="p-3 items-center text-sm text-gray-600">
                 <h5 class="font-bold">
                     @Item.Name
@@ -19,6 +38,7 @@
                         <i style="font-weight: normal;"> - @Item.PricesTypes[_PriceOption]</i>
                     }
                 </h5>
+
                 @* <p class="my-1">@Item.Prices.GetFriendlyRange('$')</p> *@
                 <p class="my-1">$@Item.Prices[_PriceOption]</p>
 
@@ -29,15 +49,15 @@
                         <button @onclick="OnSubtractItem" type="button" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
                             <i class="fas fa-minus"></i>
                         </button>
-                        <span class="mx-3">@Qty</span>
+                        <input class="px-3 w-1/4" type="number" @bind="BindQty"/>
                     }
-                    <button @onclick="OnAddItem" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
+                    <button @onclick="() => OnAddItem()" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
                         <i class="fas fa-plus"></i>
                     </button>
                 }
                 else
                 {
-                    <button @onclick="OnAddItem" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
+                    <button @onclick="() => OnAddItem()" class="font-medium bg-green-500 hover:bg-green-700 text-white py-1 px-2 rounded">
                         Add to order
                     </button>
                 }
@@ -58,31 +78,67 @@
     public bool ForOrderWithId { get; set; }
 
     [Parameter]
-    public Action<Item, int, int>? AddItem { get; set; }
+    public Action<Item, int, int, int,bool>? AddItem { get; set; }
 
     [Parameter]
-    public Action<Item, int, int>? SubtractItem { get; set; }
+    public Action<Item, int, int, int>? SubtractItem { get; set; }
 
     int _PriceOption => PriceOption ?? 0;
 
-    [Parameter] 
+    [Parameter]
     public int? PriceOption { get; set; }
 
-    void OnAddItem()
-    {
-        if(AddItem is null) return;
-        Qty += 1;
-        StateHasChanged();
+    string SelectedOption = string.Empty;
 
-        AddItem.Invoke(Item!, _PriceOption, 1);
+    int _BindQty;
+
+    int BindQty
+    {
+        get => _BindQty;
+        set
+        {
+            if(value < 0) return;
+
+            _BindQty = value;
+            OnAddItem(value, true);
+        }
+    }
+
+    void OnAddItem(int n = 1,bool toOverride = false)
+    {
+        if (AddItem is null) return;
+
+        if (!toOverride)
+        {
+            _BindQty += n;
+            StateHasChanged();
+        }
+
+        var optInx = Item?.Options.ToList().IndexOf(SelectedOption) ?? 0;
+        AddItem.Invoke(Item!, _PriceOption, optInx, n, toOverride);
     }
 
     void OnSubtractItem()
     {
         if (SubtractItem is null) return;
-        Qty -= 1;
+        _BindQty -= 1;
         StateHasChanged();
 
-        SubtractItem.Invoke(Item!, _PriceOption, -1);
+        var optInx = Item?.Options.ToList().IndexOf(SelectedOption) ?? 0;
+        SubtractItem.Invoke(Item!, _PriceOption, optInx, -1);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (!firstRender) return;
+
+        _BindQty = Qty;
+        if (Item?.Options.Length > 1)
+        {
+            SelectedOption = Item?.Options.First()!;
+            StateHasChanged();
+        }
     }
 }

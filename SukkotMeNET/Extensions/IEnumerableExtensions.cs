@@ -25,7 +25,7 @@ namespace SukkotMeNET.Extensions
 
        
 
-        public static void AddOrMerge(this List<OrderItem> items, OrderItem newItem)
+        public static void AddOrMerge(this List<OrderItem> items, OrderItem newItem, bool toOverride = false)
         {
             var existItem = items.FirstOrDefault(i => 
                 i.Name == newItem.Name && i.Option == newItem.Option && Math.Abs(i.Price - newItem.Price) == 0.0 && i.PriceType == newItem.PriceType && i.ByAdmin == newItem.ByAdmin);
@@ -37,6 +37,10 @@ namespace SukkotMeNET.Extensions
             else if(existItem != null)
             {
                 existItem.Qty += newItem.Qty;
+                if (toOverride)
+                {
+                    existItem.Qty = newItem.Qty;
+                }
                 if (existItem.Qty < 1)
                 {
                     items.Remove(existItem);

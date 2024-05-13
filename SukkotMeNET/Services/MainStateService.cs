@@ -27,7 +27,7 @@ namespace SukkotMeNET.Services
         }
 
         //Cart
-        public async Task<bool> AddItemToCart(OrderItem item,string? userId = null)
+        public async Task<bool> AddItemToCart(OrderItem item,string? userId = null, bool toOverride = false)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace SukkotMeNET.Services
                 //    throw new Exception("Quantity cannot be less then one");
 
 
-                _AppState.Cart.Items.AddOrMerge(itemClone);
+                _AppState.Cart.Items.AddOrMerge(itemClone, toOverride);
 
                 await _Repository.CartsRepository.UpdateFirstAsync(
                     c => c.UserId == (userId ?? _AppState.User.Id),
