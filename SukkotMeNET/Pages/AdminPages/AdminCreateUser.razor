@@ -1,13 +1,12 @@
-﻿@page "/register"
+﻿@page "/admin/createuser"
+@using SukkotMeNET.Components
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
-@using SukkotMeNET.Components
-
-<PageTitle>SukkotMe | Sign up</PageTitle>
 
 <div class="py-20 bg-white dark:bg-gray-700 container max-w-6xl mx-auto grid justify-center px-2">
-    <RegisterForm OnSubmit="@OnSubmit"/>
+    <RegisterForm OnSubmit="@OnSubmit" JustUserCreation="true"/>
 </div>
+
 
 @code {
     [Inject]
@@ -15,18 +14,14 @@
     [Inject]
     NavigationManager NavManager { get; set; }
 
-
     async void OnSubmit(User user)
     {
         try
         {
-            var pass = user.Password;
             await MainService.RegisterAsync(user);
-            user.Password = pass;
-            await MainService.LoginAsync(user);
 
-            MainService.AddAlert(new Alert("Success", "Register succeed", AlertType.Success));
-            NavManager.NavigateTo("/");
+            MainService.AddAlert(new Alert("Success", "User creation succeed", AlertType.Success));
+            NavManager.NavigateTo("/admin");
         }
         catch (Exception e)
         {

@@ -43,28 +43,34 @@
         base.OnAfterRender(firstRender);
         try
         {
-            if(_State?.User?.Id?.Any() == true)
+            if (_State.User?.Id?.Any() == true)
                 return;
 
+            _State.IsLoading = true;
+            StateHasChanged();
+
             var token = await _Js.InvokeAsync<string>(Constants.JavaScriptFunctions.LocalStorageGet, "token");
-            if(token != null)
+            if (token != null)
             {
-                _Service.AddAlert(new Alert("Hello", "We recognize you've already been here. Trying to log you in..."));
+                // _Service.AddAlert(new Alert("Hello", "We recognize you've already been here. Trying to log you in..."));
                 var isTokenValid = await _Service.LoginUserFromLocalStorage(token);
                 if (!isTokenValid)
                     throw new Exception("Token not valid");
-                else
-                {
-                    _Service.AddAlert(new Alert("Login successful", "Welcome back!", AlertType.Success));
-                }
+                
+                StateHasChanged();
+                // _Service.AddAlert(new Alert("Login successful", "Welcome back!", AlertType.Success));
             }
         }
         catch (Exception e)
         {
-            if(e is not TimeoutException)
+            if (e is not TimeoutException)
                 await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
-            
+
             _Service.AddAlert(new Alert("Fail", e.Message, AlertType.Error));
+        }
+        finally
+        {
+            _State.IsLoading = false;
         }
     }
 }

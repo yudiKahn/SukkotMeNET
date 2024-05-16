@@ -15,6 +15,7 @@ namespace SukkotMeNET.Services
         public List<Alert> Alerts { get; set; }
 
         public AdminState AdminState { get; set; }
+        public bool IsLoading { get; set; }
 
         public AppStateService()
         {

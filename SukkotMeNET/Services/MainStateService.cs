@@ -141,16 +141,14 @@ namespace SukkotMeNET.Services
             if (hashPass is null)
                 throw new Exception("An error accord while saving user");
 
-            var pass = user.Password;
             user.Password = hashPass;
-
             var user1 = await _Repository.UsersRepository.WriteAsync(user);
 
             if (user1 is null)
                 throw new Exception("An error accord while saving user");
 
-            user1.Password = pass;
-            await LoginAsync(user1);
+            if(_AppState.AdminState.AllUsers.Any())
+                _AppState.AdminState.AllUsers.Add(user1);
         }
 
         //Alerts

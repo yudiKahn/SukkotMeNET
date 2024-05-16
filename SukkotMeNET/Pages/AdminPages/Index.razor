@@ -1,7 +1,7 @@
 ﻿@page "/admin"
 @using SukkotMeNET.Components
 @using SukkotMeNET.Services
-@using Microsoft.AspNetCore.Mvc
+
 @attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
 
 <section class="py-20 bg-white dark:bg-gray-800">
@@ -11,8 +11,8 @@
         </h2>
         <p class="mt-2 text-lg text-center text-gray-600 dark:text-gray-300">Check out our list of awesome features below.</p>
         <div class="grid grid-cols-4 gap-8 mt-10 sm:grid-cols-8 lg:grid-cols-12 px-8">
-            
-            <Card FaIcon="fa-file" Title="Create order for user" Link="/admin/createorder" />
+
+            <Card FaIcon="fa-user" Title="Create a new user" Link="/admin/createuser"/>
 
             <Card FaIcon="fa-users" Title="All Users" Link="/admin/users"/>
 
@@ -31,10 +31,12 @@
     </div>
 </section>
 
+
 @code {
     [Inject] public MainStateService Service { get; set; }    
     [Inject] public NavigationManager Navigation { get; set; }
     [Inject] public IJSRuntime Js { get; set; }
+
 
     async void Logout()
     {
@@ -45,12 +47,12 @@
 
     async void Backup()
     {
-        var data = await Service.Backup();
+        // var data = await Service.Backup();
 
-        var path = "C:\\Users\\yudik\\Documents\\Dev\\SukkotMe\\Backup";
-        await File.WriteAllTextAsync(Path.Combine(path, "Carts.json"), data.Carts);
-        await File.WriteAllTextAsync(Path.Combine(path, "Items.json"), data.Items);
-        await File.WriteAllTextAsync(Path.Combine(path, "Orders.json"), data.Orders);
-        await File.WriteAllTextAsync(Path.Combine(path, "Users.json"), data.Users);
+        // var path = "C:\\Users\\yudik\\Documents\\Dev\\SukkotMe\\Backup";
+        // await File.WriteAllTextAsync(Path.Combine(path, "Carts.json"), data.Carts);
+        // await File.WriteAllTextAsync(Path.Combine(path, "Items.json"), data.Items);
+        // await File.WriteAllTextAsync(Path.Combine(path, "Orders.json"), data.Orders);
+        // await File.WriteAllTextAsync(Path.Combine(path, "Users.json"), data.Users);
     }
 }
