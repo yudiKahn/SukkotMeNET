@@ -83,6 +83,11 @@
             </div>
         </div>
     </div>
+    
+    @if (AppState.IsLoading)
+    {
+        <div class="loader-line"></div>
+    }
 
     <div class="@OpenNavbarClass">
         <div class="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 bg-white dark:bg-gray-800 divide-y-2 divide-gray-50">

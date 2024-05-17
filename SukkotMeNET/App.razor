@@ -38,6 +38,14 @@
     [Inject]
     AppStateService _State { get; set; }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _State.IsLoading = true;
+        StateHasChanged();
+    }
+
     protected override async void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
@@ -45,9 +53,6 @@
         {
             if (_State.User?.Id?.Any() == true)
                 return;
-
-            _State.IsLoading = true;
-            StateHasChanged();
 
             var token = await _Js.InvokeAsync<string>(Constants.JavaScriptFunctions.LocalStorageGet, "token");
             if (token != null)
