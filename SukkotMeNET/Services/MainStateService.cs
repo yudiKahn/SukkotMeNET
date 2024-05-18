@@ -2,6 +2,7 @@
 using SukkotMeNET.Extensions;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
+using System.Runtime.Intrinsics.X86;
 
 namespace SukkotMeNET.Services
 {
@@ -27,7 +28,7 @@ namespace SukkotMeNET.Services
         }
 
         //Cart
-        public async Task<bool> AddItemToCart(OrderItem item,string? userId = null, bool toOverride = false)
+        public async Task<bool> AddItemToCart(OrderItem item, string? userId = null, bool toOverride = false)
         {
             try
             {
@@ -147,7 +148,7 @@ namespace SukkotMeNET.Services
             if (user1 is null)
                 throw new Exception("An error accord while saving user");
 
-            if(_AppState.AdminState.AllUsers.Any())
+            if (_AppState.AdminState.AllUsers.Any())
                 _AppState.AdminState.AllUsers.Add(user1);
         }
 
@@ -254,7 +255,7 @@ namespace SukkotMeNET.Services
                 if (res)
                 {
                     _AppState.AdminState?.AllOrders?.Remove(order);
-                    if(order.UserId == _AppState.User.Id)
+                    if (order.UserId == _AppState.User.Id)
                         _AppState.UserOrders.Remove(order);
                     StateHasChanged?.Invoke(this, EventArgs.Empty);
                 }
@@ -298,7 +299,7 @@ namespace SukkotMeNET.Services
                 Order? order = new Order();
 
                 order = _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
-                if(_AppState.User.Id == order?.UserId)    
+                if (_AppState.User.Id == order?.UserId)
                     order?.Items.AddOrMerge(item);
 
                 if (_AppState.User.IsAdmin)
@@ -308,8 +309,8 @@ namespace SukkotMeNET.Services
                 }
 
                 order?.Items.AddOrMerge(item);
-                
-                if(order != null)
+
+                if (order != null)
                     order = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == orderId, order);
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
@@ -334,17 +335,17 @@ namespace SukkotMeNET.Services
 
         public async Task<bool> RemoveItemFromOrder(Order? order, OrderItem item)
         {
-            if(order is null) return false;
+            if (order is null) return false;
 
             order.Items.Remove(item);
 
             if (_AppState.User.IsAdmin)
                 _AppState.AdminState.AllOrders.First(o => o.Id == order.Id).Items.Remove(item);
-            if(_AppState.User.Id == order.UserId)
+            if (_AppState.User.Id == order.UserId)
                 _AppState.UserOrders.First(o => o.Id == order.Id).Items.Remove(item);
 
             await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order);
-            
+
             StateHasChanged?.Invoke(this, EventArgs.Empty);
             return true;
         }
@@ -385,10 +386,10 @@ namespace SukkotMeNET.Services
         {
             email = email.ToLower();
 
-            if(!_AppState.User.IsAdmin) return false;
+            if (!_AppState.User.IsAdmin) return false;
 
             var user = _AppState.AdminState.AllUsers.FirstOrDefault(u => u.Email.ToLower() == email);
-            if(user == null) return false;
+            if (user == null) return false;
 
             var hashPass = BCrypt.Net.BCrypt.HashPassword(newPass);
             user.Password = hashPass;
@@ -454,6 +455,48 @@ namespace SukkotMeNET.Services
         {
             _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync();
             StateHasChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public async Task LoginAsUser(User user)
+        {
+            try
+            {
+                if (_AppState.AdminState.CurrentAdminUser is null)
+                {
+                    _AppState.AdminState.CurrentAdminUser = _AppState.User.Clone();
+                }
+
+                _AppState.User = user;
+
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+
+                await InitUserCart();
+                InitUserOrders();
+
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                AddAlert(new Alert("Error", "Failed to switch user.", AlertType.Error));
+            }
+        }
+
+        public async Task LoginBack()
+        {
+            if (_AppState.AdminState.CurrentAdminUser is null)
+                return;
+
+            _AppState.User = _AppState.AdminState.CurrentAdminUser.Clone();
+
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
+
+            await InitUserCart();
+            InitUserOrders();
+
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
+
+
+            _AppState.AdminState.CurrentAdminUser = null;
         }
 
         public async Task<BackupResult> Backup()

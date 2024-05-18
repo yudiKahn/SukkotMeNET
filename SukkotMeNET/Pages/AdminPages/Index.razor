@@ -2,38 +2,57 @@
 @using SukkotMeNET.Components
 @using SukkotMeNET.Services
 
+@inject AppStateService _State
+@inherits SukkotMeNET.Models.PageBase
 @attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
 
-<section class="py-20 bg-white dark:bg-gray-800">
-    <div class="container max-w-6xl mx-auto">
-        <h2 class="text-4xl font-bold tracking-tight text-center dark:text-gray-200">
-            Welcome back Yanky
-        </h2>
-        <p class="mt-2 text-lg text-center text-gray-600 dark:text-gray-300">Check out our list of awesome features below.</p>
-        <div class="grid grid-cols-4 gap-8 mt-10 sm:grid-cols-8 lg:grid-cols-12 px-8">
-
-            <Card FaIcon="fa-user" Title="Create a new user" Link="/admin/createuser"/>
-
-            <Card FaIcon="fa-users" Title="All Users" Link="/admin/users"/>
-
-            <Card FaIcon="fa-chart-bar" Title="All Orders" Link="/admin/orders" />
-
-            <Card FaIcon="fa-shopping-basket" Title="Items"/>
-            
-            <Card FaIcon="fa-hdd" Title="Backup data" Onclick="@Backup"/>
-            
-            <Card FaIcon="fa-key" Title="Change password" Link="/admin/changepassword" />
-            
-            <Card FaIcon="fa-chart-pie" Title="Analytics" />
-
-            <Card FaIcon="fa-sign-out-alt" Title="Logout" Onclick="@Logout" />
+@if (_State.AdminState.CurrentAdminUser is { } u)
+{
+    <section class="h-96 my-20 place-content-center bg-white dark:bg-gray-800">
+        <div class="container my-20 max-w-6xl mx-auto text-center">
+            <h2 class="text-4xl font-bold tracking-tight text-center dark:text-gray-200">
+                You are signed in as  @($"{_State.User.FirstName} {_State.User.LastName}")
+            </h2>
+            <button @onclick="LoginBack"
+                    class="px-6 py-3 my-4 shadow-lg text-lg text-white bg-green-600 rounded-md hover:bg-green-700">
+                Login as @($"{u.FirstName} {u.LastName}")
+            </button>
         </div>
-    </div>
-</section>
+    </section>
+}
+else
+{
+    <section class="py-20 bg-white dark:bg-gray-800">
+        <div class="container max-w-6xl mx-auto">
+            <h2 class="text-4xl font-bold tracking-tight text-center dark:text-gray-200">
+                Welcome back @_State.User.FirstName
+            </h2>
+            <p class="mt-2 text-lg text-center text-gray-600 dark:text-gray-300">Check out our list of awesome features below.</p>
+            <div class="grid grid-cols-4 gap-8 mt-10 sm:grid-cols-8 lg:grid-cols-12 px-8">
+
+                <Card FaIcon="fa-user" Title="Create a new user" Link="/admin/createuser"/>
+
+                <Card FaIcon="fa-users" Title="All Users" Link="/admin/users"/>
+
+                <Card FaIcon="fa-chart-bar" Title="All Orders" Link="/admin/orders" />
+
+                <Card FaIcon="fa-shopping-basket" Title="Items"/>
+            
+                <Card FaIcon="fa-hdd" Title="Backup data" Onclick="@Backup"/>
+            
+                <Card FaIcon="fa-key" Title="Change password" Link="/admin/changepassword" />
+            
+                <Card FaIcon="fa-chart-pie" Title="Analytics" />
+
+                <Card FaIcon="fa-sign-out-alt" Title="Logout" Onclick="@Logout" />
+            </div>
+        </div>
+    </section>
+
+}
 
 
 @code {
-    [Inject] public MainStateService Service { get; set; }    
     [Inject] public NavigationManager Navigation { get; set; }
     [Inject] public IJSRuntime Js { get; set; }
 
@@ -41,8 +60,13 @@
     async void Logout()
     {
         await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
-        Service.Logout();
+        MainService.Logout();
         Navigation.NavigateTo("/login");
+    }
+
+    async void LoginBack()
+    {
+        await MainService.LoginBack();
     }
 
     async void Backup()

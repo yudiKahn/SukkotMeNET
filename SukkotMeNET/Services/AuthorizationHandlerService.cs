@@ -23,7 +23,7 @@ namespace SukkotMeNET.Services
                     var userId = context.Resource?.ToString();
                     var isAuth = requirement switch
                     {
-                        AdminRequirement => _AppStateService.User.IsAdmin,
+                        AdminRequirement => _AppStateService.User.IsAdmin || _AppStateService.AdminState.CurrentAdminUser?.IsAdmin == true,
                         UserRequirement => ObjectId.TryParse(_AppStateService.User.Id, out var id),
                         _ => false
                     };

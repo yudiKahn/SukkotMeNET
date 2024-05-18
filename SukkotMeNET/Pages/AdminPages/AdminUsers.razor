@@ -10,7 +10,7 @@
 
 <section class="py-1 dark:bg-gray-800">
     <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 mx-auto mt-24">
-        
+
         <div class="relative flex flex-col min-w-0 break-words bg-white dark:bg-gray-900 w-full mb-6 shadow-lg rounded">
             <div class="rounded-t mb-0 px-4 py-3 border-0">
                 <div class="flex flex-wrap items-center">
@@ -25,8 +25,8 @@
             <div class="rounded-t mb-0 px-4 py-3 border-0">
                 <div class="flex flex-wrap items-center">
                     <div class="relative w-full px-4 max-w-full flex-grow flex-1">
-                        <input placeholder="Filter by name" @bind="FilterName"  @bind:event="oninput" 
-                               class="p-3 appearance-none block w-full md:w-1/2 text-gray-700 rounded leading-tight"/>
+                        <input placeholder="Filter by name" @bind="FilterName" @bind:event="oninput"
+                               class="p-3 appearance-none block w-full md:w-1/2 text-gray-700 rounded leading-tight" />
                     </div>
                 </div>
             </div>
@@ -34,85 +34,90 @@
             <div class="block w-full overflow-x-auto">
                 <table class="items-center bg-transparent w-full border-collapse ">
                     <thead>
-                    <tr>
-                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                        </th>
-                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            Name
-                        </th>
-                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            Email
-                        </th>
-                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            Phone
-                        </th>
-                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            Orders
-                        </th>
-                        <th class="px-6 bg-blueGray-50 text-red-400 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                            Delete
-                        </th>
-                    </tr>
+                        <tr>
+                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            </th>
+                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Name
+                            </th>
+                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Email
+                            </th>
+                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Phone
+                            </th>
+                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Orders
+                            </th>
+                            <th class="px-6 bg-blueGray-50 text-red-400 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Delete
+                            </th>
+                        </tr>
                     </thead>
 
                     <tbody>
-                    @foreach (var user in _State.AdminState.AllUsers)
-                    {
-                        <tr hidden="@(!string.IsNullOrEmpty(FilterName) && !$"{user.FirstName.ToLower()} {user.LastName.ToLower()}".Contains(FilterName.ToLower()))">
-                            <th>
-                                <input type="radio" name="users-grp" @onclick="() => SelectUser(user)"/>
-                            </th>
-                            <th class="dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
-                                @if (user.IsAdmin)
-                                {
-                                    <b>A &nbsp;</b>
-                                }
-                                @user.FirstName @user.LastName
-                            </th>
-                            <td class="dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                <a href="mailto:@user.Email">
-                                    @user.Email
-                                </a>
-                            </td>
-                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                <a href="tel:@user.PhoneNumber">
-                                    <i class="fas fa-phone"></i> @user.PhoneNumber
-                                </a>
-                            </td>
-                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
-                                <NavLink href=@string.Format($"/admin/orders/{user.Id}")>
-                                    <i class="fas fa-external-link-square-alt">
-                                    </i>
-                                </NavLink>
-                            </td>
-                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
-                                @if (!user.IsAdmin)
-                                {
-                                    <i @onclick="() => RemoveUser(user)" class="fas fa-trash text-red-400 cursor-pointer"></i>
-                                }
-                            </td>
-                        </tr>
-                    }
+                        @foreach (var user in _State.AdminState.AllUsers)
+                        {
+                            <tr hidden="@(!string.IsNullOrEmpty(FilterName) && !$"{user.FirstName.ToLower()} {user.LastName.ToLower()}".Contains(FilterName.ToLower()))">
+                                <th>
+                                    <input type="radio" name="users-grp" @onclick="() => SelectUser(user)" />
+                                </th>
+                                <th class="dark:text-gray-200 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-left text-blueGray-700">
+                                    @if (user.IsAdmin)
+                                    {
+                                        <b>A &nbsp;</b>
+                                    }
+                                    @user.FirstName @user.LastName
+                                </th>
+                                <td class="dark:text-gray-300 border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    <a href="mailto:@user.Email">
+                                        @user.Email
+                                    </a>
+                                </td>
+                                <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                    <a href="tel:@user.PhoneNumber">
+                                        <i class="fas fa-phone"></i> @user.PhoneNumber
+                                    </a>
+                                </td>
+                                <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
+                                    <NavLink href=@string.Format($"/admin/orders/{user.Id}")>
+                                        <i class="fas fa-external-link-square-alt">
+                                        </i>
+                                    </NavLink>
+                                </td>
+                                <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
+                                    @if (!user.IsAdmin)
+                                    {
+                                        <i @onclick="() => RemoveUser(user)" class="fas fa-trash text-red-400 cursor-pointer"></i>
+                                    }
+                                </td>
+                            </tr>
+                        }
                     </tbody>
 
                 </table>
             </div>
         </div>
     </div>
-    
-    
+
+
     @if (_SelectedUser != null)
     {
-        <button class="fixed bottom-2 right-2 z-50 px-4 py-1 shadow-lg text-sm text-white bg-green-600 rounded-md hover:bg-green-700">
-            Login
+        <button @onclick="LoginAsUser"
+                class="fixed bottom-2 right-2 z-50 px-4 py-1 shadow-lg text-sm text-white bg-green-600 rounded-md hover:bg-green-700">
+            Login as @($"{_SelectedUser.FirstName[0]}.{_SelectedUser.LastName[0]}")
         </button>
     }
 </section>
+
+
 
 @code
 {
     [Inject]
     public IJSRuntime JS { get; set; }
+    [Inject]
+    NavigationManager _NavManager { get; set; }
 
     string _FilterName = "";
 
@@ -127,6 +132,15 @@
     void SelectUser(User user)
     {
         _SelectedUser = user;
+    }
+
+    async void LoginAsUser()
+    {
+        if (_SelectedUser != null)
+        {
+            await MainService.LoginAsUser(_SelectedUser);
+            _NavManager.NavigateTo("/");
+        }
     }
 
     async void RemoveUser(User? user)
