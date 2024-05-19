@@ -42,9 +42,9 @@ namespace SukkotMeNET.Services
 
                 _AppState.Cart.Items.AddOrMerge(itemClone, toOverride);
 
-                await _Repository.CartsRepository.UpdateFirstAsync(
+               await _Repository.CartsRepository.UpdateFirstAsync(
                     c => c.UserId == (userId ?? _AppState.User.Id),
-                    _AppState.Cart, false);
+                    _AppState.Cart, true);
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
                 return true;
