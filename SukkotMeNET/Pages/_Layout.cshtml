@@ -8,6 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#059669">
     <base href="~/" />
     <link href="css/site.css" rel="stylesheet" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
@@ -17,6 +18,7 @@
 
     @RenderBody()
     <script src="_framework/blazor.server.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/2.8.0/alpine.js"></script>
     <script src="https://kit.fontawesome.com/dbd1de3adf.js" crossorigin="anonymous"></script>
     <script language="javascript">
@@ -35,6 +37,14 @@
 
             return domUrl.createObjectURL(svg);
         }
+
+        function RenderStockChart(options) {
+            if (document.getElementById("column-chart") && typeof ApexCharts !== 'undefined') {
+                const chart = new ApexCharts(document.getElementById("column-chart"), options);
+                chart.render();
+            }
+        }
+
     </script>
 </body>
 </html>

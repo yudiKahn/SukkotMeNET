@@ -18,6 +18,10 @@
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(user.Email))
+            {
+                user.Email = $"{Guid.NewGuid()}@null.com";
+            }
             await MainService.RegisterAsync(user);
 
             MainService.AddAlert(new Alert("Success", "User creation succeed", AlertType.Success));

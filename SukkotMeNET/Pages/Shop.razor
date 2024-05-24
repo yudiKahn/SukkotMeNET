@@ -10,10 +10,17 @@
 <div class="antialiased bg-gray-200 dark:bg-gray-800 text-gray-900 font-sans p-6 flex-grow">
     <div class="container mx-auto relative">
         
-        <div class="sticky bottom-1 bg-green-500 text-white rounded-lg p-4 flex flex-wrap shadow-md">
-            <button class="px-2 py-1 text-sm text-green-600 bg-white rounded-md">
-                <i class="fa fa-repeat"></i> Reorder
+        <div class="sticky bottom-1 bg-green-500 text-white rounded-lg py-4 px-2 flex shadow-md overflow-x-auto">
+            <button class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
+                <i class="fa fa-repeat"></i>&nbsp;Reorder
             </button>
+            
+            @if (State.User.IsAdmin)
+            {
+                <button @onclick="SelectUser" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
+                    <i class="fa fa-user"></i>&nbsp;For User
+                </button>
+            }
             @* <div class="align-center">Get a 10% Discount now!</div>
             <div class="coupun mx-2">10% off</div> *@
         </div>
@@ -52,12 +59,26 @@
     </div>
 </div>
 
+@if (IsInUserSelection)
+{
+    <div class="fixed p-5 w-screen h-screen top-0 z-50 bg-black bg-opacity-50" @onclick="() => IsInUserSelection = false">
+        <div class="relative w-full h-full">
+            <div @onclick:stopPropagation="true"
+                 class="rounded-md shadow-xl absolute bg-white inset-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-2/3 md:w-2/3">
+
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter]
     public string? ForOrderWithId { get; set; }
 
     [Parameter]
     public string? ForUserId { get; set; }
+
+    public bool IsInUserSelection { get; set; }
 
     OrderItem OrderItem = new OrderItem();
 
@@ -131,4 +152,8 @@
         }
     }
 
+    void SelectUser()
+    {
+        IsInUserSelection = true;
+    }
 }
