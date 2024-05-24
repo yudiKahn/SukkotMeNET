@@ -172,6 +172,6 @@
 
     void CopyOrder()
     {
-        _CopyOrderPopup.Show(_Order!);
+        _CopyOrderPopup.Show(_Order!.Items.ToArray());
     }
 }

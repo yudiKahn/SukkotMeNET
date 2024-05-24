@@ -350,6 +350,18 @@ namespace SukkotMeNET.Services
             return true;
         }
 
+        public OrderItem[] GetLastYearOrder()
+        {
+            if (_AppState.UserOrders.Count == 0) return [];
+
+            var from = DateTime.Now.AddMonths(-15);
+            var to = DateTime.Now.AddMonths(-11);
+            return _AppState.UserOrders
+                .Where(o => o.CreatedAt >= from && o.CreatedAt <= to)
+                .SelectMany(o => o.Items)
+                .ToArray();
+        }
+
         //Admin
         public async Task<bool> SendInvoiceFromAdminAsync(Order order, User user)
         {
@@ -397,6 +409,22 @@ namespace SukkotMeNET.Services
             var u1 = await _Repository.UsersRepository.UpdateFirstAsync(u => u.Email.ToLower() == email, user);
 
             return u1?.Password == hashPass;
+        }
+
+        public async Task<Dictionary<string,int>> GetStockData()
+        {
+            var from = DateTime.Now.AddMonths(-4);
+            var orders = await _Repository.OrdersRepository.ReadAllAsync(o => o.CreatedAt >= from);
+
+            var items = orders
+                .SelectMany(o => o.Items)
+                .GroupBy(i => i.Name)
+                .ToDictionary(
+                    k => k.Key,
+                    v => v.Sum(i => i.Qty)
+                    );
+
+            return items;
         }
 
         async Task<bool> InitUserCart()

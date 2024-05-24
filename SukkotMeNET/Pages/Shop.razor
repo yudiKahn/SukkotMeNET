@@ -11,7 +11,7 @@
     <div class="container mx-auto relative">
         
         <div class="sticky bottom-1 bg-green-500 text-white rounded-lg py-4 px-2 flex shadow-md overflow-x-auto">
-            <button class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
+            <button @onclick="CopyOrder" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
                 <i class="fa fa-repeat"></i>&nbsp;Reorder
             </button>
             
@@ -59,6 +59,8 @@
     </div>
 </div>
 
+<CopyOrderPopup @ref="_CopyOrder" />
+
 @if (IsInUserSelection)
 {
     <div class="fixed p-5 w-screen h-screen top-0 z-50 bg-black bg-opacity-50" @onclick="() => IsInUserSelection = false">
@@ -79,6 +81,8 @@
     public string? ForUserId { get; set; }
 
     public bool IsInUserSelection { get; set; }
+
+    CopyOrderPopup _CopyOrder;
 
     OrderItem OrderItem = new OrderItem();
 
@@ -150,6 +154,12 @@
         {
             _ = await MainService.AddItemToCart(OrderItem);
         }
+    }
+
+    void CopyOrder()
+    {
+        var items = MainService.GetLastYearOrder();
+        _CopyOrder.Show(items);
     }
 
     void SelectUser()
