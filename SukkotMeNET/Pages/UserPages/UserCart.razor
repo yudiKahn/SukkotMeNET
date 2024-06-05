@@ -5,8 +5,14 @@
 @inherits PageBase
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
-<div class="w-full bg-white grid place-content-center py-3 flex-grow dark:bg-gray-800" style="min-height: 80vh;">
-    <div class="container">
+<div class="w-full bg-white grid place-content-center flex-grow dark:bg-gray-800" style="min-height: 80vh;">
+    <div class="container relative my-4">
+        @if (State.ForUser is {} fu)
+        {
+            <span class="absolute top-0 right-0 px-2 py-1 -mt-3 -mr-6 text-sm font-medium leading-tight text-white bg-red-600 rounded-full">
+                Order for @($"{fu.FirstName} {fu.LastName}")!
+            </span>
+        }
         @if (State?.Cart?.Items?.Any() == true)
         {
             <div class="rounded-lg shadow-lg overflow-hidden">
@@ -23,7 +29,7 @@
                                     <button type="button" @onclick="() => CanEditQty = !CanEditQty" class="rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
                                         @(CanEditQty ? "STOP EDIT" : "EDIT QUANTITY")
                                     </button>
-                                    <button type="button" disabled="@(!CanEditQty)" @onclick="MainService.SaveCurrentCart" class=@string.Concat("rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer ", CanEditQty ? "":"opacity-50")>
+                                    <button type="button" disabled="@(!CanEditQty)" @onclick="MainService.SaveCurrentCart" class=@string.Concat("rounded-md text-white bg-green-700 px-4 py-2 text-xs font-bold mr-3 cursor-pointer ", CanEditQty ? "" : "opacity-50")>
                                         SAVE
                                     </button>
                                 </div>
@@ -49,7 +55,7 @@
                                             <span @onclick="() => Delete(item)" class="rounded-md text-gray-700 leading-6 border border-solid border-gray-400 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
                                                 DELETE
                                             </span>
-                                            <input type="number" disabled="@(!CanEditQty)" min="1" @bind="@item.Qty" class="shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                                            <input type="number" disabled="@(!CanEditQty)" min="1" @bind="@item.Qty" class="shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
                                         </div>
                                     </div>
                                 </li>

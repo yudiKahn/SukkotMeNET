@@ -18,7 +18,15 @@
             @if (State.User.IsAdmin)
             {
                 <button @onclick="SelectUser" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
-                    <i class="fa fa-user"></i>&nbsp;For User
+                    <i class="fa fa-user"></i>&nbsp;
+                    @if (State.ForUser is { } fu)
+                    {
+                        <span>For @($"{fu.FirstName} {(fu.LastName.Length > 0 ? fu.LastName[0] : string.Empty)}.")</span>
+                    }
+                    else
+                    {
+                        <span>For User</span>
+                    }
                 </button>
             }
             @* <div class="align-center">Get a 10% Discount now!</div>
@@ -66,8 +74,29 @@
     <div class="fixed p-5 w-screen h-screen top-0 z-50 bg-black bg-opacity-50" @onclick="() => IsInUserSelection = false">
         <div class="relative w-full h-full">
             <div @onclick:stopPropagation="true"
-                 class="rounded-md shadow-xl absolute bg-white inset-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-2/3 md:w-2/3">
-
+                 class="rounded-md shadow-xl absolute bg-white inset-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-2/3 md:w-2/3 overflow-y-auto">
+                <div class="rounded-t mb-0 px-4 py-3 border-0">
+                    <div class="flex flex-wrap items-center">
+                        <div class="relative w-full px-4 max-w-full flex-grow flex-1">
+                            <input placeholder="Filter by name" @bind="FilterName" @bind:event="oninput"
+                                   class="p-3 appearance-none block w-full md:w-1/2 text-gray-700 rounded leading-tight" />
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <ul class="h-full overflow-y-auto">
+                        @foreach (var user in State.AdminState.AllUsers.OrderBy(u => $"{u.FirstName}{u.LastName}"))
+                        {
+                            <li hidden="@(!string.IsNullOrEmpty(FilterName) && !$"{user.FirstName.ToLower()} {user.LastName.ToLower()}".Contains(FilterName.ToLower()))"
+                                class="px-3 py-4" @onclick="() => SelectUser(user)">
+                                <div class="flex">
+                                    <input id="@user.Id" type="radio" name="usrs-grp" class="flex-none w-20" />
+                                    <label for="@user.Id" class="flex-none w-80">@user.FirstName @user.LastName</label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -81,6 +110,8 @@
     public string? ForUserId { get; set; }
 
     public bool IsInUserSelection { get; set; }
+
+    public string FilterName { get; set; }
 
     CopyOrderPopup _CopyOrder;
 
@@ -174,6 +205,12 @@
     void SelectUser()
     {
         IsInUserSelection = true;
+    }
+
+    void SelectUser(User user)
+    {
+        State.ForUser = State.User.Id == user.Id ? null : user;
+        IsInUserSelection = false;
     }
 
     protected override void OnAfterRender(bool firstRender)

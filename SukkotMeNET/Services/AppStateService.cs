@@ -16,6 +16,7 @@ namespace SukkotMeNET.Services
 
         public AdminState AdminState { get; set; }
         public bool IsLoading { get; set; }
+        public User? ForUser { get; set; }
 
         public AppStateService()
         {

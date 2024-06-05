@@ -212,23 +212,14 @@ namespace SukkotMeNET.Services
             }
         }
 
-        public async Task<Order?> CreateOrderFromCart(string? forUserId = null)
+        public async Task<Order?> CreateOrderFromCart()
         {
             if (string.IsNullOrEmpty(_AppState.Cart.Id) || string.IsNullOrEmpty(_AppState.User.Id))
                 return null;
 
             try
             {
-                var user = _AppState.User;
-
-                if (!string.IsNullOrWhiteSpace(forUserId))
-                {
-                    var x = _AppState.AdminState.AllUsers.FirstOrDefault(u => u.Id == forUserId);
-                    if (x != null)
-                    {
-                        user = x;
-                    }
-                }
+                var user = _AppState.ForUser ?? _AppState.User;
 
                 var order = new Order
                 {
@@ -241,11 +232,11 @@ namespace SukkotMeNET.Services
 
                 var invoice = _InvoiceService.GetInvoiceHtml(order, user);
 
-
                 var o = await _Repository.OrdersRepository.WriteAsync(order);
                 var ok = await _EmailService.SendAsync("Order Invoice", invoice, user.Email);
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.Id == _AppState.Cart.Id);
 
+                _AppState.ForUser = null;
                 _AppState.Cart = new Cart();
                 _AppState.UserOrders.Add(order);
 
