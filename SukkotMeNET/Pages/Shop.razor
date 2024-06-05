@@ -120,6 +120,7 @@
         {
             _ = await MainService.AddItemToCart(OrderItem, null, toOverride);
         }
+        StateHasChanged();
     }
 
     async void SubtractItem(Item item, int priceInx, int optInx, int n = 1)
@@ -159,11 +160,31 @@
     void CopyOrder()
     {
         var items = MainService.GetLastYearOrder();
-        _CopyOrder.Show(items);
+        _CopyOrder.Show(items.ToArray());
+    }
+
+    async void CopyOrderOnClosed(object? sender, bool e)
+    {
+        if(!e) return;
+
+        await MainService.CreateDuplicateOrder();
+        StateHasChanged();
     }
 
     void SelectUser()
     {
         IsInUserSelection = true;
     }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            _CopyOrder.Closed += CopyOrderOnClosed;
+            OnDisposed = () => _CopyOrder.Closed -= CopyOrderOnClosed;
+        }
+    }
+
+
 }

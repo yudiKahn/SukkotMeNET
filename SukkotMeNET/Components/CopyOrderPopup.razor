@@ -21,56 +21,63 @@
                             <span class="sr-only">Close modal</span>
                         </button>
                     </div>
-                    <!-- Modal body -->
-                    <div class="px-3 py-6 space-y-6">
-                        <div>
-                            <div class="h-60 w-full overflow-x-auto">
-                                <table class="items-center bg-transparent w-full border-collapse ">
-                                    <thead>
-                                    <tr>
-                                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                            Item
-                                        </th>
-                                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
-                                            Total
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach (var item in _Items)
-                                    {
-                                        <tr>
-                                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                                @item.Name
-                                                @if (!string.IsNullOrWhiteSpace(item.PriceType) ||
-                                                     !string.IsNullOrWhiteSpace(item.Option))
-                                                {
-                                                    <small>(@item.PriceType @item.Option)</small>
-                                                }
-                                                &nbsp;&times;&nbsp;@item.Qty 
-                                            </td>
-                                            <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                                                $@($"{item.Qty * item.Price:N1}")
-                                            </td>
-                                        </tr>
-                                    }
-                                    </tbody>
-                                </table>
-                            </div>
 
-                            <div class="flex justify-end mt-6">
-                                Total: &nbsp;&nbsp;
-                                <span class="text-lg text-gray-800 font-bold">$@($"{_Items.GetTotal():N2}")</span>
+                    @if (_Items.Any())
+                    {
+                        <div class="px-3 py-6 space-y-6">
+                            <div>
+                                <div class="h-60 w-full overflow-x-auto">
+                                    <table class="items-center bg-transparent w-full border-collapse ">
+                                        <thead>
+                                            <tr>
+                                                <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                                    Item
+                                                </th>
+                                                <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                                    Total
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in _Items)
+                                            {
+                                                <tr>
+                                                    <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                                        @item.Name
+                                                        @if (!string.IsNullOrWhiteSpace(item.PriceType) ||
+                                                       !string.IsNullOrWhiteSpace(item.Option))
+                                                        {
+                                                            <small>(@item.PriceType @item.Option)</small>
+                                                        }
+                                                        &nbsp;&times;&nbsp;@item.Qty
+                                                    </td>
+                                                    <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                                                        $@($"{item.Qty * item.Price:N1}")
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="flex justify-end mt-6">
+                                    Total: &nbsp;&nbsp;
+                                    <span class="text-lg text-gray-800 font-bold">$@($"{_Items.GetTotal():N2}")</span>
+                                </div>
                             </div>
                         </div>
+                        <!-- Modal footer -->
+                        <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                            <button @onclick="() => Close(true)" data-modal-hide="staticModal" type="button" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                                Duplicate
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <h1 class="px-3 py-6 space-y-6 text-red-700 text-lg font-bold">No orders from last year</h1>
+                    }
 
-                    </div>
-                    <!-- Modal footer -->
-                    <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
-                        <button @onclick="() => Close(true)" data-modal-hide="staticModal" type="button" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                            Duplicate
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

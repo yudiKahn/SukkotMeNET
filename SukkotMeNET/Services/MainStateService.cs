@@ -2,6 +2,7 @@
 using SukkotMeNET.Extensions;
 using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
+using System.Globalization;
 using System.Runtime.Intrinsics.X86;
 
 namespace SukkotMeNET.Services
@@ -72,6 +73,16 @@ namespace SukkotMeNET.Services
 
         public async void SaveCurrentCart()
         {
+            await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart);
+        }
+
+        public async Task CreateDuplicateOrder()
+        {
+            var items = GetLastYearOrder();
+            if(items.Count == 0) return;
+            
+            _AppState.Cart.Items.Clear();
+            _AppState.Cart.Items.AddOrMergeRange(items.ToArray());
             await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart);
         }
 
@@ -350,16 +361,15 @@ namespace SukkotMeNET.Services
             return true;
         }
 
-        public OrderItem[] GetLastYearOrder()
+        public List<OrderItem> GetLastYearOrder()
         {
-            if (_AppState.UserOrders.Count == 0) return [];
-
-            var from = DateTime.Now.AddMonths(-15);
-            var to = DateTime.Now.AddMonths(-11);
-            return _AppState.UserOrders
-                .Where(o => o.CreatedAt >= from && o.CreatedAt <= to)
+            var res = new List<OrderItem>();
+            
+            res.AddOrMergeRange(_AppState.UserOrders
+                .Where(o => o.CreatedAt.Year >= DateTime.Now.Year - 1)
                 .SelectMany(o => o.Items)
-                .ToArray();
+                .ToArray());
+            return res;
         }
 
         //Admin

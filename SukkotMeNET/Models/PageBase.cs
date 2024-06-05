@@ -6,6 +6,7 @@ namespace SukkotMeNET.Models
     public class PageBase : ComponentBase, IDisposable
     {
         bool _UsedOnAfterRender;
+        protected Action? OnDisposed;
 
         [Inject]
         public MainStateService MainService { get; set; }
@@ -13,6 +14,7 @@ namespace SukkotMeNET.Models
         public void Dispose()
         {
             MainService.StateHasChanged -= OnStateHasChanged;
+            OnDisposed?.Invoke();
         }
 
         public bool SetProperty<T>(ref T prop, T val)
