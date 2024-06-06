@@ -11,7 +11,7 @@ public static class ToEntityExtensions
         {
             Id = model.Id,
             Name = model.Name,
-            Category = model.Category,
+            Category = Enum.Parse<ProductCategory>(model.Category),
             Prices = model.Prices,
             PricesTypes = model.PricesTypes,
             Options = model.Options

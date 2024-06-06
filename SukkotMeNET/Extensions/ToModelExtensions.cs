@@ -11,7 +11,7 @@ public static class ToModelExtensions
         {
             Id = entity.Id,
             Name = entity.Name,
-            Category = entity.Category,
+            Category = entity.Category.ToString(),
             Prices = entity.Prices,
             PricesTypes = entity.PricesTypes,
             Options = entity.Options

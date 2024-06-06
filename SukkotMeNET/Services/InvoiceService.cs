@@ -57,7 +57,7 @@ namespace SukkotMeNET.Services
 
         }
 
-
+        //todo: make obsolete
         public List<OrderItem> GetItemsInTheBox(List<OrderItem> items)
         {
             //When ordering a set the customer gets:

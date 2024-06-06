@@ -14,10 +14,10 @@ public class OrderItemEntity
     
     [BsonRepresentation(BsonType.ObjectId)]
     [BsonElement("productId")]
-    public string ProductId { get; set; } = string.Empty;
+    public string ProductId { get; set; } = string.Empty; //todo: impl
 
     [BsonElement("category")]
-    public string Category { get; set; } = string.Empty;
+    public string Category { get; set; } = string.Empty; //todo: can be removed
 
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
