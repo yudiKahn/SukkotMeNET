@@ -1,9 +1,7 @@
 ﻿using MongoDB.Bson;
+using SukkotMeNET.Data.Interfaces;
 using SukkotMeNET.Extensions;
-using SukkotMeNET.Interfaces;
 using SukkotMeNET.Models;
-using System.Globalization;
-using System.Runtime.Intrinsics.X86;
 
 namespace SukkotMeNET.Services
 {
@@ -43,9 +41,9 @@ namespace SukkotMeNET.Services
 
                 _AppState.Cart.Items.AddOrMerge(itemClone, toOverride);
 
-               await _Repository.CartsRepository.UpdateFirstAsync(
-                    c => c.UserId == (userId ?? _AppState.User.Id),
-                    _AppState.Cart, true);
+                await _Repository.CartsRepository.UpdateFirstAsync(
+                     c => c.UserId == (userId ?? _AppState.User.Id),
+                     _AppState.Cart.ToEntity());
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
                 return true;
@@ -60,7 +58,7 @@ namespace SukkotMeNET.Services
         public async void RemoveItemFromCart(OrderItem item)
         {
             _AppState.Cart.Items.Remove(item);
-            await _Repository.CartsRepository.UpdateFirstAsync(c => c.Id == _AppState.Cart.Id, _AppState.Cart);
+            await _Repository.CartsRepository.UpdateFirstAsync(c => c.Id == _AppState.Cart.Id, _AppState.Cart.ToEntity());
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -73,17 +71,17 @@ namespace SukkotMeNET.Services
 
         public async void SaveCurrentCart()
         {
-            await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart);
+            await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart.ToEntity());
         }
 
         public async Task CreateDuplicateOrder()
         {
             var items = GetLastYearOrder();
-            if(items.Count == 0) return;
-            
+            if (items.Count == 0) return;
+
             _AppState.Cart.Items.Clear();
             _AppState.Cart.Items.AddOrMergeRange(items.ToArray());
-            await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart);
+            await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart.ToEntity());
         }
 
         //Login
@@ -97,7 +95,7 @@ namespace SukkotMeNET.Services
 
             if (user1 != null)
             {
-                _AppState.User = user1;
+                _AppState.User = user1.ToModel();
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
 
@@ -109,7 +107,7 @@ namespace SukkotMeNET.Services
                     InitAdminState();
             }
 
-            return user1;
+            return user1?.ToModel();
         }
 
         public async Task<bool> LoginUserFromLocalStorage(string token)
@@ -119,7 +117,7 @@ namespace SukkotMeNET.Services
                 var user = await _Repository.UsersRepository.ReadFirstAsync(u => u.Id == token);
                 if (user != null)
                 {
-                    _AppState.User = user;
+                    _AppState.User = user.ToModel();
                     StateHasChanged?.Invoke(this, EventArgs.Empty);
 
                     Task.Run(InitUserCart).Wait();
@@ -154,13 +152,13 @@ namespace SukkotMeNET.Services
                 throw new Exception("An error accord while saving user");
 
             user.Password = hashPass;
-            var user1 = await _Repository.UsersRepository.WriteAsync(user);
+            var user1 = await _Repository.UsersRepository.WriteAsync(user.ToEntity());
 
             if (user1 is null)
                 throw new Exception("An error accord while saving user");
 
             if (_AppState.AdminState.AllUsers.Any())
-                _AppState.AdminState.AllUsers.Add(user1);
+                _AppState.AdminState.AllUsers.Add(user1.ToModel());
         }
 
         //Alerts
@@ -196,10 +194,10 @@ namespace SukkotMeNET.Services
                     CreatedAt = DateTime.Now,
                 };
 
-                var o = await _Repository.OrdersRepository.WriteAsync(order);
+                var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
                 if (o is not null)
                 {
-                    _AppState.UserOrders.Add(o);
+                    _AppState.UserOrders.Add(o.ToModel());
                     return true;
                 }
 
@@ -232,8 +230,8 @@ namespace SukkotMeNET.Services
 
                 var invoice = _InvoiceService.GetInvoiceHtml(order, user);
 
-                var o = await _Repository.OrdersRepository.WriteAsync(order);
-                var ok = await _EmailService.SendAsync("Order Invoice", invoice, user.Email);
+                var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
+                _ = await _EmailService.SendAsync("Order Invoice", invoice, user.Email);
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.Id == _AppState.Cart.Id);
 
                 _AppState.ForUser = null;
@@ -241,7 +239,7 @@ namespace SukkotMeNET.Services
                 _AppState.UserOrders.Add(order);
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
-                return o;
+                return o?.ToModel();
             }
             catch
             {
@@ -288,7 +286,7 @@ namespace SukkotMeNET.Services
                     return false;
             }
 
-            var res = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order);
+            var res = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order.ToEntity());
             if (res is not null)
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
             return res is not null;
@@ -298,23 +296,25 @@ namespace SukkotMeNET.Services
         {
             try
             {
-                Order? order = new Order();
-
-                order = _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
+                var order = _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
                 if (_AppState.User.Id == order?.UserId)
-                    order?.Items.AddOrMerge(item);
-
-                if (_AppState.User.IsAdmin)
                 {
+                    order?.Items.AddOrMerge(item);
+                }
+                else
+                {
+                    if (!_AppState.User.IsAdmin)
+                        return false;
+
                     order = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == orderId);
                     order?.Items.AddOrMerge(item);
                 }
 
-                order?.Items.AddOrMerge(item);
-
                 if (order != null)
-                    order = await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == orderId, order);
-
+                {
+                    await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == orderId, order.ToEntity());
+                }
+                
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
 
                 return order is not null;
@@ -331,7 +331,7 @@ namespace SukkotMeNET.Services
             if (order is null) return false;
 
             order.ShippingCost = price;
-            await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == oId, order, false);
+            await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == oId, order.ToEntity(), false);
             return true;
         }
 
@@ -346,7 +346,7 @@ namespace SukkotMeNET.Services
             if (_AppState.User.Id == order.UserId)
                 _AppState.UserOrders.First(o => o.Id == order.Id).Items.Remove(item);
 
-            await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order);
+            await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == order.Id, order.ToEntity());
 
             StateHasChanged?.Invoke(this, EventArgs.Empty);
             return true;
@@ -355,10 +355,10 @@ namespace SukkotMeNET.Services
         public List<OrderItem> GetLastYearOrder()
         {
             var res = new List<OrderItem>();
-            
+
             res.AddOrMergeRange(_AppState.UserOrders
                 .Where(o => o.CreatedAt.Year >= DateTime.Now.Year - 1)
-                .SelectMany(o => o.Items)
+                .SelectMany(o => o.Items, (_, b) => b.Clone())
                 .ToArray());
             return res;
         }
@@ -407,12 +407,12 @@ namespace SukkotMeNET.Services
             var hashPass = BCrypt.Net.BCrypt.HashPassword(newPass);
             user.Password = hashPass;
 
-            var u1 = await _Repository.UsersRepository.UpdateFirstAsync(u => u.Email.ToLower() == email, user);
+            var u1 = await _Repository.UsersRepository.UpdateFirstAsync(u => u.Email.ToLower() == email, user.ToEntity());
 
             return u1?.Password == hashPass;
         }
 
-        public async Task<Dictionary<string,int>> GetStockData()
+        public async Task<Dictionary<string, int>> GetStockData()
         {
             var from = DateTime.Now.AddMonths(-4);
             var orders = await _Repository.OrdersRepository.ReadAllAsync(o => o.CreatedAt >= from);
@@ -439,7 +439,7 @@ namespace SukkotMeNET.Services
                 var cart = await _Repository.CartsRepository.ReadFirstAsync(c => c.UserId == userId);
                 if (cart != null)
                 {
-                    _AppState.Cart = cart;
+                    _AppState.Cart = cart.ToModel();
                 }
                 else
                 {
@@ -464,7 +464,7 @@ namespace SukkotMeNET.Services
 
             var userId = _AppState.User.Id;
             var orders = await _Repository.OrdersRepository.ReadAllAsync(o => o.UserId == userId);
-            _AppState.UserOrders = orders.ToList();
+            _AppState.UserOrders = orders.Select(o => o.ToModel()).ToList();
 
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -472,17 +472,18 @@ namespace SukkotMeNET.Services
         async void InitAdminState()
         {
             var orders = await _Repository.OrdersRepository.ReadAllAsync();
-            _AppState.AdminState.AllOrders = orders.ToList();
+            _AppState.AdminState.AllOrders = orders.Select(o => o.ToModel()).ToList();
 
             var users = await _Repository.UsersRepository.ReadAllAsync();
-            _AppState.AdminState.AllUsers = users.ToList();
+            _AppState.AdminState.AllUsers = users.Select(o => o.ToModel()).ToList();
 
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
         async void InitCartItems()
         {
-            _AppState.ShopItems = await _Repository.ItemsRepository.ReadAllAsync();
+            var e = await _Repository.ItemsRepository.ReadAllAsync();
+            _AppState.ShopItems = e.Select(i => i.ToModel()).ToList();
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -504,7 +505,7 @@ namespace SukkotMeNET.Services
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
             }
-            catch (Exception ex)
+            catch (Exception _)
             {
                 AddAlert(new Alert("Error", "Failed to switch user.", AlertType.Error));
             }

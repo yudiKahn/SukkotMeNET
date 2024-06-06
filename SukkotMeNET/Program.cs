@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using SukkotMeNET.Configuration;
-using SukkotMeNET.Interfaces;
+using SukkotMeNET.Data.Interfaces;
+using SukkotMeNET.Data.Repositories;
 using SukkotMeNET.Models;
 using SukkotMeNET.Services;
 

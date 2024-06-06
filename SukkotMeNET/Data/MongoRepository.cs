@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
 using System.Linq.Expressions;
 
-namespace SukkotMeNET.Models
+namespace SukkotMeNET.Data
 {
     public class MongoRepository<T>
     {
@@ -46,7 +46,7 @@ namespace SukkotMeNET.Models
                 await _Collection.ReplaceOneAsync<T>(filter, newValue, new ReplaceOptions()
                 {
                     IsUpsert = writeIfNotFound,
-                    
+
                 });
                 return newValue;
             }
