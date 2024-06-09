@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson;
+using SukkotMeNET.Data.Entities;
 using SukkotMeNET.Data.Interfaces;
 using SukkotMeNET.Extensions;
 using SukkotMeNET.Models;
@@ -24,6 +25,40 @@ namespace SukkotMeNET.Services
             _Repository = repositoryService;
             _EmailService = emailService;
             _InvoiceService = invoiceService;
+
+            Task.Run(UpdProd);
+        }
+
+        static bool once = true;
+        async Task UpdProd()
+        {
+            try
+            {
+                await Task.Delay(1000);
+                if (!once) return;
+
+                once = false;
+
+
+                var items = await _Repository.ProductsRepository.ReadAllAsync();
+                var grp = (byte)0;
+
+                var add = new List<ProductEntity>();
+                foreach (var i in items)
+                {
+                    
+                }
+
+                foreach (var a in add)
+                {
+                    await _Repository.ProductsRepository.UpdateFirstAsync(p => p.Id == a.Id, a, false);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         //Cart
@@ -482,7 +517,7 @@ namespace SukkotMeNET.Services
 
         async void InitCartItems()
         {
-            var e = await _Repository.ItemsRepository.ReadAllAsync();
+            var e = await _Repository.ProductsRepository.ReadAllAsync();
             _AppState.ShopItems = e.Select(i => i.ToModel()).ToList();
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -534,7 +569,7 @@ namespace SukkotMeNET.Services
             var users = await _Repository.UsersRepository.ReadAllAsync();
             var usersJson = System.Text.Json.JsonSerializer.Serialize(users);
 
-            var items = await _Repository.ItemsRepository.ReadAllAsync();
+            var items = await _Repository.ProductsRepository.ReadAllAsync();
             var itemsJson = System.Text.Json.JsonSerializer.Serialize(items);
 
             var carts = await _Repository.CartsRepository.ReadAllAsync();

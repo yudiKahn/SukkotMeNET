@@ -13,6 +13,7 @@
         public string DatabaseName { get; set; } = string.Empty;
 
         public string DBUsersCollectionName { get; set; } = string.Empty;
+        public string DBProductsCollectionName { get; set; } = string.Empty;
         public string DBItemsCollectionName { get; set; } = string.Empty;
         public string DBCartsCollectionName { get; set; } = string.Empty;
         public string DBOrdersCollectionName { get; set; } = string.Empty;

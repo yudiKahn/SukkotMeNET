@@ -18,6 +18,12 @@ namespace SukkotMeNET.Data
             return res != null;
         }
 
+        public async Task<bool> DeleteAllAsync()
+        {
+            var res = await _Collection.DeleteManyAsync(t => true);
+            return res != null;
+        }
+
         public async Task<IEnumerable<T>> ReadAllAsync(Expression<Func<T, bool>> predicate)
         {
             var res = await _Collection.FindAsync(predicate);
@@ -53,6 +59,18 @@ namespace SukkotMeNET.Data
             catch
             {
                 return default;
+            }
+        }
+
+        
+        public async Task WriteRangeAsync(params T[] value)
+        {
+            try
+            {
+                await _Collection.InsertManyAsync(value);
+            }
+            catch(Exception e)
+            {
             }
         }
 

@@ -19,15 +19,19 @@ public class ProductEntity
     [BsonElement("category")]
     public ProductCategory Category { get; set; }
 
-    [BsonElement("prices")]
-    public double[] Prices { get; set; } = [];
+    [BsonElement("price")]
+    public double Price { get; set; }
 
-    [BsonElement("pricesTypes")]
-    public string[] PricesTypes { get; set; } = [];
+    [BsonElement("priceType")]
+    public string PriceType { get; set; } = string.Empty;
 
     [BsonElement("options")]
-    public string[] Options { get; set; } = [];
-    
+    public string[]? Options { get; set; }
+
+    [BsonElement("group")]
+    public byte Group { get; set; }
+
+    [BsonElement("includes")]
     public ProductIncludeEntity[]? Includes { get; set; }
 
     public override string ToString() => Name;
@@ -39,9 +43,6 @@ public class ProductIncludeEntity
     [BsonElement("productId")]
     public string ProductId { get; set; } = string.Empty;
     
-    [BsonElement("priceInx")]
-    public int PriceIndex { get; set; }
-    
     [BsonElement("qty")]
-    public float Qty { get; set; }
+    public int Qty { get; set; }
 }

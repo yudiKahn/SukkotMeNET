@@ -5,16 +5,40 @@ namespace SukkotMeNET.Extensions;
 
 public static class ToModelExtensions
 {
-    public static Item ToModel(this ProductEntity entity)
+    public static Product ToModel(this ProductEntity entity)
     {
-        return new Item
+        return new Product
         {
             Id = entity.Id,
             Name = entity.Name,
             Category = entity.Category.ToString(),
-            Prices = entity.Prices,
-            PricesTypes = entity.PricesTypes,
-            Options = entity.Options
+            Price = entity.Price,
+            PricesType = entity.PriceType,
+            Options = entity.Options,
+            Group = entity.Group,
+            Includes = entity.Includes?
+                .Select(i => new ProductInclude()
+                {
+                    ProductId = i.ProductId,
+                    Qty = i.Qty
+                })
+                .ToArray()
+        };
+    }
+
+    public static OrderItem ToModel(this Product prod, string? opt, int qty = 1)
+    {
+        var okOpt = prod.Options?.Contains(opt) == true;
+        return new OrderItem
+        {
+            ProductId = prod.Id,
+            Category = prod.Category,
+            Name = prod.Name,
+            Price = prod.Price,
+            PriceType = prod.PricesType,
+            Option = okOpt ? opt : string.Empty,
+            Qty = qty, //todo
+            ByAdmin = false
         };
     }
 
@@ -66,7 +90,8 @@ public static class ToModelExtensions
             PriceType = entity.PriceType,
             Option = entity.Option,
             Qty = entity.Qty,
-            ByAdmin = entity.ByAdmin
+            ByAdmin = entity.ByAdmin,
+            ProductId = entity.ProductId
         };
     }
 

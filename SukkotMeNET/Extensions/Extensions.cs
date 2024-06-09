@@ -4,12 +4,12 @@ namespace SukkotMeNET.Extensions
 {
     public static class Extensions
     {
-        #region Item Extensions
+        #region Product Extensions
 
-        public static string GetItemIcon(this Item item)
+        public static string GetItemIcon(this Product product)
         {
 
-            var name = $"{item.Name.ToLower()}";
+            var name = $"{product.Name.ToLower()}";
             if (name.Contains("lulav"))
                 return "/images/lulav.png";
             if (name.Contains("hadas"))
@@ -30,15 +30,15 @@ namespace SukkotMeNET.Extensions
 
         #endregion
 
-        public static OrderItem ToOrderItem(this Item item, int optionIndex, int priceIndex, int qty = 0)
+        public static OrderItem ToOrderItem(this Product product, int optionIndex, int priceIndex, int qty = 0)
         {
             return new OrderItem()
             {
-                Id = item.Id,
-                Name = item.Name,
-                Option = item.Options.ElementAtOrDefault(optionIndex),
-                Price = item.Prices.ElementAtOrDefault(priceIndex),
-                PriceType = item.PricesTypes.ElementAtOrDefault(priceIndex),
+                Id = product.Id,
+                Name = product.Name,
+                Option = product.Options.ElementAtOrDefault(optionIndex),
+                Price = product.Price,//s.ElementAtOrDefault(priceIndex),
+                PriceType = product.PricesType,//s.ElementAtOrDefault(priceIndex),
                 Qty = qty,
             };
         }

@@ -8,5 +8,6 @@ public enum ProductCategory
     Adas,
     Hoshnos,
     Schach,
-    Sukkah
+    Sukkah,
+    Esrog
 }

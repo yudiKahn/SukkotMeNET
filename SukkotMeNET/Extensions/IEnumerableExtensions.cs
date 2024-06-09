@@ -27,10 +27,15 @@ namespace SukkotMeNET.Extensions
 
         public static void AddOrMerge(this List<OrderItem> items, OrderItem newItem, bool toOverride = false)
         {
-            var existItem = items.FirstOrDefault(i => 
-                i.Name == newItem.Name && i.Option == newItem.Option && Math.Abs(i.Price - newItem.Price) == 0.0 && i.PriceType == newItem.PriceType && i.ByAdmin == newItem.ByAdmin);
-            
-            if(existItem == null && newItem.Qty > 0)
+            //var existItem = items.FirstOrDefault(i => 
+            //    i.Name == newItem.Name && i.Option == newItem.Option && Math.Abs(i.Price - newItem.Price) == 0.0 && i.PriceType == newItem.PriceType && i.ByAdmin == newItem.ByAdmin);
+
+
+            var existItem = items.FirstOrDefault(i =>
+                i.Option == newItem.Option && i.PriceType == newItem.PriceType && 
+                i.ByAdmin == newItem.ByAdmin && i.ProductId == newItem.ProductId);
+
+            if (existItem == null && newItem.Qty > 0)
             {
                 items.Add(newItem);
             }

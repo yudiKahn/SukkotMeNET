@@ -1,20 +1,28 @@
-﻿using SukkotMeNET.Data.Entities;
+﻿using SharpCompress.Common;
+using SukkotMeNET.Data.Entities;
 using SukkotMeNET.Models;
 
 namespace SukkotMeNET.Extensions;
 
 public static class ToEntityExtensions
 {
-    public static ProductEntity ToEntity(this Item model)
+    public static ProductEntity ToEntity(this Product model)
     {
         return new ProductEntity
         {
             Id = model.Id,
             Name = model.Name,
             Category = Enum.Parse<ProductCategory>(model.Category),
-            Prices = model.Prices,
-            PricesTypes = model.PricesTypes,
-            Options = model.Options
+            Price = model.Price,
+            PriceType = model.PricesType,
+            Options = model.Options,
+            Includes = model.Includes?
+                .Select(i => new ProductIncludeEntity()
+                {
+                    ProductId = i.ProductId,
+                    Qty = i.Qty
+                })
+                .ToArray()
         };
     }
 
@@ -66,7 +74,8 @@ public static class ToEntityExtensions
             PriceType = model.PriceType,
             Option = model.Option,
             Qty = model.Qty,
-            ByAdmin = model.ByAdmin
+            ByAdmin = model.ByAdmin,
+            ProductId = model.ProductId
         };
     }
 

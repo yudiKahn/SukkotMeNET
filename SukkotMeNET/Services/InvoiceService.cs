@@ -57,8 +57,38 @@ namespace SukkotMeNET.Services
 
         }
 
-        //todo: make obsolete
         public List<OrderItem> GetItemsInTheBox(List<OrderItem> items)
+        {
+            //todo: match by price in doc. Not current price
+            //todo: mthod invokes few times when requested from UI
+            var map = _AppState.ShopItems
+                .ToDictionary(k => k.Id);
+
+            var res = new List<OrderItem>(items.Count);
+            foreach (var item in items)
+            {
+                if (map.TryGetValue(item.ProductId, out var p) &&
+                    p.Includes?.Any() == true)
+                {
+                    var opt = item.Option;
+                    var inc = p.Includes
+                        .Select(i => map[i.ProductId].ToModel(opt, i.Qty))
+                        .ToArray();
+                    
+                    res.AddOrMergeRange(inc);
+                }
+                else
+                {
+                    res.AddOrMerge(item);
+                }
+            }
+
+            return res;
+        }
+        
+        
+        //todo: make obsolete
+        public List<OrderItem> _GetItemsInTheBox(List<OrderItem> items)
         {
             //When ordering a set the customer gets:
             //esrog, Egyptien lulav, hadas רובו חיים נאה,  aruvos, koishaklach & plastic bag
@@ -79,8 +109,8 @@ namespace SukkotMeNET.Services
                 {
                     res.AddOrMergeRange(new[]
                     {
-                        lulav.ToOrderItem(0, lulav.Prices.Length - 1, i.Qty + (i.Id is Constants.General.IsraeliSetItemId ? (int)(i.Qty * 0.2) : 0)),
-                        hadas.ToOrderItem(0, hadas.Prices.Length - 1, i.Qty),
+                        //lulav.ToOrderItem(0, lulav.Prices.Length - 1, i.Qty + (i.Id is Constants.General.IsraeliSetItemId ? (int)(i.Qty * 0.2) : 0)),
+                        //hadas.ToOrderItem(0, hadas.Prices.Length - 1, i.Qty),
                         arhava.ToOrderItem(0, 0, i.Qty),
                         koishaklach.ToOrderItem(0, 0, i.Qty),
                         plasticBag.ToOrderItem(0, 0, i.Qty),
@@ -101,7 +131,7 @@ namespace SukkotMeNET.Services
 
                 if (i.Id == Constants.General.YaneverSetItemId && i.Price >= 50)
                 {
-                    res.AddOrMerge(hadas.ToOrderItem(0, hadas.Prices.Length - 2, i.Qty));
+                    //res.AddOrMerge(hadas.ToOrderItem(0, hadas.Prices.Length - 2, i.Qty));
                 }
             });
             

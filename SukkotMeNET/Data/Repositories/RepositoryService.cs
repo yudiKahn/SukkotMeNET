@@ -8,7 +8,8 @@ namespace SukkotMeNET.Data.Repositories;
 public class RepositoryService : IRepositoryService
 {
     public MongoRepository<UserEntity> UsersRepository { get; }
-    public MongoRepository<ProductEntity> ItemsRepository { get; }
+    public MongoRepository<ProductEntity> ProductsRepository { get; }
+    //public MongoRepository<ItemEntity> ItemsRepository { get; }
     public MongoRepository<CartEntity> CartsRepository { get; }
     public MongoRepository<OrderEntity> OrdersRepository { get; }
 
@@ -19,7 +20,9 @@ public class RepositoryService : IRepositoryService
 
         UsersRepository = new MongoRepository<UserEntity>(db.GetCollection<UserEntity>(appConfig.DBUsersCollectionName));
 
-        ItemsRepository = new MongoRepository<ProductEntity>(db.GetCollection<ProductEntity>(appConfig.DBItemsCollectionName));
+        ProductsRepository = new MongoRepository<ProductEntity>(db.GetCollection<ProductEntity>(appConfig.DBProductsCollectionName));
+        
+        //ItemsRepository = new MongoRepository<ItemEntity>(db.GetCollection<ItemEntity>(appConfig.DBItemsCollectionName));
 
         CartsRepository = new MongoRepository<CartEntity>(db.GetCollection<CartEntity>(appConfig.DBCartsCollectionName));
 

@@ -5,22 +5,22 @@
 
 @if (Item != null)
 {
-    <div class="@(PriceOption == null ? "w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4" : "")">
+    <div class="@(InSlider ? string.Empty : "w-full sm:w-1/2 md:w-1/3 xl:w-1/4 p-4")">
         <div class="flex flex-col space-y-4 justify-between c-card block w-full h-full bg-white shadow-md hover:shadow-xl rounded-lg overflow-hidden">
             <div>
                 <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;"
                      src=@Item.GetItemIcon() alt="logo" />
             </div>
 
-            @if (Item.Options.Length > 1)
+            @if (Item.Options?.Length > 1)
             {
                 <div class="relative flex mx-3 my-1 flex-col rounded-xl bg-white bg-clip-border shadow-md"
                     style="width: fit-content;">
                     <nav class="flex flex-row gap-1">
                         @foreach (var o in Item.Options)
                         {
-                            <button @onclick="() => SelectedOption = o"
-                                    class="@(SelectedOption == o ? "bg-green-500 text-white" : "") flex items-center p-0 transition-all rounded-lg border-none focus:bg-green-500 focus:text-white focus:border-none">
+                            <button @onclick="() => _SelectedOption = o"
+                                    class="@(_SelectedOption == o ? "bg-green-500 text-white" : "") flex items-center p-0 transition-all rounded-lg border-none focus:bg-green-500 focus:text-white focus:border-none">
                                 <label class="flex items-center w-full px-3 py-2 text-sm">
                                     @o
                                 </label>
@@ -33,14 +33,14 @@
             <div class="p-3 items-center text-sm text-gray-600">
                 <h5 class="font-bold">
                     @Item.Name
-                    @if (Item.PricesTypes.Any())
+                    @if (!string.IsNullOrEmpty(Item.PricesType))
                     {
-                        <i style="font-weight: normal;"> - @Item.PricesTypes[_PriceOption]</i>
+                        <i style="font-weight: normal;"> - @Item.PricesType</i>
                     }
                 </h5>
 
-                @* <p class="my-1">@Item.Prices.GetFriendlyRange('$')</p> *@
-                <p class="my-1">$@Item.Prices[_PriceOption]</p>
+                @* <p class="my-1">@Product.Prices.GetFriendlyRange('$')</p> *@
+                <p class="my-1">$@Item.Price</p>
 
                 @if (!ForOrderWithId)
                 {
@@ -69,7 +69,7 @@
 
 @code {
     [Parameter]
-    public Item? Item { get; set; }
+    public Product? Item { get; set; }
 
     [Parameter]
     public int Qty { get; set; }
@@ -78,17 +78,15 @@
     public bool ForOrderWithId { get; set; }
 
     [Parameter]
-    public Action<Item, int, int, int,bool>? AddItem { get; set; }
+    public Action<Product, int, int,bool>? AddItem { get; set; }
 
     [Parameter]
-    public Action<Item, int, int, int>? SubtractItem { get; set; }
+    public Action<Product, int, int>? SubtractItem { get; set; }
 
-    int _PriceOption => PriceOption ?? 0;
+    string _SelectedOption = string.Empty;
 
-    [Parameter]
-    public int? PriceOption { get; set; }
-
-    string SelectedOption = string.Empty;
+    [Parameter] 
+    public bool InSlider { get; set; }
 
     int _BindQty;
 
@@ -114,8 +112,8 @@
             StateHasChanged();
         }
 
-        var optInx = Item?.Options.ToList().IndexOf(SelectedOption) ?? 0;
-        AddItem.Invoke(Item!, _PriceOption, optInx, n, toOverride);
+        var optInx = Item?.Options.ToList().IndexOf(_SelectedOption) ?? 0;
+        AddItem.Invoke(Item!, optInx, n, toOverride);
     }
 
     void OnSubtractItem()
@@ -124,8 +122,8 @@
         _BindQty -= 1;
         StateHasChanged();
 
-        var optInx = Item?.Options.ToList().IndexOf(SelectedOption) ?? 0;
-        SubtractItem.Invoke(Item!, _PriceOption, optInx, -1);
+        var optInx = Item?.Options.ToList().IndexOf(_SelectedOption) ?? 0;
+        SubtractItem.Invoke(Item!, optInx, -1);
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -137,7 +135,7 @@
         _BindQty = Qty;
         if (Item?.Options.Length > 1)
         {
-            SelectedOption = Item?.Options.First()!;
+            _SelectedOption = Item?.Options.First()!;
         }
         StateHasChanged();
     }

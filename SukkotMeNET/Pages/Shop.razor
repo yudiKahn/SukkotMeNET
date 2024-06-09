@@ -9,12 +9,12 @@
 
 <div class="antialiased bg-gray-200 dark:bg-gray-800 text-gray-900 font-sans p-6 flex-grow">
     <div class="container mx-auto relative">
-        
+
         <div class="sticky bg-green-500 text-white rounded-lg py-4 px-2 flex shadow-md overflow-x-auto">
             <button @onclick="CopyOrder" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
                 <i class="fa fa-repeat"></i>&nbsp;Reorder
             </button>
-            
+
             @if (State.User.IsAdmin)
             {
                 <button @onclick="SelectUser" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
@@ -34,33 +34,38 @@
         </div>
 
         <div class="flex flex-wrap -mx-4">
-            @foreach (var item in State.ShopItems.OrderBy(i => i.Name))
+            @foreach (var items in State.ShopItems
+            .GroupBy(i => i.Group)
+            .OrderBy(grp => grp.First().Name))
             {
-                if (item.Prices.All(p => p <= 0)) continue;
-
-                if (item.Prices.Length > 1)
+                if (items.Sum(i => i.Price) <= 0.00)
+                {
+                    continue;
+                }
+                if (items.Count() > 1)
                 {
                     <Slider>
-                        @for (var i = 0; i < item.Prices.Length; i++)
+                        @foreach (var i in items)
                         {
-                            var tmpVal = i;
-
-                            <ItemCard Item="item"
-                                      Qty="@(State.Cart.Items.Where(it => it.Id == item.Id && Math.Abs(it.Price - item.Prices[tmpVal]) < 0.1).Sum(x => x.Qty))"
+                            <ItemCard Item="i"
+                                      Qty="@(State.Cart.Items.Where(it => it.Id == i.Id).Sum(x => x.Qty))"
                                       ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
                                       AddItem="AddItem"
                                       SubtractItem="SubtractItem"
-                                      PriceOption="i"/>
+                                      InSlider="true"/>
                         }
                     </Slider>
                 }
                 else
                 {
-                    <ItemCard Item="item"
-                              Qty="@(State.Cart.Items.FirstOrDefault(i => i.Id == item.Id)?.Qty ?? 0)"
+                    var i = items.First();
+
+                    <ItemCard Item="i"
+                              Qty="@(State.Cart.Items.FirstOrDefault(it => it.Id == i.Id)?.Qty ?? 0)"
                               ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
                               AddItem="AddItem"
-                              SubtractItem="SubtractItem"/>
+                              SubtractItem="SubtractItem"
+                              InSlider="false"/>
                 }
             }
         </div>
@@ -117,24 +122,21 @@
 
     OrderItem OrderItem = new OrderItem();
 
-    async void AddItem(Item item, int priceInx, int optInx, int n = 1, bool toOverride = false)
+    async void AddItem(Product product, int optInx, int n = 1, bool toOverride = false)
     {
-        if (item.Prices.Length < priceInx + 1) return;
-
-        var priceType = item.PricesTypes.Any() ? item.PricesTypes[priceInx] : string.Empty;
-
         string? opt = null;
-        if (optInx > -1 && item.Options.Length > optInx)
+        if (optInx > -1 && product.Options?.Length > optInx)
         {
-            opt = item.Options[optInx];
+            opt = product.Options[optInx];
         }
-        OrderItem.Id = item.Id;
+        OrderItem.Id = product.Id;
         OrderItem.Qty = n;
-        OrderItem.Price = item.Prices[priceInx];
-        OrderItem.PriceType = priceType;
+        OrderItem.Price = product.Price;
+        OrderItem.PriceType = product.PricesType;
         OrderItem.Option = opt;
-        OrderItem.Name = item.Name;
-        OrderItem.Category = item.Category;
+        OrderItem.Name = product.Name;
+        OrderItem.Category = product.Category;
+        OrderItem.ProductId = product.Id;
 
         if (!string.IsNullOrEmpty(ForOrderWithId))
         {
@@ -154,22 +156,21 @@
         StateHasChanged();
     }
 
-    async void SubtractItem(Item item, int priceInx, int optInx, int n = 1)
+    async void SubtractItem(Product product, int optInx, int n = 1)
     {
-        if (item.Prices.Length < priceInx + 1) return;
         string? opt = null;
-        if (optInx > -1 && item.Options.Length > optInx)
+        if (optInx > -1 && product.Options?.Length > optInx)
         {
-            opt = item.Options[optInx];
+            opt = product.Options[optInx];
         }
-        var priceType = item.PricesTypes.Any() ? item.PricesTypes[priceInx] : string.Empty;
-        OrderItem.Id = item.Id;
+       
+        OrderItem.Id = product.Id;
         OrderItem.Qty = -Math.Abs(n);
-        OrderItem.Price = item.Prices[priceInx];
-        OrderItem.PriceType = priceType;
+        OrderItem.Price = product.Price;
+        OrderItem.PriceType = product.PricesType;
         OrderItem.Option = opt; //todo:
-        OrderItem.Name = item.Name;
-        OrderItem.Category = item.Category;
+        OrderItem.Name = product.Name;
+        OrderItem.Category = product.Category;
 
         if (!string.IsNullOrEmpty(ForOrderWithId))
         {
@@ -196,7 +197,7 @@
 
     async void CopyOrderOnClosed(object? sender, bool e)
     {
-        if(!e) return;
+        if (!e) return;
 
         await MainService.CreateDuplicateOrder();
         StateHasChanged();

@@ -8,7 +8,7 @@ namespace SukkotMeNET.Services
         
         public Cart Cart { get; set; }
 
-        public IEnumerable<Item> ShopItems { get; set; }
+        public IEnumerable<Product> ShopItems { get; set; }
 
         public List<Order> UserOrders { get; set; }
 
@@ -25,7 +25,7 @@ namespace SukkotMeNET.Services
             AdminState = new AdminState();
             UserOrders = new List<Order>();
             Alerts = new List<Alert>();
-            ShopItems = Array.Empty<Item>();
+            ShopItems = Array.Empty<Product>();
         }
     }
 }
