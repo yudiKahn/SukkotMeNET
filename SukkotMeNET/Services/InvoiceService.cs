@@ -61,7 +61,7 @@ namespace SukkotMeNET.Services
         {
             //todo: match by price in doc. Not current price
             //todo: mthod invokes few times when requested from UI
-            var map = _AppState.ShopItems
+            var map = _AppState.Products
                 .ToDictionary(k => k.Id);
 
             var res = new List<OrderItem>(items.Count);
@@ -95,11 +95,11 @@ namespace SukkotMeNET.Services
             //for yanever set over 50$ he gets also hadas כולו חיים נאה
             //
             //for each israeli set 20% lulavim extra
-            var lulav = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e562654d28089f656e1d");
-            var hadas = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e5d3654d28089f656e25");
-            var arhava = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e589654d28089f656e21");
-            var koishaklach = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e645514ed3ae2d40d911");
-            var plasticBag = _AppState.ShopItems.FirstOrDefault(i => i.Id == "6176e5f0654d28089f656e29");
+            var lulav = _AppState.Products.FirstOrDefault(i => i.Id == "6176e562654d28089f656e1d");
+            var hadas = _AppState.Products.FirstOrDefault(i => i.Id == "6176e5d3654d28089f656e25");
+            var arhava = _AppState.Products.FirstOrDefault(i => i.Id == "6176e589654d28089f656e21");
+            var koishaklach = _AppState.Products.FirstOrDefault(i => i.Id == "6176e645514ed3ae2d40d911");
+            var plasticBag = _AppState.Products.FirstOrDefault(i => i.Id == "6176e5f0654d28089f656e29");
 
             var res = new List<OrderItem>();
             

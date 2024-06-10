@@ -450,19 +450,55 @@ namespace SukkotMeNET.Services
         public async Task<Dictionary<string, int>> GetStockData()
         {
             var from = DateTime.Now.AddMonths(-4);
+            
             var orders = await _Repository.OrdersRepository.ReadAllAsync(o => o.CreatedAt >= from);
 
-            var items = orders
-                .SelectMany(o => o.Items)
-                .GroupBy(i => i.Name)
-                .ToDictionary(
-                    k => k.Key,
-                    v => v.Sum(i => i.Qty)
-                    );
+            var prod = _AppState.Products.ToDictionary(k => k.Id);
+            
+            var res = new Dictionary<string, int>();
 
-            return items;
+            foreach (var oi in orders.SelectMany(o => o.Items))
+            {
+                if (string.IsNullOrEmpty(oi.ProductId)) continue;
+                
+                var p = prod[oi.ProductId];
+                if (p.Includes?.Any() == true)
+                {
+                    var opt = oi.Option;
+                    var inc = p.Includes
+                        .Select(i => prod[i.ProductId].ToModel(opt, i.Qty))
+                        .ToArray();
+
+                    foreach (var i in inc)
+                    {
+                        res.TryGetValue(i.Name, out var x);
+                        res[Key(i)] = x + i.Qty;
+                    }
+                }
+                else
+                {
+                    res.TryGetValue(oi.Name, out var x);
+                    res[Key(oi)] = x + oi.Qty;
+                }
+            }
+
+            return res;
         }
 
+        string Key(OrderItem oi)
+        {
+            var opt = string.IsNullOrWhiteSpace(oi.Option) ? string.Empty : " " + oi.Option;
+            var pt = string.IsNullOrWhiteSpace(oi.PriceType) ? string.Empty : " " + oi.PriceType;
+            return $"{oi.Name}{opt}{pt}";
+        }
+        
+        string Key(OrderItemEntity oi)
+        {
+            var opt = string.IsNullOrWhiteSpace(oi.Option) ? string.Empty : " " + oi.Option;
+            var pt = string.IsNullOrWhiteSpace(oi.PriceType) ? string.Empty : " " + oi.PriceType;
+            return $"{oi.Name}{opt}{pt}";
+        }
+        
         async Task<bool> InitUserCart()
         {
             if (string.IsNullOrEmpty(_AppState.User.Id))
@@ -518,7 +554,7 @@ namespace SukkotMeNET.Services
         async void InitCartItems()
         {
             var e = await _Repository.ProductsRepository.ReadAllAsync();
-            _AppState.ShopItems = e.Select(i => i.ToModel()).ToList();
+            _AppState.Products = e.Select(i => i.ToModel()).ToList();
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
