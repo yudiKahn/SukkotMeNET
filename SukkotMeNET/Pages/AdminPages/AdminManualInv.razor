@@ -1,0 +1,108 @@
+﻿@page "/admin/manualInvoice"
+@inherits SukkotMeNET.Models.PageBase
+
+<div style="margin: 10px auto; width:800px; height: 1500px;">
+    <div class="invoice-box">
+        <div style="text-align:right;">ב"ה</div>
+        <table>
+            <tr class="top">
+                <td colspan="4">
+                    <div style="text-align:center;">
+                        <b>Yanky Kahn</b> | <b>818-605-2066</b> | <b>18253 Topham st. Tarzana CA 91335</b>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <td>
+                                <b>Customer information:</b><br />
+                                [ UserName ]<br />
+                                [ UserEmail ]<br />
+                                [ UserPhone ]<br />
+                                [ UserAddress ]
+                            </td>
+                            <td></td>
+                            <td style="text-align:right;">
+                                <br />
+                                Invoice: #[ OrderId ]<br />
+                                Created: [ Created ]<br />
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    <b>Orderd items:</b>
+                </td>
+            </tr>
+
+            <tr class="heading">
+                <td>Item</td>
+                <td>Qty</td>
+                <td>Price</td>
+                <td style="text-align:right;">Subtotal</td>
+            </tr>
+
+            [ Items ]
+
+            <tr class="total">
+                <td colspan="3"></td>
+
+                <td style="text-align:right;">Total: $[ Total ]</td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    <b>Items in the box:</b>
+                </td>
+            </tr>
+
+            <tr class="heading">
+                <td colspan="3">Item</td>
+                <td style="text-align:right;">Qty</td>
+            </tr>
+
+            [ ItemsInTheBox ]
+
+            <tr class="heading">
+                <td colspan="2">Payment Method</td>
+
+                <td colspan="2"></td>
+            </tr>
+
+            <tr class="details">
+                <td colspan="2">
+                    <input type="checkbox" /> Check <small>18253 topham st. Tarazana CA 91335</small>
+
+                    <input type="checkbox" /> CashApp <small>8186052066</small>
+                    <br />
+                    <input type="checkbox" /> PayPal <small>chabad18@hotmail.com</small>
+
+                    <input type="checkbox" /> Zelle <small>chabad18@hotmail.com</small>
+                </td>
+
+                <td colspan="2"></td>
+            </tr>
+
+            <tr class="heading">
+                <td colspan="2">Shipment price <small>(Without schach)</small></td>
+
+                <td colspan="2" style="text-align: right;">[ ShippingCost ]</td>
+            </tr>
+        </table>
+        <div style="text-align: center;">
+            <h4>Thank's for your buisness</h4>
+        </div>
+        <div style="text-align: left;">
+            <small>Order id: # [ OrderIdFull ]</small>
+        </div>
+    </div>
+</div>
+@code {
+
+}
