@@ -282,6 +282,28 @@ namespace SukkotMeNET.Services
             }
         }
 
+        public async Task<Order?> CreateOrder(Order order, User user)
+        {
+            try
+            {
+                var invoice = _InvoiceService.GetInvoiceHtml(order, user);
+
+                var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
+                if (o is null) throw new Exception("Failed to write order");
+                _ = await _EmailService.SendAsync("Order Invoice", invoice, user.Email);
+
+                var model = o?.ToModel();
+                _AppState.AdminState?.AllOrders.Add(model);
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+                
+                return model;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<bool> RemoveOrderAsync(Order? order)
         {
             if (order is not null && !order.IsShipped)

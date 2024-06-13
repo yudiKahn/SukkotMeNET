@@ -5,7 +5,7 @@ public class OrderItem
 
     public string Id { get; set; } = string.Empty;
     
-    public string ProductId { get; set; } = string.Empty;
+    public string? ProductId { get; set; }
 
     public string Category { get; set; } = string.Empty;
 

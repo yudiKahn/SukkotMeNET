@@ -14,7 +14,7 @@ public class OrderItemEntity
     
     [BsonRepresentation(BsonType.ObjectId)]
     [BsonElement("productId")]
-    public string ProductId { get; set; } = string.Empty; //todo: impl
+    public string? ProductId { get; set; }//todo: impl
 
     [BsonElement("category")]
     public string Category { get; set; } = string.Empty; //todo: can be removed

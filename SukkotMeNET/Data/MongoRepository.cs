@@ -81,7 +81,7 @@ namespace SukkotMeNET.Data
                 await _Collection.InsertOneAsync(value);
                 return value;
             }
-            catch
+            catch(Exception e)
             {
                 return default;
             }

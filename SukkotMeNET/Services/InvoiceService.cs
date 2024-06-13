@@ -67,7 +67,7 @@ namespace SukkotMeNET.Services
             var res = new List<OrderItem>(items.Count);
             foreach (var item in items)
             {
-                if (map.TryGetValue(item.ProductId, out var p) &&
+                if (item.ProductId is {} pid && map.TryGetValue(pid, out var p) &&
                     p.Includes?.Any() == true)
                 {
                     var opt = item.Option;

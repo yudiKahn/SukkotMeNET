@@ -1,4 +1,5 @@
-﻿using SharpCompress.Common;
+﻿using MongoDB.Bson;
+using SharpCompress.Common;
 using SukkotMeNET.Data.Entities;
 using SukkotMeNET.Models;
 
@@ -65,6 +66,10 @@ public static class ToEntityExtensions
 
     public static OrderItemEntity ToEntity(this OrderItem model)
     {
+        if (string.IsNullOrWhiteSpace(model.Id))
+        {
+            model.Id = ObjectId.GenerateNewId().ToString();
+        }
         return new OrderItemEntity
         {
             Id = model.Id,
