@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using System.Text.Json.Serialization;
 
-namespace SukkotMeNET.Models;
+namespace IEsrog.Models;
 
 public class ChartSeriesModel
 {

@@ -1,9 +1,9 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
-using SukkotMeNET.Models;
-using SukkotMeNET.Data.Interfaces;
+using IEsrog.Models;
+using IEsrog.Data.Interfaces;
 
-namespace SukkotMeNET.Data.Entities;
+namespace IEsrog.Data.Entities;
 
 [BsonIgnoreExtraElements]
 public class CartEntity 

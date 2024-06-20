@@ -1,9 +1,9 @@
-﻿using MongoDB.Driver;
-using SukkotMeNET.Configuration;
-using SukkotMeNET.Data.Entities;
-using SukkotMeNET.Data.Interfaces;
+﻿using IEsrog.Configuration;
+using IEsrog.Data.Entities;
+using IEsrog.Data.Interfaces;
+using MongoDB.Driver;
 
-namespace SukkotMeNET.Data.Repositories;
+namespace IEsrog.Data.Repositories;
 
 public class RepositoryService : IRepositoryService
 {

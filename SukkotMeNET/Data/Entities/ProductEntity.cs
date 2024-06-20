@@ -1,9 +1,9 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using IEsrog.Models;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
-using SukkotMeNET.Data.Interfaces;
-using SukkotMeNET.Models;
+using IEsrog.Data.Interfaces;
 
-namespace SukkotMeNET.Data.Entities;
+namespace IEsrog.Data.Entities;
 
 [BsonIgnoreExtraElements]
 public class ProductEntity 

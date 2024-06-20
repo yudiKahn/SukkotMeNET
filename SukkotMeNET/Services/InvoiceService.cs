@@ -1,9 +1,9 @@
-﻿using SukkotMeNET.Extensions;
-using SukkotMeNET.Models;
+﻿using IEsrog.Extensions;
 using System.Text.RegularExpressions;
-using SukkotMeNET.Pages;
+using IEsrog.Models;
+using IEsrog.Pages;
 
-namespace SukkotMeNET.Services
+namespace IEsrog.Services
 {
     public class InvoiceService
     {

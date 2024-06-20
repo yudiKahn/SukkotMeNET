@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
-using SukkotMeNET.Services;
+﻿using IEsrog.Services;
+using Microsoft.AspNetCore.Components;
 
-namespace SukkotMeNET.Models
+namespace IEsrog.Models
 {
     public class PageBase : ComponentBase, IDisposable
     {

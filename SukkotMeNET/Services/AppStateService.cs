@@ -1,6 +1,6 @@
-﻿using SukkotMeNET.Models;
+﻿using IEsrog.Models;
 
-namespace SukkotMeNET.Services
+namespace IEsrog.Services
 {
     public class AppStateService
     {

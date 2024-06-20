@@ -1,4 +1,4 @@
-﻿namespace SukkotMeNET.Configuration
+﻿namespace IEsrog.Configuration
 {
     public class ApplicationConfiguration
     {

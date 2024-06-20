@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
-using SukkotMeNET.Configuration;
-using SukkotMeNET.Data.Interfaces;
-using SukkotMeNET.Data.Repositories;
-using SukkotMeNET.Models;
-using SukkotMeNET.Services;
+using IEsrog;
+using IEsrog.Configuration;
+using IEsrog.Data.Interfaces;
+using IEsrog.Data.Repositories;
+using IEsrog.Models;
+using IEsrog.Services;
 
-namespace SukkotMeNET
+namespace IEsrog
 {
     public class Program
     {

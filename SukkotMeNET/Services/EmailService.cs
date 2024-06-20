@@ -1,9 +1,9 @@
-﻿using SukkotMeNET.Configuration;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
-using SukkotMeNET.Models;
+using IEsrog.Configuration;
+using IEsrog.Models;
 
-namespace SukkotMeNET.Services
+namespace IEsrog.Services
 {
     public class EmailService
     {

@@ -1,7 +1,7 @@
 ﻿using MongoDB.Driver;
 using System.Linq.Expressions;
 
-namespace SukkotMeNET.Data
+namespace IEsrog.Data
 {
     public class MongoRepository<T>
     {

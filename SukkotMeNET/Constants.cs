@@ -1,5 +1,5 @@
 ﻿
-namespace SukkotMeNET
+namespace IEsrog
 {
     public class Constants
     {

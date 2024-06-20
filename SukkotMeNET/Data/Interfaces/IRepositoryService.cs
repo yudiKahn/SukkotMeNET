@@ -1,6 +1,6 @@
-﻿using SukkotMeNET.Data.Entities;
+﻿using IEsrog.Data.Entities;
 
-namespace SukkotMeNET.Data.Interfaces
+namespace IEsrog.Data.Interfaces
 {
     public interface IRepositoryService
     {

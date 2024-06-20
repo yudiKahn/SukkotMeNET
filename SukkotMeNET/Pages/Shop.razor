@@ -1,8 +1,8 @@
 ﻿@page "/shop"
-@using SukkotMeNET.Models
-@using SukkotMeNET.Services
+@using IEsrog.Models
+@using IEsrog.Services
 @using MongoDB.Bson
-@using SukkotMeNET.Components
+@using IEsrog.Components
 @inherits PageBase
 @inject AppStateService State
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]

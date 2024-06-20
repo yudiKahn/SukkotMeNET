@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
-namespace SukkotMeNET.Data.Entities;
+namespace IEsrog.Data.Entities;
 
 public class AddressEntity
 {

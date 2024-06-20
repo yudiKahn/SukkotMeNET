@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace SukkotMeNET.Models
+namespace IEsrog.Models
 {
     public record AdminRequirement : IAuthorizationRequirement;
     public record UserRequirement : IAuthorizationRequirement;

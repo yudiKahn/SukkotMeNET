@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using IEsrog.Models;
+using Microsoft.AspNetCore.Authorization;
 using MongoDB.Bson;
-using SukkotMeNET.Models;
 
-namespace SukkotMeNET.Services
+namespace IEsrog.Services
 {
     public class AuthorizationHandlerService : IAuthorizationHandler
     {

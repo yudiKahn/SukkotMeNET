@@ -2,7 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using System.ComponentModel.DataAnnotations;
 
-namespace SukkotMeNET.Models
+namespace IEsrog.Models
 {
     [BsonIgnoreExtraElements]
     public class User

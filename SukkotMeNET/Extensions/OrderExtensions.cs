@@ -1,6 +1,6 @@
-﻿using SukkotMeNET.Models;
+﻿using IEsrog.Models;
 
-namespace SukkotMeNET.Extensions
+namespace IEsrog.Extensions
 {
     public static class OrderExtensions
     {

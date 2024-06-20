@@ -1,4 +1,4 @@
-﻿namespace SukkotMeNET.Models
+﻿namespace IEsrog.Models
 {
     public record Alert(string Title, string Message, AlertType Type = AlertType.Information);
 

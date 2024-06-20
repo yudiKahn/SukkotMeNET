@@ -1,4 +1,4 @@
-﻿namespace SukkotMeNET.Models;
+﻿namespace IEsrog.Models;
 
 public class Order
 {

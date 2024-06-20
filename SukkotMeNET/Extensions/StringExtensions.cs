@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SukkotMeNET.Extensions
+namespace IEsrog.Extensions
 {
     public static class StringExtensions
     {

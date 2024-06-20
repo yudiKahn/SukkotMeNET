@@ -1,9 +1,9 @@
 ﻿@page "/admin"
-@using SukkotMeNET.Components
-@using SukkotMeNET.Services
+@using IEsrog.Components
+@using IEsrog.Services
 
 @inject AppStateService _State
-@inherits SukkotMeNET.Models.PageBase
+@inherits IEsrog.Models.PageBase
 @attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
 
 @if (_State.AdminState.CurrentAdminUser is { } u)

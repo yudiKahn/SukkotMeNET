@@ -1,7 +1,7 @@
 ﻿@page "/admin/users"
-@using SukkotMeNET.Services
-@using SukkotMeNET.Models
-@inherits SukkotMeNET.Models.PageBase
+@using IEsrog.Services
+@using IEsrog.Models
+@inherits IEsrog.Models.PageBase
 @inject AppStateService _State
 @attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
 

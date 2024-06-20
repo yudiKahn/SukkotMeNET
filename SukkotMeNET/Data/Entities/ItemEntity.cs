@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 
-namespace SukkotMeNET.Data.Entities
+namespace IEsrog.Data.Entities
 {
     //[BsonIgnoreExtraElements]
     //public class ItemEntity

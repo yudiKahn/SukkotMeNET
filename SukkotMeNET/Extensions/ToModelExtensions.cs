@@ -1,7 +1,7 @@
-﻿using SukkotMeNET.Data.Entities;
-using SukkotMeNET.Models;
+﻿using IEsrog.Data.Entities;
+using IEsrog.Models;
 
-namespace SukkotMeNET.Extensions;
+namespace IEsrog.Extensions;
 
 public static class ToModelExtensions
 {

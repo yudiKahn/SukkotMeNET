@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SukkotMeNET.Models
+namespace IEsrog.Models
 {
     public enum PaymentMethod
     {

@@ -1,6 +1,6 @@
-﻿using SukkotMeNET.Data.Entities;
+﻿using IEsrog.Data.Entities;
 
-namespace SukkotMeNET.Models;
+namespace IEsrog.Models;
 
 public class Product
 {

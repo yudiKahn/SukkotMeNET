@@ -1,10 +1,10 @@
-﻿using MongoDB.Bson;
-using SukkotMeNET.Data.Entities;
-using SukkotMeNET.Data.Interfaces;
-using SukkotMeNET.Extensions;
-using SukkotMeNET.Models;
+﻿using IEsrog.Data.Entities;
+using IEsrog.Data.Interfaces;
+using IEsrog.Models;
+using MongoDB.Bson;
+using IEsrog.Extensions;
 
-namespace SukkotMeNET.Services
+namespace IEsrog.Services
 {
     public class MainStateService
     {
