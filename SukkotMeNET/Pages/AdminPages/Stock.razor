@@ -1,5 +1,4 @@
 ﻿@page "/admin/stock"
-
 @inherits PageBase
 @using SukkotMeNET.Models
 @using SukkotMeNET.Services
@@ -47,10 +46,43 @@
     </div>
 </div>
 
+<div class="fixed bottom-0 right-0 m-3 flex" @onclick="OnAddClick">
+    @if (ShowStockInput)
+    {
+        <div @onclick:stopPropagation="true"
+             class="bg-green-500 text-white rounded-lg h-auto sm:h-12 w-auto px-2 flex shadow-md absolute z-0 right-3 bottom-0">
+            <div class="block sm:flex my-2 mr-12 text-black">
+                <select style="outline: 0;" @onchange="OnProdChanged">
+                    <option value="Product" disabled></option>
+                    @foreach (var prod in State.Products)
+                    {
+                        <option value="@prod.Id">@prod.Name</option>
+                    }
+                </select>
+                <input class="m-1" type="number" placeholder="Qty"/>
+            </div>
+        </div>
+    }
+    <div 
+        class="shadow-lg w-12 h-12 grid place-content-center bg-green-500 rounded-full z-10">
+        <i class="text-white text-lg fa fa-plus"></i>
+    </div>
+</div>
+
+
+
+
 @code {
 
     [Inject]
     public IJSRuntime Js { get; set; }
+
+    [Inject] 
+    public AppStateService State { get; set; }
+
+    public bool ShowStockInput { get; set; }
+    public string Pid { get; set; }
+    public int Qty { get; set; }
 
 
     double _ItemsBought;
@@ -70,13 +102,15 @@
             var data = await MainService.GetStockData();
             ItemsBought = data.Sum(kv => kv.Value);
 
-            var opt = BuildChartOptions(data);
+            var opt = BuildChartOptions(data, data);
             await Js.InvokeVoidAsync(
                 Constants.JavaScriptFunctions.RenderStockChart, opt);
         }
     }
 
-    object BuildChartOptions(Dictionary<string, int> data)
+    object BuildChartOptions(
+        Dictionary<string, int> sale,
+        Dictionary<string, int> inStock)
     {
         var stockColor = "#1A56DB";
         var saleColor = "#FDBA8C";
@@ -86,7 +120,7 @@
             {
                 Name = "Sale",
                 Color = saleColor,
-                Data = data
+                Data = sale
                     .Select(d => new ChartVector2d(d.Key, d.Value))
                     .ToList()
             },
@@ -94,8 +128,8 @@
             {
                 Name = "In-Stock",
                 Color = stockColor,
-                Data = data
-                    .Select(d => new ChartVector2d(d.Key, d.Value + (d.Value / 3)))
+                Data = inStock
+                    .Select(d => new ChartVector2d(d.Key, d.Value))
                     .ToList()
             }
         ]);
@@ -205,4 +239,21 @@
 
         return chartConfig;
     }
+
+    void OnProdChanged(ChangeEventArgs obj)
+    {
+        if (obj.Value is not string pid || string.IsNullOrWhiteSpace(pid)) return;
+
+
+    }
+
+    void OnAddClick()
+    {
+        if (ShowStockInput)
+        {
+
+        }
+        ShowStockInput = !ShowStockInput;
+    }
+
 }
