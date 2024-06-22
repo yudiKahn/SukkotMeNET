@@ -7,7 +7,7 @@
 
 <PageTitle>iEsrog</PageTitle>
 
-<Navbar />
+<Navbar IsLoading="State.IsLoading"/>
 
 @if (State.Alerts.Any())
 {
@@ -86,10 +86,59 @@
     @Body
 </CascadingValue>
 
-<Footer />
+<Footer></Footer>
 
 @code {
+
+    [Inject]
+    IJSRuntime _Js { get; set; }
+
     bool _ShowShmittahPopup;
 
     Action OnRemoveAlert(Alert alert) => () => MainService.RemoveAlert(alert);
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        State.IsLoading = true;
+        StateHasChanged();
+    }
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (!firstRender) return;
+        try
+        {
+            if (State.User?.Id?.Any() == true)
+                return;
+
+            var token = await _Js.InvokeAsync<string>(Constants.JavaScriptFunctions.LocalStorageGet, "token");
+            if (token != null)
+            {
+                // _Service.AddAlert(new Alert("Hello", "We recognize you've already been here. Trying to log you in..."));
+                var isTokenValid = await MainService.LoginUserFromLocalStorage(token);
+                if (!isTokenValid)
+                    throw new Exception("Token not valid");
+
+                StateHasChanged();
+                // _Service.AddAlert(new Alert("Login successful", "Welcome back!", AlertType.Success));
+            }
+        }
+        catch (Exception e)
+        {
+            if (e is not TimeoutException)
+                await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
+
+            MainService.AddAlert(new Alert("Fail", e.Message, AlertType.Error));
+        }
+        finally
+        {
+            State.IsLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
 }

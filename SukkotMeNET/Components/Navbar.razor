@@ -84,7 +84,7 @@
         </div>
     </div>
     
-    @if (AppState.IsLoading)
+    @if (IsLoading == true)
     {
         <div class="loader-line"></div>
     }
@@ -171,6 +171,8 @@
 }
 
 @code {
+    [Parameter] public bool? IsLoading { get; set; }
+
     public bool IsOpen { get; set; }
 
     string OpenNavbarClass => IsOpen ? "scale-100 transition ease-out duration-200 absolute top-0 inset-x-0 p-2 transition transform origin-top-right lg:hidden" : "hidden scale-95 absolute top-0 inset-x-0 p-2 transition transform origin-top-right lg:hidden";
