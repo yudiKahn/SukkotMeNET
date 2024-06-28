@@ -1,177 +1,42 @@
 ﻿@page "/user/order/{orderId}"
-@using MongoDB.Bson
-@using IEsrog.Extensions
 @using IEsrog.Models
 @using IEsrog.Services
-@using IEsrog.Components
 @inherits PageBase
 
-<CopyOrderPopup @ref="_CopyOrderPopup" />
 
-<div class="w-full bg-white py-3 flex-grow dark:bg-gray-800" style="min-height: 80vh;">
-    <div class="container mx-auto px-5 lg:w-1/2 xl:w-1/3">
-        @if (_Order is not null)
-        {
-            <div class="rounded-lg shadow-lg overflow-hidden">
-                <div class="px-6 py-8 bg-white sm:p-10 sm:pb-6">
-                    <h3 class="text-2xl leading-8 font-extrabold text-gray-900 sm:text-3xl sm:leading-9">
-                        Order #@_Order.Id[..6]
-                    </h3>
-                    <small>
-                        Paid: <i class=@($"fa fa-{(_Order.IsPaid ? "check" : "times")} text-gray-900")></i>
-                        ,&nbsp;
-                        Packed: <i class=@($"fa fa-{(_Order.IsPacked ? "check" : "times")} text-gray-900")></i>
-                        ,&nbsp;
-                        Shipped: <i class=@($"fa fa-{(_Order.IsShipped ? "check" : "times")} text-gray-900")></i>
-                    </small>
-
-                    <div class="mt-8">
-
-                        <ul class="pl-0">
-                            @foreach (var item in _Order.Items)
-                            {
-                                <li class="mb-4">
-                                    <div class="flex items-start">
-                                        <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
-                                            <a href="/shop/item/${v._id}" class="text-gray-700 flex-shrink-0">
-                                                @item.Name <small>@item.PriceType @item.Option</small>
-                                            </a>
-                                            <div class="flex-shrink-0 mt-1 md:mt-0">
-                                                <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
-                                                <span class="text-lg text-gray-800 font-bold">
-                                                    $@((item.Qty * item.Price).ToString("N1"))
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            }
-
-
-                            <li class="mt-10">
-                                <div class="flex justify-end">
-                                    Total: &nbsp;&nbsp;
-                                    <span class="text-lg text-gray-800 font-bold">$@_Order.Items.GetTotal().ToString("N2")</span>
-                                </div>
-                            </li>
-                            @if (_Order.Comment?.Any() == true)
-                            {
-                                <li class="mt-5">
-                                    <div>Comment:</div>
-                                    <p>&#8220;@(_Order.Comment)&#8221;</p>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                </div>
-                <div class="px-6 pt-6 pb-8 bg-gray-100 sm:p-10 sm:pt-6">
-                    @if (_IsOldOrder)
-                    {
-                        <button @onclick="DeleteOrder" class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                            Delete order
-                        </button>
-                    
-                        <NavLink href=@string.Format($"/order/{OrderId}/edit") class="w-full my-3 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                            Edit order
-                        </NavLink>
-                    }
-                    else
-                    {
-                        <button @onclick="CopyOrder" class="w-full mb-3 rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                            Reorder
-                        </button>
-                    }
-
-                    <NavLink href=@string.Format($"/user/order/{_Order.Id}/invoice") class="w-full rounded-md flex items-center justify-center px-5 py-3 border border-solid border-green-700 text-lg leading-6 font-medium rounded-md text-green-700">
-                        Show invoice
-                    </NavLink>
-                </div>
-            </div>
-        }
-        else
-        {
-            <section class="py-20 bg-white" style="min-height: 80vh;">
-                <div class="px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
-                    <h2 class="text-3xl font-extrabold tracking-tight text-green-600 my-6 sm:text-4xl md:text-5xl xl:text-6xl">
-                        Cart Is Empty...
-                    </h2>
-                    <NavLink href="/shop" class="max-w-md underline mx-auto mt-3 text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-                        Go Back Shopping
-                    </NavLink>
-                </div>
-            </section>
-        }
-    </div>
+<div class="mx-auto w-full md:w-3/4 xl:w-1/2">
+    <img src=@InvoicePdf class="w-full" alt="invoice" id="invoice-img" crossOrigin="Anonymous"/>
 </div>
 
 @code {
     [Parameter] public string? OrderId { get; set; }
-    [Inject] public AppStateService State { get; set; }
-    [Inject] public IJSRuntime _Js { get; set; }
-    [Inject] public NavigationManager Nav { get; set; }
 
-    Order? _Order;
-    bool _IsOldOrder = false;
-    CopyOrderPopup _CopyOrderPopup;
+    [Inject] InvoiceService InvoiceService { get; set; } = null!;
+    [Inject] IJSRuntime Js { get; set; } = null!;
+    [Inject] AppStateService State { get; set; } = null!;
 
-    protected override void OnAfterRender(bool firstRender)
+    const int Height = 1500;
+    const int Width = 800;
+
+    string? _InvoicePdf;
+    public string InvoicePdf
     {
-        base.OnAfterRender(firstRender);
-
-        if (firstRender)
-        {
-            _CopyOrderPopup.Closed += CopyOrderPopupOnClosed;
-        }
-
-        SetOrder();
+        get => _InvoicePdf ?? string.Empty;
+        set => SetProperty(ref _InvoicePdf, value);
     }
 
-    async void CopyOrderPopupOnClosed(object? sender, bool e)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (e)
-        {
-            var ok = await MainService.RecreateOrderFromOldOrder(_Order);
-            if (ok)
-            {
-                Nav.NavigateTo("/user/orders");
-            }
-        }
+        await base.OnAfterRenderAsync(firstRender);
+
+        var order = State.UserOrders.FirstOrDefault(o => o.Id == OrderId);
+        var user = State.User;
+
+        var html = InvoiceService.GetInvoiceHtml(order, user);
+        InvoicePdf = await Js.InvokeAsync<string>(
+            Constants.JavaScriptFunctions.GetImageFromHTML, 
+            html, Width, Height
+        );
     }
 
-    public override void OnStateHasChanged(object? sender, EventArgs args)
-    {
-        base.OnStateHasChanged(sender, args);
-
-        SetOrder();
-    }
-
-    void SetOrder()
-    {
-        if (ObjectId.TryParse(OrderId, out _))
-        {
-            var oldOrderId = _Order?.Id;
-            _Order = State.UserOrders.FirstOrDefault(o => o.Id == OrderId);
-
-            _IsOldOrder = _Order?.CreatedAt >= DateTime.Now.AddMonths(-1);
-
-            if (_Order?.Id != oldOrderId)
-            {
-                InvokeAsync(StateHasChanged);
-            }
-        }
-    }
-
-    async void DeleteOrder()
-    {
-        if (await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, $"To delete order?"))
-        {
-            if (await MainService.RemoveOrderAsync(_Order))
-                Nav.NavigateTo("/user/orders");
-        }
-    }
-
-    void CopyOrder()
-    {
-        _CopyOrderPopup.Show(_Order!.Items.ToArray());
-    }
 }

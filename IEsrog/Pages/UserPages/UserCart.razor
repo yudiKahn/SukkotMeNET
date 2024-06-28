@@ -128,7 +128,7 @@
         if (res is not null)
         {
             MainService.AddAlert(new Alert("Success", "Order created successfully", AlertType.Success));
-            Nav.NavigateTo($"/user/order/{res.Id}/invoice");
+            Nav.NavigateTo($"/user/order/{res.Id}");
         }
         else
             MainService.AddAlert(new Alert("Failed", "Failed creating order", AlertType.Error));
