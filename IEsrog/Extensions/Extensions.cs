@@ -70,5 +70,20 @@ namespace IEsrog.Extensions
                 Items = o.Items.Select(i => i.Clone()).ToList()
             };
         }
+
+        public static User Clone(this User o)
+        {
+            return new User
+            {
+                Id = o.Id,
+                FirstName = o.FirstName,
+                LastName = o.LastName,
+                Email = o.Email,
+                PhoneNumber = o.PhoneNumber,
+                Password = o.Password,
+                IsAdmin = o.IsAdmin,
+                Address = o.Address.Clone()
+            };
+        }
     }
 }

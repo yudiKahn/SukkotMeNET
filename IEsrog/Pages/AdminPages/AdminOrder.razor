@@ -4,67 +4,24 @@
 @using MongoDB.Bson
 @using IEsrog.Models
 @using IEsrog.Services
+@using IEsrog.Components
 
-<section class="py-1 bg-blueGray-50 flex-grow dark:bg-gray-800" style="min-height: 80vh;">
-    @if (string.IsNullOrEmpty(InvoicePdf))
-    {
-        <section class="py-20 bg-white" style="min-height: 80vh;">
-            <div class="px-4 mx-auto text-center max-w-7xl sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-extrabold tracking-tight text-green-600 my-6 sm:text-4xl md:text-5xl xl:text-6xl">
-                    @Message
-                </h2>
-            </div>
-        </section>
-    }
-    else
-    {
-        <div class="mx-auto w-full md:w-3/4 xl:w-1/2">
-            <div class="relative flex flex-row space-x-4 my-4">
-                <NavLink href=@String.Format($"/admin/editorder/{OrderId}") class="flex items-center w-full px-6 py-3 mb-3 text-lg text-white bg-green-600 rounded-md sm:mb-0 hover:bg-green-700 sm:w-auto">
-                    Edit
-                </NavLink>
-                <button disabled="true" @onclick=@DownloadInvoice class="flex items-center w-full px-6 py-3 mb-3 text-lg text-gray-500 bg-gray-300 rounded-md sm:mb-0 sm:w-auto">
-                    Download
-                </button>
-            </div>
-            <img src=@InvoicePdf class="w-full" alt="invoice" id="invoice-img" crossOrigin="Anonymous"/>
-        </div>
-    }
-</section>
-
+<ManualInvoice OnSave="Save" FromOrder="Order" DisableUserSelection="true"/>
 
 @code {
     [Parameter] public string? OrderId { get; set; }
-    [Inject] public AppStateService State { get; set; }
-    [Inject] public InvoiceService _InvoiceService { get; set; }
-    [Inject]
-    public IJSRuntime Js { get; set; }
 
-    int _Height = 800;
-    int _Width = 800;
+    [Inject] AppStateService State { get; set; } = null!;
+
+    [Inject] NavigationManager NavManager { get; set; } = null!;
+
 
     Order? _Order;
 
-    string? _InvoicePdf;
-
-    public string InvoicePdf
+    public Order? Order
     {
-        get => _InvoicePdf ?? string.Empty;
-        set
-        {
-            if (string.IsNullOrEmpty(_InvoicePdf))
-            {
-                SetProperty(ref _InvoicePdf, value);
-            }
-        }
-    }
-
-    string _Message = "Loading invoice...";
-
-    public string Message
-    {
-        get => _Message;
-        set => SetProperty(ref _Message, value);
+        get => _Order;
+        set => SetProperty(ref _Order, value);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -75,34 +32,32 @@
         {
             try
             {
-                _Order = State.AdminState.AllOrders.FirstOrDefault(o => o.Id == OrderId);
-
-
-                var user = State.AdminState.AllUsers.FirstOrDefault(u => u.Id == _Order?.UserId);
-
-                if (_Order is null || user is null)
+                Order = State.AdminState.AllOrders.FirstOrDefault(o => o.Id == OrderId);
+                if (Order is null)
                     throw new Exception();
-
-                var html = _InvoiceService.GetInvoiceHtml(_Order, user);
-                InvoicePdf = await Js.InvokeAsync<string>(
-                    Constants.JavaScriptFunctions.GetImageFromHTML, 
-                    html, _Width, _Height + _Order.Items.Count * 100
-                    );
-                Message = "Invoice loaded";
             }
             catch
             {
-                Message = "Error while getting invoice. Please wait a few seconds and then reload";
             }
         }
         else
         {
-            Message = "Cannot find order";
         }
     }
 
-    void DownloadInvoice()
+    async void Save(Order order, User user)
     {
-        
+        try
+        {
+            await MainService.UpdateOrder(order, user);
+
+            MainService.AddAlert(new Alert("Success", "Order updated!", AlertType.Success));
+
+            NavManager.NavigateTo("/admin/orders");
+        }
+        catch (Exception e)
+        {
+            MainService.AddAlert(new Alert("Failed", "Failed to update order", AlertType.Error));
+        }
     }
 }

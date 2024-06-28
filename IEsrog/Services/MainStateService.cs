@@ -622,6 +622,24 @@ namespace IEsrog.Services
             _AppState.AdminState.CurrentAdminUser = null;
         }
 
+        public async Task UpdateOrder(Order order, User user)
+        {
+            var newOrder = await _Repository.OrdersRepository.UpdateFirstAsync(
+                o => o.Id == order.Id,
+                order.ToEntity(), false);
+
+            if (_AppState.User.IsAdmin)
+            {
+                var inx = _AppState.AdminState.AllOrders.FindIndex(o => o.Id == order.Id);
+                _AppState.AdminState.AllOrders[inx] = order;
+            }
+            else
+            {
+                var inx = _AppState.UserOrders.FindIndex(o => o.Id == order.Id);
+                _AppState.UserOrders[inx] = order;
+            }
+        }
+        
         public async Task<BackupResult> Backup()
         {
             var users = await _Repository.UsersRepository.ReadAllAsync();

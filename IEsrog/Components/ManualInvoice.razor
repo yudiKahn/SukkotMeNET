@@ -120,9 +120,11 @@
                             <td>
                                 <b>Customer information:</b><br />
                                 <span style="position: relative">
-                                    <input placeholder="Name" @bind="_User.FirstName"
+                                    <input disabled="@DisableUserSelection"
+                                           placeholder="Name" @bind="_User.FirstName"
                                            style="position: absolute; width: calc(100% - 40px);" />
-                                    <select style="outline: 0;" @onchange="OnUserChanged">
+                                    <select hidden="@DisableUserSelection"
+                                        style="outline: 0;" @onchange="OnUserChanged">
                                         <option value=""></option>
                                         @foreach (var user in State.AdminState.AllUsers)
                                         {
@@ -159,7 +161,7 @@
                 <td style="text-align:right;">Subtotal</td>
             </tr>
 
-            @foreach (var item in _Items)
+            @foreach (var item in _Order.Items)
             {
                 <tr>
                     <td style="position: relative">
@@ -198,7 +200,7 @@
                     </button>
                 </td>
 
-                <td style="text-align:right;">Total: $@($"{_Items.GetTotal():N2}")</td>
+                <td style="text-align:right;">Total: $@($"{_Order.Items.GetTotal():N2}")</td>
             </tr>
 
             <tr class="heading">
@@ -253,12 +255,22 @@
         set
         {
             _FromOrder = value;
-            if(value != null)
+            if (value != null)
+            {
                 _Order = value.Clone();
+                if (!string.IsNullOrWhiteSpace(_Order.UserId))
+                {
+                    _User = State.AdminState.AllUsers
+                        .First(u => u.Id == _Order.UserId)
+                        .Clone();
+                }
+            }
         }
     }
 
-    readonly List<OrderItem> _Items = new();
+    [Parameter] 
+    public bool DisableUserSelection { get; set; } = false;
+
     Order _Order = new();
     User _User = new();
 
@@ -272,7 +284,6 @@
 
     void Save()
     {
-        _Order.Items = _Items;
         OnSave?.Invoke(_Order, _User);
     }
 
@@ -280,7 +291,7 @@
     {
         if (e.Value is not string pid || string.IsNullOrWhiteSpace(pid)) return;
 
-        var prod = State.Products.First(p => p.Id == pid);
+        var prod = State.Products.First(p => p.Id == pid).Clone();
         item.Name = prod.Name;
         item.Price = prod.Price;
         item.ProductId = prod.Id;
@@ -288,15 +299,15 @@
         item.Category = prod.Category;
     }
 
-    void Add() => _Items.Add(new OrderItem());
+    void Add() => _Order.Items.Add(new OrderItem());
 
-    void Remove(OrderItem item) => _Items.Remove(item);
+    void Remove(OrderItem item) => _Order.Items.Remove(item);
 
     void OnUserChanged(ChangeEventArgs e)
     {
         if (e.Value is not string uid || string.IsNullOrWhiteSpace(uid)) return;
 
-        var user = State.AdminState.AllUsers.First(u => u.Id == uid);
+        var user = State.AdminState.AllUsers.First(u => u.Id == uid).Clone();
         _User = user;
         _Order.UserId = user.Id;
     }
