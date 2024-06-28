@@ -54,5 +54,21 @@ namespace IEsrog.Extensions
 
             return res;
         }
+
+        public static Order Clone(this Order o)
+        {
+            return new Order()
+            {
+                Comment = o.Comment,
+                CreatedAt = o.CreatedAt,
+                Id = o.Id,
+                IsPacked = o.IsPacked,
+                IsPaid = o.IsPaid,
+                IsShipped = o.IsShipped,
+                ShippingCost = o.ShippingCost,
+                UserId = o.UserId,
+                Items = o.Items.Select(i => i.Clone()).ToList()
+            };
+        }
     }
 }

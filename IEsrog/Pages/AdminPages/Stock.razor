@@ -54,9 +54,12 @@
             <div class="block sm:flex my-2 mr-12 text-black">
                 <select style="outline: 0;" @onchange="OnProdChanged">
                     <option value="Product" disabled></option>
-                    @foreach (var prod in State.Products)
+                    @foreach (var prod in State.Products
+                                  .Where(p => p.Includes?.Length is null or 0))
                     {
-                        <option value="@prod.Id">@prod.Name</option>
+                        <option value="@prod.Id">
+                            @prod.Name <small>@prod.PricesType</small>
+                        </option>
                     }
                 </select>
                 <input class="m-1" type="number" placeholder="Qty"/>
