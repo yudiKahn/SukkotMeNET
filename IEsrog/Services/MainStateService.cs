@@ -266,7 +266,8 @@ namespace IEsrog.Services
                 var invoice = _InvoiceService.GetInvoiceHtml(order, user);
 
                 var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
-                _ = await _EmailService.SendAsync("Order Invoice", invoice, user.Email);
+                _ = await _EmailService.SendAsync(
+                    "Order Invoice", invoice, bcc: "chabad18@hotmail.com", [user.Email]);
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.Id == _AppState.Cart.Id);
 
                 _AppState.ForUser = null;
@@ -290,7 +291,8 @@ namespace IEsrog.Services
 
                 var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
                 if (o is null) throw new Exception("Failed to write order");
-                _ = await _EmailService.SendAsync("Order Invoice", invoice, user.Email);
+                _ = await _EmailService.SendAsync(
+                    "Order Invoice", invoice, "chabad18@hotmail.com", [user.Email]);
 
                 var model = o?.ToModel();
                 _AppState.AdminState?.AllOrders.Add(model);

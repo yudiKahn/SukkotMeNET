@@ -15,6 +15,12 @@ namespace IEsrog.Services
 
         public async Task<bool> SendAsync(string subject, string body, params string[] to)
         {
+            return await SendAsync(subject, body, null, to);
+        }
+
+        public async Task<bool> SendAsync(string subject, string body, string? bcc, string[] to)
+        {
+
             try
             {
                 if (to.Length == 0)
@@ -39,6 +45,11 @@ namespace IEsrog.Services
                 foreach (var t in to)
                 {
                     msg.To.Add(new MailAddress(t));
+                }
+
+                if (!string.IsNullOrWhiteSpace(bcc))
+                {
+                    msg.Bcc.Add(bcc);
                 }
 
                 await smtp.SendMailAsync(msg);
