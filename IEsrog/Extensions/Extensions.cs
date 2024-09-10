@@ -67,7 +67,8 @@ namespace IEsrog.Extensions
                 IsShipped = o.IsShipped,
                 ShippingCost = o.ShippingCost,
                 UserId = o.UserId,
-                Items = o.Items.Select(i => i.Clone()).ToList()
+                Items = o.Items.Select(i => i.Clone()).ToList(),
+                Recipient = o.Recipient
             };
         }
 

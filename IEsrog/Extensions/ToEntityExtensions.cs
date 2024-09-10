@@ -96,7 +96,8 @@ public static class ToEntityExtensions
             IsPacked = model.IsPacked,
             IsShipped = model.IsShipped,
             CreatedAt = model.CreatedAt,
-            ShippingCost = model.ShippingCost
+            ShippingCost = model.ShippingCost,
+            Recipient = model.Recipient
         };
     }
 }

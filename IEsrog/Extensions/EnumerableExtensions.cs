@@ -2,7 +2,7 @@
 
 namespace IEsrog.Extensions
 {
-    public static class IEnumerableExtensions
+    public static class EnumerableExtensions
     {
         public static string GetFriendlyRange(this double[] values,char currency = '$')
         {

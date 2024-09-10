@@ -95,6 +95,7 @@
     }
 
 </style>
+
 <div style="margin: 10px auto; width:800px; height: 1500px;">
     <div class="sticky bg-green-500 text-white rounded-lg py-4 my-4 px-2 flex shadow-md overflow-x-auto">
         <button @onclick="Save" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
@@ -119,23 +120,49 @@
                         <tr>
                             <td>
                                 <b>Customer information:</b><br />
-                                <span style="position: relative">
-                                    <input disabled="@DisableUserSelection"
-                                           placeholder="Name" @bind="_User.FirstName"
-                                           style="position: absolute; width: calc(100% - 40px);" />
-                                    <select hidden="@DisableUserSelection"
-                                        style="outline: 0;" @onchange="OnUserChanged">
-                                        <option value=""></option>
-                                        @foreach (var user in State.AdminState.AllUsers)
-                                        {
-                                            <option hidden="@(!$"{user.FirstName} {user.LastName}".Contains(_User.FirstName, StringComparison.InvariantCultureIgnoreCase))"
-                                                    value="@user.Id">@user.FirstName @user.LastName</option>
-                                        }
-                                    </select>
-                                </span><br />
-                                @_User.Email<br />
-                                @_User.PhoneNumber<br />
-                                @_User.Address.ToString()
+
+                                @if (!DisableUserSelection)
+                                {
+                                    <div style="position: relative">
+                                        <input placeholder="Recipient"
+                                               @bind="NameFilter" @bind:event="oninput"
+                                               style="position: absolute; width: calc(100% - 40px); border: none;" />
+
+                                        <select style="outline: 0; width: 100%; " @onchange="OnUserChanged">
+                                            <option value=""></option>
+                                            @foreach (var user in _FilteredUsers)
+                                            {
+                                                <option value="@user.Id">@user.FirstName @user.LastName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <br />
+                                }
+                                @if (!string.IsNullOrWhiteSpace(FromOrder?.Recipient))
+                                {
+                                    <div>@FromOrder.Recipient</div>
+                                } 
+                                else if (FromOrder != null)
+                                {
+                                    <div>@_User.FirstName @_User.LastName</div>
+                                }
+                                
+                                @if (!string.IsNullOrWhiteSpace(_User.Id))
+                                {
+                                    @_User.Email
+                                    <br />
+                                    @_User.PhoneNumber
+                                    <br />
+                                    @_User.Address.ToString()
+                                }
+                                @if (!DisableUserSelection && _FilteredUsers.Count == 0)
+                                {
+                                    <div>
+                                        <i class="fa fa-check-circle-o"></i>
+                                        Anonymous Invoice
+                                    </div>
+                                }
+
                             </td>
                             <td></td>
                             <td style="text-align:right;">
@@ -166,11 +193,11 @@
                 <tr>
                     <td style="position: relative">
                         <button @onclick="() => Remove(item)"
-                            class="absolute -left-6 px-2 text-md text-white bg-red-500 rounded-md hover:bg-red-700">
+                                class="absolute -left-6 px-2 text-md text-white bg-red-500 rounded-md hover:bg-red-700">
                             -
                         </button>
                         <input @bind="item.Name"
-                               style="position: absolute; width: calc(100% - 40px);"/>
+                               style="position: absolute; width: calc(100% - 40px);" />
                         <select @onchange="e => OnProdChange(e, item)"
                                 style="outline: 0;">
                             <option value=""></option>
@@ -243,7 +270,7 @@
 
 @code
 {
-    [Parameter] 
+    [Parameter]
     public Action<Order, User>? OnSave { get; set; }
 
     Order? _FromOrder;
@@ -268,11 +295,12 @@
         }
     }
 
-    [Parameter] 
+    [Parameter]
     public bool DisableUserSelection { get; set; } = false;
 
     Order _Order = new();
     User _User = new();
+    List<User> _FilteredUsers = new();
 
     protected override void OnInitialized()
     {
@@ -280,6 +308,7 @@
 
         _Order.Id = ObjectId.GenerateNewId().ToString();
         _Order.CreatedAt = DateTime.Now;
+        _FilteredUsers = State.AdminState.AllUsers;
     }
 
     void Save()
@@ -312,4 +341,31 @@
         _Order.UserId = user.Id;
     }
 
+    #region Property: NameFilter
+
+    string _NameFilter = string.Empty;
+
+    public string NameFilter
+    {
+        get => _NameFilter;
+        set
+        {
+            _NameFilter = value;
+
+            _FilteredUsers = State.AdminState.AllUsers
+                .Where(u => $"{u.FirstName}{u.LastName}".Contains(value, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+
+            if (_FilteredUsers.Count == 0)
+            {
+                _Order.Recipient = value;
+            }
+            else
+            {
+                _Order.Recipient = null;
+            }
+        }
+    }
+
+    #endregion
 }

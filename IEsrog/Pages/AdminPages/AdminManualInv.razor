@@ -14,7 +14,8 @@
 
     async void Save(Order order, User user)
     {
-        if (!ObjectId.TryParse(order.UserId, out _) || order.Items.Count == 0)
+        if ((!ObjectId.TryParse(order.UserId, out _) && string.IsNullOrWhiteSpace(order.Recipient))
+            || order.Items.Count == 0)
             return;
 
         var ord = await MainService.CreateOrder(order, user);

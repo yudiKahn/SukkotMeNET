@@ -287,6 +287,13 @@ namespace IEsrog.Services
         {
             try
             {
+                if (!ObjectId.TryParse(user.Id, out _))
+                {
+                    if (!_AppState.User.IsAdmin) return null;
+
+                    user = _AppState.User;
+                    order.UserId = user.Id;
+                }
                 var invoice = _InvoiceService.GetInvoiceHtml(order, user);
 
                 var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());

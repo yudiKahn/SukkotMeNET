@@ -20,4 +20,5 @@ public class Order
 
     public double ShippingCost { get; set; }
 
+    public string? Recipient { get; set; }
 }

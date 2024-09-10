@@ -37,4 +37,6 @@ public class OrderEntity
     [BsonElement("ShippingCost")]
     public double ShippingCost { get; set; }
 
+    [BsonElement("Recipient")]
+    public string? Recipient { get; set; }
 }
