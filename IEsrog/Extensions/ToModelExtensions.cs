@@ -37,7 +37,7 @@ public static class ToModelExtensions
             Price = prod.Price,
             PriceType = prod.PricesType,
             Option = okOpt ? opt : string.Empty,
-            Qty = qty, //todo
+            Qty = qty, //todo 
             ByAdmin = false
         };
     }

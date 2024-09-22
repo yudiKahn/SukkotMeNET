@@ -6,6 +6,9 @@
 @using IEsrog.Services
 @using IEsrog.Components
 
+
+@* <button @onclick="FixProdId">FIX PROD ID</button> *@
+
 <ManualInvoice OnSave="Save" FromOrder="Order" DisableUserSelection="true"/>
 
 @code {
@@ -59,5 +62,24 @@
         {
             MainService.AddAlert(new Alert("Failed", "Failed to update order", AlertType.Error));
         }
+    }
+
+    async void FixProdId()
+    {
+        if(_Order is null) return;
+
+        var prods = State.Products.ToDictionary(k => k.Name.ToLower() + k.PricesType.ToLower() + k.Price);
+        foreach (var p in _Order.Items)
+        {
+            if (!string.IsNullOrWhiteSpace(p.ProductId)) continue;
+
+            if (prods.TryGetValue(p.Name.ToLower() + p.PriceType?.ToLower() + p.Price, out var x))
+            {
+                p.ProductId = x.Id;
+            }
+
+        }
+
+        Save(_Order, State.User);
     }
 }

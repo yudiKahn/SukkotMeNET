@@ -4,8 +4,8 @@ public class OrderItem
 {
 
     public string Id { get; set; } = string.Empty;
-    
-    public string? ProductId { get; set; }
+
+    public required string ProductId { get; set; }
 
     public string Category { get; set; } = string.Empty;
 
@@ -22,4 +22,20 @@ public class OrderItem
     public bool ByAdmin { get; set; }
 
     public override string ToString() => $"{Name} {PriceType} {Option}";
+
+    public OrderItem Clone()
+    {
+        return new OrderItem
+        {
+            Id = Id,
+            ProductId = ProductId,
+            Category = Category,
+            Name = Name,
+            Price = Price,
+            PriceType = PriceType,
+            Option = Option,
+            Qty = Qty,
+            ByAdmin = ByAdmin
+        };
+    }
 }

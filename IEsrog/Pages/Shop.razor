@@ -52,7 +52,7 @@
                                       ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
                                       AddItem="AddItem"
                                       SubtractItem="SubtractItem"
-                                      InSlider="true"/>
+                                      InSlider="true" />
                         }
                     </Slider>
                 }
@@ -65,7 +65,7 @@
                               ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
                               AddItem="AddItem"
                               SubtractItem="SubtractItem"
-                              InSlider="false"/>
+                              InSlider="false" />
                 }
             }
         </div>
@@ -120,7 +120,7 @@
 
     CopyOrderPopup _CopyOrder;
 
-    OrderItem OrderItem = new OrderItem();
+    // OrderItem OrderItem = new OrderItem();
 
     async void AddItem(Product product, int optInx, int n = 1, bool toOverride = false)
     {
@@ -129,29 +129,33 @@
         {
             opt = product.Options[optInx];
         }
-        OrderItem.Id = product.Id;
-        OrderItem.Qty = n;
-        OrderItem.Price = product.Price;
-        OrderItem.PriceType = product.PricesType;
-        OrderItem.Option = opt;
-        OrderItem.Name = product.Name;
-        OrderItem.Category = product.Category;
-        OrderItem.ProductId = product.Id;
+
+        var item = new OrderItem
+            {
+                Id = product.Id,
+                Qty = n,
+                Price = product.Price,
+                PriceType = product.PricesType,
+                Option = opt,
+                Name = product.Name,
+                Category = product.Category,
+                ProductId = product.Id
+            };
 
         if (!string.IsNullOrEmpty(ForOrderWithId))
         {
             if (ObjectId.TryParse(ForOrderWithId, out _))
             {
-                _ = await MainService.AddItemToOrder(OrderItem, ForOrderWithId);
+                _ = await MainService.AddItemToOrder(item, ForOrderWithId);
             }
         }
         else if (!string.IsNullOrWhiteSpace(ForUserId))
         {
-            _ = await MainService.AddItemToCart(OrderItem, ForUserId, toOverride);
+            _ = await MainService.AddItemToCart(item, ForUserId, toOverride);
         }
         else
         {
-            _ = await MainService.AddItemToCart(OrderItem, null, toOverride);
+            _ = await MainService.AddItemToCart(item, null, toOverride);
         }
         StateHasChanged();
     }
@@ -163,29 +167,34 @@
         {
             opt = product.Options[optInx];
         }
-       
-        OrderItem.Id = product.Id;
-        OrderItem.Qty = -Math.Abs(n);
-        OrderItem.Price = product.Price;
-        OrderItem.PriceType = product.PricesType;
-        OrderItem.Option = opt; //todo:
-        OrderItem.Name = product.Name;
-        OrderItem.Category = product.Category;
+
+        var item = new OrderItem
+        {
+            Id = product.Id,
+            Qty = -Math.Abs(n),
+            Price = product.Price,
+            PriceType = product.PricesType,
+            Option = opt,
+            Name = product.Name,
+            Category = product.Category,
+            ProductId = product.Id
+        };
+
 
         if (!string.IsNullOrEmpty(ForOrderWithId))
         {
             if (ObjectId.TryParse(ForOrderWithId, out _))
             {
-                _ = await MainService.AddItemToOrder(OrderItem, ForOrderWithId);
+                _ = await MainService.AddItemToOrder(item, ForOrderWithId);
             }
         }
         else if (!string.IsNullOrWhiteSpace(ForUserId))
         {
-            _ = await MainService.AddItemToCart(OrderItem, ForUserId);
+            _ = await MainService.AddItemToCart(item, ForUserId);
         }
         else
         {
-            _ = await MainService.AddItemToCart(OrderItem);
+            _ = await MainService.AddItemToCart(item);
         }
     }
 

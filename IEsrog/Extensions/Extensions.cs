@@ -30,19 +30,6 @@ namespace IEsrog.Extensions
 
         #endregion
 
-        public static OrderItem ToOrderItem(this Product product, int optionIndex, int priceIndex, int qty = 0)
-        {
-            return new OrderItem()
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Option = product.Options.ElementAtOrDefault(optionIndex),
-                Price = product.Price,//s.ElementAtOrDefault(priceIndex),
-                PriceType = product.PricesType,//s.ElementAtOrDefault(priceIndex),
-                Qty = qty,
-            };
-        }
-
         public static T Clone<T>(this T obj) where T : class, new()
         {
             var res = new T();

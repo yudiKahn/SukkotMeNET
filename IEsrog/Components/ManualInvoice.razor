@@ -96,180 +96,207 @@
 
 </style>
 
+
 <div style="margin: 10px auto; width:800px; height: 1500px;">
-    <div class="sticky bg-green-500 text-white rounded-lg py-4 my-4 px-2 flex shadow-md overflow-x-auto">
-        <button @onclick="Save" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
-            <i class="fa fa-save"></i>&nbsp;Save
-        </button>
-        <i style="align-self: self-end">User and items are required</i>
+    <div class="sticky bg-green-500 text-white rounded-lg py-4 my-4 px-2 flex justify-between shadow-md overflow-x-auto">
+        <div class="flex">
+            <button @onclick="Save" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
+                <i class="fa fa-save"></i>&nbsp;Save
+            </button>
+            <i style="align-self: self-end">User and items are required</i>
+        </div>
+
+        @if (_FromOrder != null)
+        {
+            <button @onclick="() => _ViewOnly = !_ViewOnly" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
+                <i class="fa @(_ViewOnly ? "fa-edit" : "fa-file")"></i>&nbsp;@(_ViewOnly ? "Edit" : "Pdf")
+            </button>
+        }
     </div>
-    <div class="invoice-box">
-        <div style="text-align:right;">ב"ה</div>
-        <table>
-            <tr class="top">
-                <td colspan="4">
-                    <div style="text-align:center;">
-                        <b>Yanky Kahn</b> | <b>818-605-2066</b> | <b>18253 Topham st. Tarzana CA 91335</b>
-                    </div>
-                </td>
-            </tr>
 
-            <tr>
-                <td colspan="4">
-                    <table>
-                        <tr>
-                            <td>
-                                <b>Customer information:</b><br />
+    @if (_ViewOnly)
+    {
+        <div class="mx-auto w-full md:w-3/4 xl:w-1/2">
+            <img src=@InvoicePdf class="w-full" alt="invoice" id="invoice-img" crossOrigin="Anonymous" />
+        </div>
+    }
+    else
+    {
 
-                                @if (!DisableUserSelection)
-                                {
-                                    <div style="position: relative">
-                                        <input placeholder="Recipient"
-                                               @bind="NameFilter" @bind:event="oninput"
-                                               style="position: absolute; width: calc(100% - 40px); border: none;" />
-
-                                        <select style="outline: 0; width: 100%; " @onchange="OnUserChanged">
-                                            <option value=""></option>
-                                            @foreach (var user in _FilteredUsers)
-                                            {
-                                                <option value="@user.Id">@user.FirstName @user.LastName</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    <br />
-                                }
-                                @if (!string.IsNullOrWhiteSpace(FromOrder?.Recipient))
-                                {
-                                    <div>@FromOrder.Recipient</div>
-                                } 
-                                else if (FromOrder != null)
-                                {
-                                    <div>@_User.FirstName @_User.LastName</div>
-                                }
-                                
-                                @if (!string.IsNullOrWhiteSpace(_User.Id))
-                                {
-                                    @_User.Email
-                                    <br />
-                                    @_User.PhoneNumber
-                                    <br />
-                                    @_User.Address.ToString()
-                                }
-                                @if (!DisableUserSelection && _FilteredUsers.Count == 0)
-                                {
-                                    <div>
-                                        <i class="fa fa-check-circle-o"></i>
-                                        Anonymous Invoice
-                                    </div>
-                                }
-
-                            </td>
-                            <td></td>
-                            <td style="text-align:right;">
-                                <br />
-                                Invoice: #@_Order.Id[..6]<br />
-                                Created: @($"{_Order.CreatedAt:MM/dd/yyyy}")<br />
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <tr>
-                <td colspan="4">
-                    <b>Orderd items:</b>
-                </td>
-            </tr>
-
-            <tr class="heading">
-                <td>Item</td>
-                <td>Qty</td>
-                <td>Price</td>
-                <td style="text-align:right;">Subtotal</td>
-            </tr>
-
-            @foreach (var item in _Order.Items)
-            {
-                <tr>
-                    <td style="position: relative">
-                        <button @onclick="() => Remove(item)"
-                                class="absolute -left-6 px-2 text-md text-white bg-red-500 rounded-md hover:bg-red-700">
-                            -
-                        </button>
-                        <input @bind="item.Name"
-                               style="position: absolute; width: calc(100% - 40px);" />
-                        <select @onchange="e => OnProdChange(e, item)"
-                                style="outline: 0;">
-                            <option value=""></option>
-                            @foreach (var prod in State.Products)
-                            {
-                                <option value="@prod.Id">@prod.Name <small>$@prod.Price</small></option>
-                            }
-                        </select>
-                    </td>
-                    <td>
-                        <input @bind="item.Qty" />
-                    </td>
-                    <td>
-                        <input @bind="item.Price" />
-                    </td>
-                    <td style="text-align: right">
-                        $@($"{item.Qty * item.Price:N2}")
+        <div class="invoice-box">
+            <div style="text-align: right;">ב"ה</div>
+            <table>
+                <tr class="top">
+                    <td colspan="4">
+                        <div style="text-align: center;">
+                            <b>Yanky Kahn</b> | <b>818-605-2066</b> | <b>18253 Topham st. Tarzana CA 91335</b>
+                        </div>
                     </td>
                 </tr>
-            }
 
-            <tr class="total">
-                <td colspan="3">
-                    <button @onclick="Add"
-                            class="px-3 py-1 text-md text-white bg-green-500 rounded-md hover:bg-green-700">
-                        +
-                    </button>
-                </td>
+                <tr>
+                    <td colspan="4">
+                        <table>
+                            <tr>
+                                <td>
+                                    <b>Customer information:</b><br />
 
-                <td style="text-align:right;">Total: $@($"{_Order.Items.GetTotal():N2}")</td>
-            </tr>
+                                    @if (!DisableUserSelection)
+                                    {
+                                        <div style="position: relative">
+                                            <input placeholder="Recipient"
+                                                   @bind="NameFilter" @bind:event="oninput"
+                                                   style="position: absolute; width: calc(100% - 40px); border: none;" />
 
-            <tr class="heading">
-                <td colspan="2">Payment Method</td>
+                                            <select style="outline: 0; width: 100%;" @onchange="OnUserChanged">
+                                                <option value=""></option>
+                                                @foreach (var user in _FilteredUsers)
+                                                {
+                                                    <option value="@user.Id">@user.FirstName @user.LastName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <br />
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(FromOrder?.Recipient))
+                                    {
+                                        <div>@FromOrder.Recipient</div>
+                                    }
+                                    else if (FromOrder != null)
+                                    {
+                                        <div>@_User.FirstName @_User.LastName</div>
+                                    }
 
-                <td colspan="2"></td>
-            </tr>
+                                    @if (!string.IsNullOrWhiteSpace(_User.Id))
+                                    {
+                                        @_User.Email
+                                        <br />
+                                        @_User.PhoneNumber
+                                        <br />
+                                        @_User.Address.ToString()
+                                    }
+                                    @if (!DisableUserSelection && _FilteredUsers.Count == 0)
+                                    {
+                                        <div>
+                                            <i class="fa fa-check-circle-o"></i>
+                                            Anonymous Invoice
+                                        </div>
+                                    }
 
-            <tr class="details">
-                <td colspan="2">
-                    <input type="checkbox" /> Check <small>18253 topham st. Tarazana CA 91335</small>
+                                </td>
+                                <td></td>
+                                <td style="text-align: right;">
+                                    <br />
+                                    Invoice: #@_Order.Id[..6]<br />
+                                    Created: @($"{_Order.CreatedAt:MM/dd/yyyy}")<br />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-                    <input type="checkbox" /> CashApp <small>8186052066</small>
-                    <br />
-                    <input type="checkbox" /> PayPal <small>chabad18@hotmail.com</small>
+                <tr>
+                    <td colspan="4">
+                        <b>Orderd items:</b>
+                    </td>
+                </tr>
 
-                    <input type="checkbox" /> Zelle <small>chabad18@hotmail.com</small>
-                </td>
+                <tr class="heading">
+                    <td>Item</td>
+                    <td>Qty</td>
+                    <td>Price</td>
+                    <td style="text-align: right;">Subtotal</td>
+                </tr>
 
-                <td colspan="2"></td>
-            </tr>
+                @foreach (var item in _Order.Items)
+                {
+                    <tr>
+                        <td style="position: relative">
+                            <button @onclick="() => Remove(item)"
+                                    class="absolute -left-6 px-2 text-md text-white bg-red-500 rounded-md hover:bg-red-700">
+                                -
+                            </button>
+                            <input @bind="item.Name"
+                                   style="position: absolute; width: calc(100% - 40px);" />
+                            <select @onchange="e => OnProdChange(e, item)"
+                                    style="outline: 0;">
+                                <option value=""></option>
+                                @foreach (var prod in State.Products)
+                                {
+                                    <option value="@prod.Id">@prod.Name <small>$@prod.Price</small></option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <input @bind="item.Qty" />
+                        </td>
+                        <td>
+                            <input @bind="item.Price" />
+                        </td>
+                        <td style="text-align: right">
+                            $@($"{item.Qty * item.Price:N2}")
+                        </td>
+                    </tr>
+                }
 
-            <tr class="heading">
-                <td colspan="2">Shipment price <small>(Without schach)</small></td>
+                <tr class="total">
+                    <td colspan="3">
+                        <button @onclick="Add"
+                                class="px-3 py-1 text-md text-white bg-green-500 rounded-md hover:bg-green-700">
+                            +
+                        </button>
+                    </td>
 
-                <td colspan="2" style="text-align: right;">
-                    $<input type="number" @bind="_Order.ShippingCost"
-                            style="background: inherit; text-align: end;" />
-                </td>
-            </tr>
-        </table>
-        <div style="text-align: center;">
-            <h4>Thank's for your buisness</h4>
+                    <td style="text-align: right;">Total: $@($"{_Order.Items.GetTotal():N2}")</td>
+                </tr>
+
+                <tr class="heading">
+                    <td colspan="2">Payment Method</td>
+
+                    <td colspan="2"></td>
+                </tr>
+
+                <tr class="details">
+                    <td colspan="2">
+                        <input type="checkbox" /> Check <small>18253 topham st. Tarazana CA 91335</small>
+
+                        <input type="checkbox" /> CashApp <small>8186052066</small>
+                        <br />
+                        <input type="checkbox" /> PayPal <small>chabad18@hotmail.com</small>
+
+                        <input type="checkbox" /> Zelle <small>chabad18@hotmail.com</small>
+                    </td>
+
+                    <td colspan="2"></td>
+                </tr>
+
+                <tr class="heading">
+                    <td colspan="2">Shipment price <small>(Without schach)</small></td>
+
+                    <td colspan="2" style="text-align: right;">
+                        $
+                        <input type="number" @bind="_Order.ShippingCost"
+                               style="background: inherit; text-align: end;" />
+                    </td>
+                </tr>
+            </table>
+            <div style="text-align: center;">
+                <h4>Thank's for your buisness</h4>
+            </div>
+            <div style="text-align: left;">
+                <small>Order id: # @_Order.Id</small>
+            </div>
         </div>
-        <div style="text-align: left;">
-            <small>Order id: # @_Order.Id</small>
-        </div>
-    </div>
+    }
 </div>
+
 
 @code
 {
+    [Inject] IJSRuntime Js { get; set; } = null!;
+
+    [Inject] InvoiceService InvoiceService { get; set; } = null!;
+
     [Parameter]
     public Action<Order, User>? OnSave { get; set; }
 
@@ -298,9 +325,17 @@
     [Parameter]
     public bool DisableUserSelection { get; set; } = false;
 
+    string? _InvoicePdf;
+    public string InvoicePdf
+    {
+        get => _InvoicePdf ?? string.Empty;
+        set => _InvoicePdf = value;
+    }
+
     Order _Order = new();
     User _User = new();
     List<User> _FilteredUsers = new();
+    bool _ViewOnly = false;
 
     protected override void OnInitialized()
     {
@@ -309,6 +344,25 @@
         _Order.Id = ObjectId.GenerateNewId().ToString();
         _Order.CreatedAt = DateTime.Now;
         _FilteredUsers = State.AdminState.AllUsers;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (_FromOrder is { } order)
+        {
+            const int height = 1500;
+            const int width = 800;
+
+            var user = State.User;
+
+            var html = InvoiceService.GetInvoiceHtml(order, user);
+            InvoicePdf = await Js.InvokeAsync<string>(
+                Constants.JavaScriptFunctions.GetImageFromHTML,
+                html, width, height
+            );
+        }
     }
 
     void Save()
@@ -328,7 +382,7 @@
         item.Category = prod.Category;
     }
 
-    void Add() => _Order.Items.Add(new OrderItem());
+    void Add() => _Order.Items.Add(new OrderItem(){ ProductId = string.Empty });
 
     void Remove(OrderItem item) => _Order.Items.Remove(item);
 
