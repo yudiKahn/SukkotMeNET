@@ -72,7 +72,7 @@ namespace IEsrog.Services
                 {
                     var opt = item.Option;
                     var inc = p.Includes
-                        .Select(i => map[i.ProductId].ToModel(opt, item.Qty))
+                        .Select(i => map[i.ProductId].ToModel(opt, item.PriceType, item.Qty))
                         .ToArray();
                     
                     res.AddOrMergeRange(inc);

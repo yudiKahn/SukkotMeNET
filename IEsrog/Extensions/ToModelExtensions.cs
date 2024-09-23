@@ -26,7 +26,7 @@ public static class ToModelExtensions
         };
     }
 
-    public static OrderItem ToModel(this Product prod, string? opt, int qty = 1)
+    public static OrderItem ToModel(this Product prod, string? opt, string? priceType, int qty = 1)
     {
         var okOpt = prod.Options?.Contains(opt) == true;
         return new OrderItem
@@ -35,7 +35,7 @@ public static class ToModelExtensions
             Category = prod.Category,
             Name = prod.Name,
             Price = prod.Price,
-            PriceType = prod.PricesType,
+            PriceType = prod.Group == 14 ? priceType : prod.PricesType, //todo
             Option = okOpt ? opt : string.Empty,
             Qty = qty, //todo 
             ByAdmin = false

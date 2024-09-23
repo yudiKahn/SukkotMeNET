@@ -497,7 +497,7 @@ namespace IEsrog.Services
                 {
                     var opt = oi.Option;
                     var inc = p.Includes
-                        .Select(i => prod[i.ProductId].ToModel(opt, i.Qty))
+                        .Select(i => prod[i.ProductId].ToModel(opt, oi.PriceType, i.Qty))
                         .ToArray();
 
                     foreach (var i in inc)
