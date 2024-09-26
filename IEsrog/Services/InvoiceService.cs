@@ -35,8 +35,8 @@ namespace IEsrog.Services
                 $@"<tr>
                         <td><input type={'"'}checkbox{'"'}/> {item.Name} <small>{item.PriceType} {item.Option}</small></td>
                         <td>{item.Qty}</td>
-                        <td>${item.Price}</td>
-                        <td style={'"'}text-align:right;{'"'}>${item.Qty * item.Price:N2}</td>
+                        <td>${item.Price} {(item.ExtraOption is {} eo ? $"+ {eo.Price}": string.Empty)}</td>
+                        <td style={'"'}text-align:right;{'"'}>${item.Qty * item.Price + (item.ExtraOption is { } eo2 ? item.Qty * eo2.Price : 0):N2}</td>
                     </tr>"
 
                 )) },
@@ -44,7 +44,7 @@ namespace IEsrog.Services
                     $@"<tr>
                         <td colspan={'"'}3{'"'}>
                             <input type={'"'}checkbox{'"'}/> {item.Name} <small>{item.PriceType} {item.Option}</small>
-                            {(item.ExtraOption is {} o ? $"- <small>Made {o.Option}</small>" : string.Empty)}
+                            {(item.ExtraOption is {} o ? $"- <small>Made {o.Option} and Esrog</small>" : string.Empty)}
                         </td>
                         <td style={'"'}text-align:right;{'"'}>{item.Qty}</td>
                     </tr>")) },

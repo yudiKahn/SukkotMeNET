@@ -39,6 +39,7 @@ namespace IEsrog
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
             builder.Services.AddSingleton<EmailService>();
+            builder.Services.AddSingleton<FireAndForgetService>();
 
             var app = builder.Build();
 

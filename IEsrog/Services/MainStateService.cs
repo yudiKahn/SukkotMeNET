@@ -12,6 +12,7 @@ namespace IEsrog.Services
         readonly IRepositoryService _Repository;
         readonly EmailService _EmailService;
         readonly InvoiceService _InvoiceService;
+        readonly FireAndForgetService _FireAndForgetService;
 
         public event EventHandler? StateHasChanged;
 
@@ -19,12 +20,14 @@ namespace IEsrog.Services
             AppStateService appState,
             IRepositoryService repositoryService,
             EmailService emailService,
-            InvoiceService invoiceService)
+            InvoiceService invoiceService, 
+            FireAndForgetService fireAndForgetService)
         {
             _AppState = appState;
             _Repository = repositoryService;
             _EmailService = emailService;
             _InvoiceService = invoiceService;
+            _FireAndForgetService = fireAndForgetService;
 
             Task.Run(UpdProd);
         }
@@ -268,8 +271,12 @@ namespace IEsrog.Services
                 var invoice = _InvoiceService.GetInvoiceHtml(order, user);
 
                 var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
-                _ = await _EmailService.SendAsync(
-                    "Order Invoice", invoice, bcc: "chabad18@hotmail.com", [user.Email]);
+                
+                _FireAndForgetService.Fire(new FireAndForgetSendEmailData(
+                    "Order Invoice", invoice, [user.Email], "chabad18@hotmail.com"));
+                //_ = await _EmailService.SendAsync(
+                //    "Order Invoice", invoice, bcc: "chabad18@hotmail.com", [user.Email]);
+               
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.Id == _AppState.Cart.Id);
 
                 _AppState.ForUser = null;
