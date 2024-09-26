@@ -7,7 +7,7 @@
 
 <div class="w-full bg-white grid place-content-center flex-grow dark:bg-gray-800" style="min-height: 80vh;">
     <div class="container relative my-4">
-        @if (State.ForUser is {} fu)
+        @if (State.ForUser is { } fu)
         {
             <span class="absolute top-0 right-0 px-2 py-1 -mt-3 -mr-6 text-sm font-medium leading-tight text-white bg-red-600 rounded-full">
                 Order for @($"{fu.FirstName} {fu.LastName}")!
@@ -41,12 +41,25 @@
                                         <div class="text-base leading-6 flex flex-col md:flex-row flex-wrap flex-grow justify-between items-baseline">
                                             <div class="text-gray-700 flex-shrink-0">
                                                 @item.Name <small>@item.PriceType @item.Option</small>
+                                                @if (item.ExtraOption is { } eo)
+                                                {
+                                                    <small>&nbsp;@eo.Option</small>
+                                                }
                                             </div>
                                             <div class="flex-shrink-0 mt-1 md:mt-0">
                                                 <small class="ml-5 mr-3">@item.Qty &times; @($"{item.Price:N2}") = </small>
-                                                <span class="text-lg text-gray-800 font-bold">
-                                                    $@((item.Qty * item.Price).ToString("N1"))
-                                                </span>
+                                                @if (item.ExtraOption is { } eo2)
+                                                {
+                                                    <span class="text-lg text-gray-800 font-bold">
+                                                        $@((item.Qty * item.Price + item.Qty * eo2.Price).ToString("N1"))
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-lg text-gray-800 font-bold">
+                                                        $@((item.Qty * item.Price).ToString("N1"))
+                                                    </span>
+                                                }
                                             </div>
                                         </div>
                                     </div>
@@ -55,7 +68,7 @@
                                             <span @onclick="() => Delete(item)" class="rounded-md text-gray-700 leading-6 border border-solid border-gray-400 px-4 py-2 text-xs font-bold mr-3 cursor-pointer">
                                                 DELETE
                                             </span>
-                                            <input type="number" disabled="@(!CanEditQty)" min="1" @bind="@item.Qty" class="shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
+                                            <input type="number" disabled="@(!CanEditQty)" min="1" @bind="@item.Qty" class="shadow appearance-none border-none rounded w-40 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                                         </div>
                                     </div>
                                 </li>

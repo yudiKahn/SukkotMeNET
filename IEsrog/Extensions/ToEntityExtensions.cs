@@ -17,6 +17,7 @@ public static class ToEntityExtensions
             Price = model.Price,
             PriceType = model.PricesType,
             Options = model.Options,
+            ExtraOptions = model.ExtraOptions?.Select(x => x.ToEntity()).ToArray(),
             Includes = model.Includes?
                 .Select(i => new ProductIncludeEntity()
                 {
@@ -24,6 +25,15 @@ public static class ToEntityExtensions
                     Qty = i.Qty
                 })
                 .ToArray()
+        };
+    }
+
+    public static ExtraOptionsEntity ToEntity(this ExtraOptions e)
+    {
+        return new ExtraOptionsEntity()
+        {
+            Option = e.Option,
+            Price = e.Price
         };
     }
 
@@ -80,7 +90,8 @@ public static class ToEntityExtensions
             Option = model.Option,
             Qty = model.Qty,
             ByAdmin = model.ByAdmin,
-            ProductId = model.ProductId
+            ProductId = model.ProductId,
+            ExtraOption = model.ExtraOption?.ToEntity()
         };
     }
 

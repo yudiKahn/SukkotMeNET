@@ -16,6 +16,7 @@ public static class ToModelExtensions
             PricesType = entity.PriceType,
             Options = entity.Options,
             Group = entity.Group,
+            ExtraOptions = entity.ExtraOptions?.Select(x => x.ToModel()).ToArray(),
             Includes = entity.Includes?
                 .Select(i => new ProductInclude()
                 {
@@ -23,6 +24,15 @@ public static class ToModelExtensions
                     Qty = i.Qty
                 })
                 .ToArray()
+        };
+    }
+
+    public static ExtraOptions ToModel(this ExtraOptionsEntity e)
+    {
+        return new ExtraOptions()
+        {
+            Option = e.Option,
+            Price = e.Price
         };
     }
 
@@ -38,7 +48,7 @@ public static class ToModelExtensions
             PriceType = prod.Group == 14 ? priceType : prod.PricesType, //todo
             Option = okOpt ? opt : string.Empty,
             Qty = qty, //todo 
-            ByAdmin = false
+            ByAdmin = false,
         };
     }
 
@@ -91,7 +101,8 @@ public static class ToModelExtensions
             Option = entity.Option,
             Qty = entity.Qty,
             ByAdmin = entity.ByAdmin,
-            ProductId = entity.ProductId
+            ProductId = entity.ProductId,
+            ExtraOption = entity.ExtraOption?.ToModel()
         };
     }
 

@@ -4,13 +4,6 @@ namespace IEsrog.Extensions
 {
     public static class EnumerableExtensions
     {
-        public static string GetFriendlyRange(this double[] values,char currency = '$')
-        {
-            if (!values.Any())
-                return string.Empty;
-            return values.Length == 1 ? $"{currency}{values[0]}" : $"{currency}{values[0]} - {currency}{values[^1]}";
-        }
-
         public static double GetTotal(this IEnumerable<OrderItem> items, double shipment = 0D)
         {
             var res = shipment;
@@ -18,6 +11,10 @@ namespace IEsrog.Extensions
             foreach(var item in items)
             {
                 res += (item.Qty * item.Price);
+                if (item.ExtraOption?.Price > 0)
+                {
+                    res += item.Qty * item.ExtraOption.Price;
+                }
             }
 
             return res;

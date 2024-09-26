@@ -16,6 +16,8 @@ public class OrderItem
     public string? PriceType { get; set; }
 
     public string? Option { get; set; }
+
+    public ExtraOptions? ExtraOption { get; set; }
         
     public int Qty { get; set; }
 
@@ -35,7 +37,12 @@ public class OrderItem
             PriceType = PriceType,
             Option = Option,
             Qty = Qty,
-            ByAdmin = ByAdmin
+            ByAdmin = ByAdmin,
+            ExtraOption = ExtraOption is null ? null : new ExtraOptions()
+            {
+                Option = ExtraOption.Option,
+                Price = ExtraOption.Price
+            }
         };
     }
 }

@@ -20,9 +20,26 @@
                         @foreach (var o in Item.Options)
                         {
                             <button @onclick="() => _SelectedOption = o"
-                                    class="@(_SelectedOption == o ? "bg-green-500 text-white" : "") flex items-center p-0 transition-all rounded-lg border-none focus:bg-green-500 focus:text-white focus:border-none">
+                                    class="@(_SelectedOption == o ? "bg-green-500 text-white" : "") flex items-center p-0 transition-all rounded-lg border-none">
                                 <label class="flex items-center w-full px-3 py-2 text-sm">
                                     @o
+                                </label>
+                            </button>
+                        }
+                    </nav>
+                </div>
+            }
+            @if (Item.ExtraOptions?.Length > 0)
+            {
+                <div class="relative flex mx-3 my-1 flex-col rounded-xl bg-white bg-clip-border shadow-md"
+                     style="width: fit-content;">
+                    <nav class="flex flex-row gap-1">
+                        @foreach (var o in Item.ExtraOptions)
+                        {
+                            <button @onclick="() => ToggleExOption(o.Option)"
+                                    class="@(_SelectedExOption == o.Option ? "bg-green-500 text-white" : "") flex items-center p-0 transition-all rounded-lg border-none">
+                                <label class="flex items-center w-full px-3 py-2 text-sm">
+                                    @(o.Option) - $@(o.Price)
                                 </label>
                             </button>
                         }
@@ -78,12 +95,14 @@
     public bool ForOrderWithId { get; set; }
 
     [Parameter]
-    public Action<Product, int, int,bool>? AddItem { get; set; }
+    public Action<Product, int, int,bool, ExtraOptions?>? AddItem { get; set; }
 
     [Parameter]
     public Action<Product, int, int>? SubtractItem { get; set; }
 
     string _SelectedOption = string.Empty;
+    
+    string _SelectedExOption = string.Empty;
 
     [Parameter] 
     public bool InSlider { get; set; }
@@ -102,6 +121,11 @@
         }
     }
 
+    void ToggleExOption(string option)
+    {
+        _SelectedExOption = _SelectedExOption != option ? option : string.Empty;
+    }
+
     void OnAddItem(int n = 1,bool toOverride = false)
     {
         if (AddItem is null) return;
@@ -113,7 +137,8 @@
         }
 
         var optInx = Item?.Options.ToList().IndexOf(_SelectedOption) ?? 0;
-        AddItem.Invoke(Item!, optInx, n, toOverride);
+        var opt = Item?.ExtraOptions?.FirstOrDefault(o => o.Option == _SelectedExOption);
+        AddItem.Invoke(Item!, optInx, n, toOverride, opt);
     }
 
     void OnSubtractItem()

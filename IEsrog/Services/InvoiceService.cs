@@ -44,6 +44,7 @@ namespace IEsrog.Services
                     $@"<tr>
                         <td colspan={'"'}3{'"'}>
                             <input type={'"'}checkbox{'"'}/> {item.Name} <small>{item.PriceType} {item.Option}</small>
+                            {(item.ExtraOption is {} o ? $"- <small>Made {o.Option}</small>" : string.Empty)}
                         </td>
                         <td style={'"'}text-align:right;{'"'}>{item.Qty}</td>
                     </tr>")) },
@@ -70,12 +71,19 @@ namespace IEsrog.Services
                 if (item.ProductId is {} pid && map.TryGetValue(pid, out var p) &&
                     p.Includes?.Any() == true)
                 {
-                    var opt = item.Option;
-                    var inc = p.Includes
-                        .Select(i => map[i.ProductId].ToModel(opt, item.PriceType, item.Qty))
-                        .ToArray();
-                    
-                    res.AddOrMergeRange(inc);
+                    if (item.ExtraOption is { })
+                    {
+                        res.AddOrMerge(item.Clone());
+                    }
+                    else
+                    {
+                        var opt = item.Option;
+                        var inc = p.Includes
+                            .Select(i => map[i.ProductId].ToModel(opt, item.PriceType, item.Qty))
+                            .ToArray();
+
+                        res.AddOrMergeRange(inc);
+                    }
                 }
                 else
                 {

@@ -172,6 +172,8 @@ namespace IEsrog.Services
         {
             _AppState.User = new User();
             _AppState.Cart = new Cart();
+            _AppState.Cart.Id = ObjectId.GenerateNewId().ToString();
+            _AppState.Cart.UserId = _AppState.User.Id;
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -272,6 +274,9 @@ namespace IEsrog.Services
 
                 _AppState.ForUser = null;
                 _AppState.Cart = new Cart();
+
+                _AppState.Cart.Id = ObjectId.GenerateNewId().ToString();
+                _AppState.Cart.UserId = _AppState.User.Id;
                 _AppState.UserOrders.Add(order);
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);

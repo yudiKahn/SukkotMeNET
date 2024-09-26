@@ -1,7 +1,6 @@
 ﻿using IEsrog.Models;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
-using IEsrog.Data.Interfaces;
 
 namespace IEsrog.Data.Entities;
 
@@ -27,6 +26,9 @@ public class ProductEntity
 
     [BsonElement("options")]
     public string[]? Options { get; set; }
+    
+    [BsonElement("extraOptions")]
+    public ExtraOptionsEntity[]? ExtraOptions { get; set; }
 
     [BsonElement("group")]
     public byte Group { get; set; }
@@ -35,6 +37,15 @@ public class ProductEntity
     public ProductIncludeEntity[]? Includes { get; set; }
 
     public override string ToString() => Name;
+}
+
+public class ExtraOptionsEntity
+{
+    [BsonElement("option")]
+    public required string Option { get; set; }
+    
+    [BsonElement("price")]
+    public double Price { get; set; }
 }
 
 public class ProductIncludeEntity

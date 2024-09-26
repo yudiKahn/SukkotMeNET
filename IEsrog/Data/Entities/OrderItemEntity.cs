@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
+using IEsrog.Models;
 
 namespace IEsrog.Data.Entities;
 
@@ -30,6 +31,9 @@ public class OrderItemEntity
 
     [BsonElement("option")]
     public string? Option { get; set; }
+
+    [BsonElement("extraOption")]
+    public ExtraOptionsEntity? ExtraOption { get; set; }
 
     [BsonElement("q")]
     public int Qty { get; set; }

@@ -122,7 +122,7 @@
 
     // OrderItem OrderItem = new OrderItem();
 
-    async void AddItem(Product product, int optInx, int n = 1, bool toOverride = false)
+    async void AddItem(Product product, int optInx, int n = 1, bool toOverride = false, ExtraOptions? option = null)
     {
         string? opt = null;
         if (optInx > -1 && product.Options?.Length > optInx)
@@ -139,7 +139,8 @@
                 Option = opt,
                 Name = product.Name,
                 Category = product.Category,
-                ProductId = product.Id
+                ProductId = product.Id,
+                ExtraOption = option
             };
 
         if (!string.IsNullOrEmpty(ForOrderWithId))

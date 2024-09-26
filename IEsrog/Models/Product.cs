@@ -1,6 +1,4 @@
-﻿using IEsrog.Data.Entities;
-
-namespace IEsrog.Models;
+﻿namespace IEsrog.Models;
 
 public class Product
 {
@@ -16,11 +14,20 @@ public class Product
 
     public string[]? Options { get; set; }
 
+    public ExtraOptions[]? ExtraOptions { get; set; }
+
     public byte Group { get; set; }
 
     public ProductInclude[]? Includes { get; set; }
 
     public override string ToString() => Name;
+}
+
+public class ExtraOptions
+{
+    public required string Option { get; set; }
+
+    public double Price { get; set; }
 }
 
 public class ProductInclude
