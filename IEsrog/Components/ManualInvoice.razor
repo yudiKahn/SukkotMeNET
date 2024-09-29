@@ -355,7 +355,7 @@
             const int height = 1500;
             const int width = 800;
 
-            var user = State.User;
+            var user = _User;
 
             var html = InvoiceService.GetInvoiceHtml(order, user);
             InvoicePdf = await Js.InvokeAsync<string>(
