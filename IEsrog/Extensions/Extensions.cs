@@ -73,5 +73,7 @@ namespace IEsrog.Extensions
                 Address = o.Address.Clone()
             };
         }
+
+        public static string? StrOrNull(this string? str) => string.IsNullOrWhiteSpace(str) ? null : str;
     }
 }

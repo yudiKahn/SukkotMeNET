@@ -90,7 +90,7 @@ public static class ToEntityExtensions
             Option = model.Option,
             Qty = model.Qty,
             ByAdmin = model.ByAdmin,
-            ProductId = model.ProductId,
+            ProductId = model.ProductId.StrOrNull(),
             ExtraOption = model.ExtraOption?.ToEntity()
         };
     }

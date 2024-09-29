@@ -619,6 +619,11 @@ namespace IEsrog.Services
                 o => o.Id == order.Id,
                 order.ToEntity(), false);
 
+            if (newOrder == null)
+            {
+                throw new Exception("Failed to update order");
+            }
+
             if (_AppState.User.IsAdmin)
             {
                 var inx = _AppState.AdminState.AllOrders.FindIndex(o => o.Id == order.Id);
