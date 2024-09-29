@@ -166,7 +166,7 @@
         if (await _Js.InvokeAsync<bool>(Constants.JavaScriptFunctions.Confirm, "To delete order?"))
         {
             var ok = await MainService.RemoveOrderAsync(order);
-            MainService.AddAlert(new Alert(ok ? "Removed" : "Error", ok ? "" : "Cannot remove order", ok ? AlertType.Success : AlertType.Error));
+            MainService.AddAlert(new Alert(ok ? "Removed" : "Error #004", ok ? "" : "Cannot remove order", ok ? AlertType.Success : AlertType.Error));
         }
     }
 

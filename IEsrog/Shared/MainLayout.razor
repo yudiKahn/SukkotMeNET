@@ -132,7 +132,7 @@
             if (e is not TimeoutException)
                 await _Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
 
-            MainService.AddAlert(new Alert("Fail", e.Message, AlertType.Error));
+            MainService.AddAlert(new Alert("Fail #012", e.Message, AlertType.Error));
         }
         finally
         {
