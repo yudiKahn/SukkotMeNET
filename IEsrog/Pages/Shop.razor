@@ -45,7 +45,7 @@
                 if (items.Count() > 1)
                 {
                     <Slider>
-                        @foreach (var i in items)
+                        @foreach (var i in items.OrderBy(i => i.Price))
                         {
                             <ItemCard Item="i"
                                       Qty="@(State.Cart.Items.Where(it => it.Id == i.Id).Sum(x => x.Qty))"

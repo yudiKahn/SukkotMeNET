@@ -9,7 +9,7 @@ namespace IEsrog.Extensions
         public static string GetItemIcon(this Product product)
         {
 
-            var name = $"{product.Name.ToLower()}";
+            var name = product.Name.ToLower();
             if (name.Contains("lulav"))
                 return "/images/lulav.png";
             if (name.Contains("hadas"))
@@ -24,6 +24,8 @@ namespace IEsrog.Extensions
                 return "/images/koishklach.png";
             if (name.Contains("sukkah"))
                 return "/images/sukkah.png";
+            if (name.Contains("ring"))
+                return "/images/ring.png";
 
             return "/images/esrog.png";
         }
