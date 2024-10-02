@@ -19,6 +19,9 @@
         public string DBOrdersCollectionName { get; set; } = string.Empty;
 
         //jwt:
-        public string JwtSecret { get; set; }
+        public string JwtSecret { get; set; } = null!;
+
+        public string SesAccess { get; set; } = null!;
+        public string SesSecret { get; set; } = null!;
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using Amazon.SimpleEmail;
+using Amazon.SimpleEmail.Model;
 using IEsrog.Configuration;
 using IEsrog.Models;
 
@@ -8,9 +10,14 @@ namespace IEsrog.Services
     public class EmailService
     {
         readonly ApplicationConfiguration _AppConfig;
-        public EmailService(ApplicationConfiguration emailConfig)
+        readonly IAmazonSimpleEmailService _SesService;
+
+        public EmailService(
+            ApplicationConfiguration emailConfig,
+            IAmazonSimpleEmailService sesService)
         {
             _AppConfig = emailConfig;
+            _SesService = sesService;
         }
 
         public async Task<bool> SendAsync(string subject, string body, params string[] to)
@@ -25,38 +32,23 @@ namespace IEsrog.Services
             {
                 if (to.Length == 0)
                     throw new Exception();
-                var smtp = new SmtpClient
-                {
-                    Host = _AppConfig.SmtpHost,
-                    Port = _AppConfig.SmtpPort,
-                    EnableSsl = true,
-                    DeliveryMethod = SmtpDeliveryMethod.Network,
-                    Credentials = new NetworkCredential(_AppConfig.SmtpAddress, _AppConfig.SmtpPassword)
-                };
 
-                var msg = new MailMessage
-                {
-                    From = new MailAddress(_AppConfig.SmtpAddress),
-                    Sender = new MailAddress(_AppConfig.SmtpAddress),
-                    Subject = subject,
-                    IsBodyHtml = true,
-                    Body = body
-                };
-                foreach (var t in to)
-                {
-                    msg.To.Add(new MailAddress(t));
-                }
+                var req = new SendEmailRequest(
+                    "www.iesrog.com",
+                    new Destination()
+                    {
+                        ToAddresses = to.ToList(),
+                        BccAddresses = bcc is null ? [] : [bcc]
+                    },
+                    new Message(new Content(subject), new Body()
+                    {
+                        Html = new Content(body)
+                    }));
 
-                if (!string.IsNullOrWhiteSpace(bcc))
-                {
-                    msg.Bcc.Add(bcc);
-                }
-
-                await smtp.SendMailAsync(msg);
-
-                return true;
+                var resp = await _SesService.SendEmailAsync(req);
+                return resp.HttpStatusCode == HttpStatusCode.OK;
             }
-            catch
+            catch (Exception ex)
             {
                 return false;
             }

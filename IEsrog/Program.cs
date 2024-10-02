@@ -1,3 +1,5 @@
+using Amazon;
+using Amazon.Runtime;
 using Microsoft.AspNetCore.Authorization;
 using IEsrog;
 using IEsrog.Configuration;
@@ -5,6 +7,7 @@ using IEsrog.Data.Interfaces;
 using IEsrog.Data.Repositories;
 using IEsrog.Models;
 using IEsrog.Services;
+using Amazon.SimpleEmail;
 
 namespace IEsrog
 {
@@ -40,6 +43,11 @@ namespace IEsrog
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
             builder.Services.AddSingleton<EmailService>();
             builder.Services.AddSingleton<FireAndForgetService>();
+
+            var awsCred = new BasicAWSCredentials(appConfig.SesAccess, appConfig.SesSecret);
+
+            builder.Services.AddSingleton<IAmazonSimpleEmailService>(
+                new AmazonSimpleEmailServiceClient(awsCred, RegionEndpoint.USWest1));
 
             var app = builder.Build();
 
