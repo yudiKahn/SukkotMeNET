@@ -16,7 +16,7 @@ public class Product
 
     public ExtraOptions[]? ExtraOptions { get; set; }
 
-    public byte Group { get; set; }
+    public int Group { get; set; }
 
     public ProductInclude[]? Includes { get; set; }
 

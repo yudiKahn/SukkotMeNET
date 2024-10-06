@@ -31,7 +31,7 @@ public class ProductEntity
     public ExtraOptionsEntity[]? ExtraOptions { get; set; }
 
     [BsonElement("group")]
-    public byte Group { get; set; }
+    public int Group { get; set; }
 
     [BsonElement("includes")]
     public ProductIncludeEntity[]? Includes { get; set; }
