@@ -34,39 +34,36 @@
         </div>
 
         <div class="flex flex-wrap -mx-4">
-            @foreach (var items in State.Products
-            .GroupBy(i => i.Group)
-            .OrderBy(grp => grp.First().Name))
+            @foreach (var p in State.Products.OrderBy(p => p.Name))
             {
-                if (items.Sum(i => i.Price) <= 0.00)
+                if (p.Price <= 0.00)
                 {
                     continue;
                 }
-                if (items.Count() > 1)
-                {
-                    <Slider>
-                        @foreach (var i in items.OrderBy(i => i.Price))
-                        {
-                            <ItemCard Item="i"
-                                      Qty="@(State.Cart.Items.Where(it => it.Id == i.Id).Sum(x => x.Qty))"
-                                      ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
-                                      AddItem="AddItem"
-                                      SubtractItem="SubtractItem"
-                                      InSlider="true" />
-                        }
-                    </Slider>
-                }
-                else
-                {
-                    var i = items.First();
+                @* if (items.Count() > 1)
+            {
+            <Slider>
+            @foreach (var i in items.OrderBy(i => i.Price))
+            {
+            <ItemCard Item="i"
+            Qty="@(State.Cart.Items.Where(it => it.Id == i.Id).Sum(x => x.Qty))"
+            ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
+            AddItem="AddItem"
+            SubtractItem="SubtractItem"
+            InSlider="true" />
+            }
+            </Slider>
+            }
+            else
+            {*@
 
-                    <ItemCard Item="i"
-                              Qty="@(State.Cart.Items.FirstOrDefault(it => it.Id == i.Id)?.Qty ?? 0)"
-                              ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
-                              AddItem="AddItem"
-                              SubtractItem="SubtractItem"
-                              InSlider="false" />
-                }
+                <ItemCard Item="p"
+                          Qty="@(State.Cart.Items.FirstOrDefault(it => it.Id == p.Id)?.Qty ?? 0)"
+                          ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
+                          AddItem="AddItem"
+                          SubtractItem="SubtractItem"
+                          InSlider="false" />
+                @* } *@
             }
         </div>
     </div>
@@ -170,16 +167,16 @@
         }
 
         var item = new OrderItem
-        {
-            Id = product.Id,
-            Qty = -Math.Abs(n),
-            Price = product.Price,
-            PriceType = product.PricesType,
-            Option = opt,
-            Name = product.Name,
-            Category = product.Category,
-            ProductId = product.Id
-        };
+            {
+                Id = product.Id,
+                Qty = -Math.Abs(n),
+                Price = product.Price,
+                PriceType = product.PricesType,
+                Option = opt,
+                Name = product.Name,
+                Category = product.Category,
+                ProductId = product.Id
+            };
 
 
         if (!string.IsNullOrEmpty(ForOrderWithId))
