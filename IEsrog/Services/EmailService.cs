@@ -1,57 +1,46 @@
 ﻿using System.Net;
-using System.Net.Mail;
-using Amazon.SimpleEmail;
-using Amazon.SimpleEmail.Model;
 using IEsrog.Configuration;
-using IEsrog.Models;
+using SendGrid.Helpers.Mail;
+using SendGrid;
 
-namespace IEsrog.Services
+namespace IEsrog.Services;
+
+public class EmailService
 {
-    public class EmailService
+    readonly ApplicationConfiguration _AppConfig;
+
+    public EmailService(
+        ApplicationConfiguration emailConfig)
     {
-        readonly ApplicationConfiguration _AppConfig;
-        readonly IAmazonSimpleEmailService _SesService;
+        _AppConfig = emailConfig;
+    }
 
-        public EmailService(
-            ApplicationConfiguration emailConfig,
-            IAmazonSimpleEmailService sesService)
+    public async Task<bool> SendAsync(string subject, string body, string to)
+    {
+        return await SendAsync(subject, body, null, to);
+    }
+
+    public async Task<bool> SendAsync(string subject, string body, string? bcc, string to)
+    {
+
+        try
         {
-            _AppConfig = emailConfig;
-            _SesService = sesService;
+            const string from = "Yanky@iesrog.com";
+
+            var apiKey = _AppConfig.EmailApiKey;
+            var client = new SendGridClient(apiKey);
+            var fromAddr = new EmailAddress(from);
+            var toAddr = new EmailAddress(to);
+
+            var msg = MailHelper.CreateSingleEmail(fromAddr, toAddr, subject, string.Empty, body);
+            var response = await client.SendEmailAsync(msg);
+
+            return response.StatusCode == HttpStatusCode.OK || 
+                   response.StatusCode == HttpStatusCode.Accepted;
         }
-
-        public async Task<bool> SendAsync(string subject, string body, params string[] to)
+        catch (Exception ex)
         {
-            return await SendAsync(subject, body, null, to);
-        }
-
-        public async Task<bool> SendAsync(string subject, string body, string? bcc, string[] to)
-        {
-
-            try
-            {
-                if (to.Length == 0)
-                    throw new Exception();
-
-                var req = new SendEmailRequest(
-                    "www.iesrog.com",
-                    new Destination()
-                    {
-                        ToAddresses = to.ToList(),
-                        BccAddresses = bcc is null ? [] : [bcc]
-                    },
-                    new Message(new Content(subject), new Body()
-                    {
-                        Html = new Content(body)
-                    }));
-
-                var resp = await _SesService.SendEmailAsync(req);
-                return resp.HttpStatusCode == HttpStatusCode.OK;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

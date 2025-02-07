@@ -2,7 +2,7 @@
 namespace IEsrog.Services;
 
 public abstract record FireAndForgetData;
-public record FireAndForgetSendEmailData(string Subject, string Body, string[] To, string? Bcc = null) : FireAndForgetData;
+public record FireAndForgetSendEmailData(string Subject, string Body, string To, string? Bcc = null) : FireAndForgetData;
 
 
 public class FireAndForgetService

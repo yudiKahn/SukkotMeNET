@@ -3,10 +3,7 @@
     public class ApplicationConfiguration
     {
         //email:
-        public string SmtpHost { get; set; } = string.Empty;
-        public int SmtpPort { get; set; }
-        public string SmtpAddress { get; set; } = string.Empty;
-        public string SmtpPassword { get; set; } = string.Empty;
+        public string EmailApiKey { get; set; } = null!;
 
         //database:
         public string ConnectionString { get; set; } = string.Empty;

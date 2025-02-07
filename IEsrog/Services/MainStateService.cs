@@ -242,7 +242,7 @@ namespace IEsrog.Services
                 var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
                 
                 _FireAndForgetService.Fire(new FireAndForgetSendEmailData(
-                    "Order Invoice", invoice, [user.Email], "chabad18@hotmail.com"));
+                    "Order Invoice", invoice, user.Email, "chabad18@hotmail.com"));
                 //_ = await _EmailService.SendAsync(
                 //    "Order Invoice", invoice, bcc: "chabad18@hotmail.com", [user.Email]);
                
@@ -281,7 +281,7 @@ namespace IEsrog.Services
                 if (o is null) throw new Exception("Failed to write order");
 
                 _FireAndForgetService.Fire(new FireAndForgetSendEmailData(
-                    "Order Invoice", invoice, [user.Email], "chabad18@hotmail.com"));
+                    "Order Invoice", invoice, user.Email, "chabad18@hotmail.com"));
 
                 var model = o.ToModel();
                 _AppState.AdminState.AllOrders.Add(model);
