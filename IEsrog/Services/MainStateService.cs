@@ -120,6 +120,8 @@ namespace IEsrog.Services
             _AppState.Cart.Items.Clear();
             _AppState.Cart.Items.AddOrMergeRange(items.ToArray());
             await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart.ToEntity());
+            
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
         //Login
