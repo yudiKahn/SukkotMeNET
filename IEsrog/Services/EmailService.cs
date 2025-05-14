@@ -33,6 +33,8 @@ public class EmailService
             var toAddr = new EmailAddress(to);
 
             var msg = MailHelper.CreateSingleEmail(fromAddr, toAddr, subject, string.Empty, body);
+            msg.AddBcc(new EmailAddress(bcc));
+            
             var response = await client.SendEmailAsync(msg);
 
             return response.StatusCode == HttpStatusCode.OK || 
