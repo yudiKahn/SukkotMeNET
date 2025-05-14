@@ -157,9 +157,15 @@
     {
         base.OnAfterRender(firstRender);
 
-        // if (!firstRender) return;
-
+        
         _BindQty = Qty;
+        
+        if (!firstRender)
+        {
+            StateHasChanged();
+            return;
+        }
+
         if (Item?.Options.Length > 1)
         {
             _SelectedOption = Item?.Options.First()!;
