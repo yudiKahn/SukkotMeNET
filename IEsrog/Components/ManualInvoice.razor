@@ -108,7 +108,7 @@
 
         @if (_FromOrder != null)
         {
-            <button @onclick="() => _ViewOnly = !_ViewOnly" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
+            <button @onclick="() => ChangeViewOnly()" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
                 <i class="fa @(_ViewOnly ? "fa-edit" : "fa-file")"></i>&nbsp;@(_ViewOnly ? "Edit" : "Pdf")
             </button>
         }
@@ -362,7 +362,14 @@
     Order _Order = new();
     User _User = new();
     List<User> _FilteredUsers = new();
-    bool _ViewOnly = false;
+    bool _ViewOnly = true;
+
+    void ChangeViewOnly()
+    {
+        if(_ViewOnly && _Order.CreatedAt.Year < DateTime.Now.Year)
+            return;
+        _ViewOnly = !_ViewOnly;
+    }
 
     protected override void OnInitialized()
     {
