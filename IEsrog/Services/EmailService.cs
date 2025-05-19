@@ -52,9 +52,8 @@ public class EmailService
             }
             if (subject == EmailType.OrderConfirmation)
             {
-                msg.AddCc(new EmailAddress("chabad18@hotmail.com"));
                 msg.AddBcc("chabad18@hotmail.com");
-                msg.AddTo(new EmailAddress("chabad18@hotmail.com"));
+                msg.AddBcc("Iesrogonline@gmail.com");
             }
 
 

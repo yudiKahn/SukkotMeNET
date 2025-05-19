@@ -188,7 +188,7 @@
     public void Show(params Order[] orders)
     {
         _Items = null;
-        _Orders = orders.OrderBy(o => o.CreatedAt).ToArray();
+        _Orders = orders.OrderByDescending(o => o.CreatedAt).ToArray();
         _IsVisible = true;
         StateHasChanged();
     }
