@@ -244,7 +244,7 @@ namespace IEsrog.Services
                 var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
                 
                 _FireAndForgetService.Fire(new FireAndForgetSendEmailData(
-                    "Order Invoice", invoice, user.Email, "chabad18@hotmail.com"));
+                    EmailType.OrderConfirmation, invoice, user.Email, "chabad18@hotmail.com"));
                 //_ = await _EmailService.SendAsync(
                 //    "Order Invoice", invoice, bcc: "chabad18@hotmail.com", [user.Email]);
                
@@ -283,7 +283,7 @@ namespace IEsrog.Services
                 if (o is null) throw new Exception("Failed to write order");
 
                 _FireAndForgetService.Fire(new FireAndForgetSendEmailData(
-                    "Order Invoice", invoice, user.Email, "chabad18@hotmail.com"));
+                    EmailType.OrderConfirmation, invoice, user.Email, "chabad18@hotmail.com"));
 
                 var model = o.ToModel();
                 _AppState.AdminState.AllOrders.Add(model);
@@ -402,11 +402,15 @@ namespace IEsrog.Services
             return true;
         }
 
-        public List<OrderItem> GetLastYearOrder()
+        public List<OrderItem> GetLastYearOrder(string? userId = null)
         {
             var res = new List<OrderItem>();
 
-            res.AddOrMergeRange(_AppState.UserOrders
+            var orders = userId != null
+                ? _AppState.AdminState.AllOrders.Where(o => o.UserId == userId)
+                : _AppState.UserOrders;
+            
+            res.AddOrMergeRange(orders
                 .Where(o => o.CreatedAt.Year >= DateTime.Now.Year - 1)
                 .SelectMany(o => o.Items, (_, b) => b.Clone())
                 .ToArray());
@@ -419,7 +423,7 @@ namespace IEsrog.Services
             try
             {
                 var html = _InvoiceService.GetInvoiceHtml(order, user);
-                await _EmailService.SendAsync("Order Invoice", html, user.Email);
+                await _EmailService.SendAsync(EmailType.OrderConfirmation, html, user.Email);
 
                 return true;
             }

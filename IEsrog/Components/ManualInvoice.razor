@@ -112,7 +112,8 @@
                 <i class="fa @(_ViewOnly ? "fa-edit" : "fa-file")"></i>&nbsp;@(_ViewOnly ? "Edit" : "Pdf")
             </button>
         }
-        else if (!string.IsNullOrWhiteSpace(_Order.UserId))
+
+        @if (!string.IsNullOrWhiteSpace(_Order.UserId))
         {
             <button @onclick="Reorder" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
                 Reorder
@@ -158,9 +159,9 @@
                                             class="select-input"
                                             @onchange="OnUserChanged">
                                                 <option value=""></option>
-                                                @foreach (var user in _FilteredUsers)
+                                                @foreach (var user in _FilteredUsers.OrderBy(x => x.LastName))
                                                 {
-                                                    <option value="@user.Id">@user.FirstName @user.LastName</option>
+                                                    <option value="@user.Id">@user.LastName @user.FirstName</option>
                                                 }
                                             </select>
                                         </div>
@@ -227,9 +228,9 @@
                             <input @bind="item.Name"
                             style="position: absolute; width: calc(100% - 40px);" />
                             <select @onchange="e => OnProdChange(e, item)"
-                                    style="outline: 0;">
+                            style="outline: 0;">
                                 <option value=""></option>
-                                @foreach (var prod in State.Products)
+                                @foreach (var prod in State.Products.OrderBy(x => x.Name))
                                 {
                                     if (prod.Options is { Length: > 0 } options)
                                     {
@@ -313,6 +314,8 @@
 </div>
 
 
+<CopyOrderPopup @ref="_CopyOrder" />
+
 @code
 {
     [Inject] IJSRuntime Js { get; set; } = null!;
@@ -323,6 +326,7 @@
     [Parameter]
     public Action<Order, User>? OnSave { get; set; }
 
+    CopyOrderPopup _CopyOrder = null!;
     Order? _FromOrder;
 
     [Parameter]
@@ -429,8 +433,19 @@
 
     void Reorder()
     {
-        var items = MainService.GetLastYearOrder();
-        _Order.Items.AddOrMergeRange(items.ToArray());
+        var uid = _User?.Id;
+        if(string.IsNullOrWhiteSpace(uid))
+            return;
+
+        var allOrders = State.AdminState.AllOrders
+            .Where(o => o.UserId == uid && (_FromOrder is null || o.Id != _FromOrder.Id))
+            .OrderBy(o => o.CreatedAt)
+            .ToArray();
+
+        //var items = MainService.GetLastYearOrder(uid);
+        
+        _CopyOrder.Show(allOrders);
+        // _Order.Items.AddOrMergeRange(items.ToArray());
     }
 
     #region Property: NameFilter
