@@ -314,7 +314,7 @@
 </div>
 
 
-<CopyOrderPopup @ref="_CopyOrder" />
+<CopyOrderPopup @ref="_CopyOrder" AddItem="@AddItem" />
 
 @code
 {
@@ -362,13 +362,19 @@
     Order _Order = new();
     User _User = new();
     List<User> _FilteredUsers = new();
-    bool _ViewOnly ;
+    bool _ViewOnly;
 
     void ChangeViewOnly()
     {
         if(_ViewOnly && _Order.CreatedAt.Year < DateTime.Now.Year)
             return;
         _ViewOnly = !_ViewOnly;
+    }
+
+    public void AddItem(OrderItem item)
+    {
+        _Order.Items.AddOrMerge(item.Clone());
+        StateHasChanged();
     }
 
     protected override void OnInitialized()
@@ -396,6 +402,8 @@
                 Constants.JavaScriptFunctions.GetImageFromHTML,
                 html, width, height
             );
+
+            _ViewOnly = true;
         }
     }
 
