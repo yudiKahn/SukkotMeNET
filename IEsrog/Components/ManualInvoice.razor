@@ -369,6 +369,7 @@
         if(_ViewOnly && _Order.CreatedAt.Year < DateTime.Now.Year)
             return;
         _ViewOnly = !_ViewOnly;
+        StateHasChanged();
     }
 
     public void AddItem(OrderItem item)

@@ -63,7 +63,7 @@
                         {
                             var c = Extra == txt ? "text-white bg-green-600 rounded-md" : "";
                             <span class="@(c) px-5 py-2 cursor-pointer my-2"
-                            @onclick="() => Extra = txt">@txt - $@p.ToString("F2")</span>
+                            @onclick="() => SelectExtra(txt)">@txt - $@p.ToString("F2")</span>
                         }
                     </div>
                 }
@@ -97,6 +97,12 @@
     public (double, string) Price { get; set; }
     public int Quantity { get; set; }
 
+    public void SelectExtra(string e)
+    {
+        Extra = Extra == e ? null : e;
+        StateHasChanged();
+    }
+
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
@@ -105,7 +111,7 @@
         {
             Product = ProductGrpModel.Build(State.Products)[inx];
             Option = Product.Options.FirstOrDefault();
-            Extra = Product.Extras.FirstOrDefault().Item2;
+            // Extra = Product.Extras.FirstOrDefault().Item2;
             Price = Product.Prices.FirstOrDefault();
             StateHasChanged();
         }
