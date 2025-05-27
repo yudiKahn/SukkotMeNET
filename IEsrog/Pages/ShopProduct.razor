@@ -118,7 +118,7 @@
             var product = Product.GetProduct(Price.Item1, Price.Item2, Option, Extra);
             if (product is null)
             {
-                MainService.AddAlert(new Alert("Failed to add item", "Please fill fields"));
+                MainService.AddAlert(new Alert("Failed to add item", "Please fill fields", AlertType.Error));
                 return;
             }
 
@@ -140,7 +140,7 @@
         }
         catch (Exception ex)
         {
-            MainService.AddAlert(new Alert("Failed to add item", "Please fill fields"));
+            MainService.AddAlert(new Alert("Failed to add item", "Please fill fields", AlertType.Error));
         }
     }
 

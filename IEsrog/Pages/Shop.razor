@@ -11,7 +11,7 @@
 <div class="antialiased bg-gray-200 dark:bg-gray-800 text-gray-900 font-sans p-6 flex-grow">
     <div class="container mx-auto relative">
 
-        <div class="sticky bg-green-500 text-white rounded-lg py-4 px-2 flex shadow-md overflow-x-auto">
+        @* <div class="sticky bg-green-500 text-white rounded-lg py-4 px-2 flex shadow-md overflow-x-auto">
             <button @onclick="CopyOrder" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
                 <i class="fa fa-repeat"></i>&nbsp;Reorder
             </button>
@@ -30,10 +30,8 @@
                     }
                 </button>
             }
-            @* <div class="align-center">Get a 10% Discount now!</div>
-            <div class="coupun mx-2">10% off</div> *@
         </div>
-
+ *@
         <div class="flex flex-wrap -mx-4">
             @{
                 for (var i = 0; i < _Products.Length; i++)

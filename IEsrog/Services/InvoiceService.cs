@@ -91,6 +91,14 @@ namespace IEsrog.Services
                 }
             }
 
+            foreach (var item in res)
+            {
+                if (item.ProductId == "66630d4ad4746dd7ef4df0ff")
+                {
+                    item.Qty = (int)(item.Qty * 1.2);
+                }
+            }
+
             return res;
         }
     }

@@ -17,16 +17,18 @@ public class ProductGrpModel
     {
         return _Products.FirstOrDefault(p =>
             p.Price == price && p.PricesType == priceType &&
-            p.Options?.Contains(option) == true &&
-            p.ExtraOptions?.Any(e => e.Option == extra) == true);
+            (option == null || p.Options?.Contains(option) == true) &&
+            (extra == null || p.ExtraOptions?.Any(e => e.Option == extra) == true));
     }
 
 
     public static ProductGrpModel[] Build(IEnumerable<Product> prods)
     {
-        var groups = prods.GroupBy(p =>
+        var groups = prods
+            .GroupBy(p =>
                 Enum.TryParse<ProductCategory>(p.Category, out var c) &&
-                c == ProductCategory.Sets ? p.Name : p.Category);
+                c == ProductCategory.Sets ? p.Name : p.Category)
+            .Where(grp => grp.Any(p => p.Price > 0.0));
 
         var res = new List<ProductGrpModel>();
 
@@ -40,7 +42,10 @@ public class ProductGrpModel
                 _Products = g.ToArray(),
                 Name = p1.Name,
                 Icon = p1.GetItemIcon(),
-                Prices = g.Select(p => (p.Price, p.PricesType)).ToArray(),
+                Prices = g
+                    .Select(p => (p.Price, p.PricesType))
+                    .Where(x => x.Price > 0.0)
+                    .ToArray(),
                 Options = g.SelectMany(p => p.Options ?? [])
                     .Where(s => !string.IsNullOrWhiteSpace(s))
                     .Distinct()
