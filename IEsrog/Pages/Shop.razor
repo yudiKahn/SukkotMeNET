@@ -3,6 +3,7 @@
 @using IEsrog.Services
 @using MongoDB.Bson
 @using IEsrog.Components
+@using Newtonsoft.Json
 @inherits PageBase
 @inject AppStateService State
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
@@ -34,36 +35,12 @@
         </div>
 
         <div class="flex flex-wrap -mx-4">
-            @foreach (var p in State.Products.OrderBy(p => p.Name))
-            {
-                if (p.Price <= 0.00)
+            @{
+                for (var i = 0; i < _Products.Length; i++)
                 {
-                    continue;
+                    var tmp = i;
+                    <ItemsCard Product="_Products[tmp]" Click="() => ShowAddingItem(tmp)" />
                 }
-                @* if (items.Count() > 1)
-            {
-            <Slider>
-            @foreach (var i in items.OrderBy(i => i.Price))
-            {
-            <ItemCard Item="i"
-            Qty="@(State.Cart.Items.Where(it => it.Id == i.Id).Sum(x => x.Qty))"
-            ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
-            AddItem="AddItem"
-            SubtractItem="SubtractItem"
-            InSlider="true" />
-            }
-            </Slider>
-            }
-            else
-            {*@
-
-                <ItemCard Item="p"
-                          Qty="@(State.Cart.Items.FirstOrDefault(it => it.Id == p.Id)?.Qty ?? 0)"
-                          ForOrderWithId="@(!string.IsNullOrWhiteSpace(ForOrderWithId))"
-                          AddItem="AddItem"
-                          SubtractItem="SubtractItem"
-                          InSlider="false" />
-                @* } *@
             }
         </div>
     </div>
@@ -102,134 +79,4 @@
             </div>
         </div>
     </div>
-}
-
-@code {
-    [Parameter]
-    public string? ForOrderWithId { get; set; }
-
-    [Parameter]
-    public string? ForUserId { get; set; }
-
-    public bool IsInUserSelection { get; set; }
-
-    public string FilterName { get; set; }
-
-    CopyOrderPopup _CopyOrder;
-
-    // OrderItem OrderItem = new OrderItem();
-
-    async void AddItem(Product product, int optInx, int n = 1, bool toOverride = false, ExtraOptions? option = null)
-    {
-        string? opt = null;
-        if (optInx > -1 && product.Options?.Length > optInx)
-        {
-            opt = product.Options[optInx];
-        }
-
-        var item = new OrderItem
-            {
-                Id = product.Id,
-                Qty = n,
-                Price = product.Price,
-                PriceType = product.PricesType,
-                Option = opt,
-                Name = product.Name,
-                Category = product.Category,
-                ProductId = product.Id,
-                ExtraOption = option
-            };
-
-        if (!string.IsNullOrEmpty(ForOrderWithId))
-        {
-            if (ObjectId.TryParse(ForOrderWithId, out _))
-            {
-                _ = await MainService.AddItemToOrder(item, ForOrderWithId);
-            }
-        }
-        else if (!string.IsNullOrWhiteSpace(ForUserId))
-        {
-            _ = await MainService.AddItemToCart(item, ForUserId, toOverride);
-        }
-        else
-        {
-            _ = await MainService.AddItemToCart(item, null, toOverride);
-        }
-        StateHasChanged();
-    }
-
-    async void SubtractItem(Product product, int optInx, int n = 1)
-    {
-        string? opt = null;
-        if (optInx > -1 && product.Options?.Length > optInx)
-        {
-            opt = product.Options[optInx];
-        }
-
-        var item = new OrderItem
-            {
-                Id = product.Id,
-                Qty = -Math.Abs(n),
-                Price = product.Price,
-                PriceType = product.PricesType,
-                Option = opt,
-                Name = product.Name,
-                Category = product.Category,
-                ProductId = product.Id
-            };
-
-
-        if (!string.IsNullOrEmpty(ForOrderWithId))
-        {
-            if (ObjectId.TryParse(ForOrderWithId, out _))
-            {
-                _ = await MainService.AddItemToOrder(item, ForOrderWithId);
-            }
-        }
-        else if (!string.IsNullOrWhiteSpace(ForUserId))
-        {
-            _ = await MainService.AddItemToCart(item, ForUserId);
-        }
-        else
-        {
-            _ = await MainService.AddItemToCart(item);
-        }
-    }
-
-    void CopyOrder()
-    {
-        var items = MainService.GetLastYearOrder();
-        _CopyOrder.Show(items.ToArray());
-    }
-
-    async void CopyOrderOnClosed(object? sender, bool e)
-    {
-        if (!e) return;
-
-        await MainService.CreateDuplicateOrder();
-        StateHasChanged();
-    }
-
-    void SelectUser()
-    {
-        IsInUserSelection = true;
-    }
-
-    void SelectUser(User user)
-    {
-        State.ForUser = State.User.Id == user.Id ? null : user;
-        IsInUserSelection = false;
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        base.OnAfterRender(firstRender);
-        if (firstRender)
-        {
-            _CopyOrder.Closed += CopyOrderOnClosed;
-            OnDisposed = () => _CopyOrder.Closed -= CopyOrderOnClosed;
-        }
-    }
-
-
 }

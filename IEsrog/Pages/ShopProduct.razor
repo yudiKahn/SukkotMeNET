@@ -1,0 +1,147 @@
+﻿@page "/shop/product/{inx}"
+@using IEsrog.Extensions
+@using IEsrog.Models
+@using IEsrog.Services
+@inherits PageBase
+@attribute [Authorize(Policy = Constants.Policies.IsUser)]
+
+@if (Product != null)
+{
+
+    <div class="w-full my-10 p-4">
+        <div class="flex flex-row space-y-4 block w-full h-full bg-white rounded-lg overflow-hidden">
+            <div class="w-0 md:w-auto">
+                <img class="inset-0 object-contain mx-auto" style="width:200px; height:200px;"
+                src=@Product.Icon alt="logo" />
+            </div>
+
+            <div class="flex flex-col">
+                <div class="p-3 items-center text-sm text-gray-600">
+                    <h5 class="font-bold">
+                        @Product.Name
+                    </h5>
+                </div>
+
+                <div class="flex flex-row border-gray-300 border-2 my-2 w-min">
+                    @foreach (var opt in Product.Options)
+                    {
+                        var c = Option == opt ? "text-white bg-green-600 rounded-md" : "";
+                        <span class="@(c) px-5 py-2 cursor-pointer"
+                        @onclick="() => Option = opt">@opt</span>
+                    }
+                </div>
+
+                <select class="my-6"
+                @onchange="e => Price = Product.Prices[int.Parse(e.Value!.ToString()!)]">
+                    @{
+                        var i = 0;
+                        foreach (var (p, txt) in Product.Prices)
+                        {
+                            <option value="@(i)" selected="@(i == 0)">
+                                $@p.ToString("F2")
+                                @if (!string.IsNullOrWhiteSpace(txt))
+                                {
+                                    <span>- @txt</span>
+                                }
+                            </option>
+
+                            @(i++)
+                        }
+                    }
+                </select>
+
+                <div class="my-6 flex flex-col">
+                    Quantity:
+                    <input @bind="Quantity" type="number" inputmode="digit" step="1" />
+                </div>
+
+                @if (Product.Extras.Any())
+                {
+                    <div class="mt-16">Optional.Pre made -LA only:</div>
+                    <div class="flex flex-row">
+                        @foreach (var (p, txt) in Product.Extras)
+                        {
+                            var c = Extra == txt ? "text-white bg-green-600 rounded-md" : "";
+                            <span class="@(c) px-5 py-2 cursor-pointer my-2"
+                            @onclick="() => Extra = txt">@txt - $@p.ToString("F2")</span>
+                        }
+                    </div>
+                }
+
+                <button @onclick="OnAdd"
+                class="px-5 py-2 text-white bg-green-600 rounded-md mt-6 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                    Add to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@code {
+
+    [Parameter] public string? Inx { get; set; }
+
+    [Inject]
+    public AppStateService State { get; set; } = null!;
+
+
+    [Inject]
+    public MainStateService MainService { get; set; } = null!;
+
+    public ProductGrpModel? Product { get; set; }
+
+    public string? Option { get; set; }
+    public string? Extra { get; set; }
+    public (double, string) Price { get; set; }
+    public int Quantity { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender && int.TryParse(Inx, out var inx))
+        {
+            Product = ProductGrpModel.Build(State.Products)[inx];
+            Option = Product.Options.FirstOrDefault();
+            Extra = Product.Extras.FirstOrDefault().Item2;
+            Price = Product.Prices.FirstOrDefault();
+            StateHasChanged();
+        }
+    }
+
+    async void OnAdd()
+    {
+        try
+        {
+            var product = Product.GetProduct(Price.Item1, Price.Item2, Option, Extra);
+            if (product is null)
+            {
+                MainService.AddAlert(new Alert("Failed to add item", "Please fill fields"));
+                return;
+            }
+
+            var item = new OrderItem
+            {
+                Id = product.Id,
+                Qty = Quantity,
+                Price = Price.Item1,
+                PriceType = Price.Item2,
+                Option = Option,
+                Name = product.Name,
+                Category = product.Category,
+                ProductId = product.Id,
+                ExtraOption = product.ExtraOptions?.FirstOrDefault(eo => eo.Option == Extra)?.Clone(),
+            };
+
+            await MainService.AddItemToCart(item);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            MainService.AddAlert(new Alert("Failed to add item", "Please fill fields"));
+        }
+    }
+
+}

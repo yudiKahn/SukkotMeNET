@@ -52,7 +52,7 @@ public class EmailService
             }
             if (subject == EmailType.OrderConfirmation)
             {
-                msg.AddBcc("chabad18@hotmail.com");
+                //msg.AddBcc(new EmailAddress("chabad18@hotmail.com", "Yanky"));
                 msg.AddBcc("Iesrogonline@gmail.com");
             }
 

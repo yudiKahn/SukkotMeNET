@@ -25,7 +25,7 @@ public class Product
 
 public class ExtraOptions
 {
-    public required string Option { get; set; }
+    public string Option { get; set; } = string.Empty;
 
     public double Price { get; set; }
 }

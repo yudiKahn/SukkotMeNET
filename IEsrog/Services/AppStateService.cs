@@ -9,6 +9,7 @@ namespace IEsrog.Services
         public Cart Cart { get; set; }
 
         public IEnumerable<Product> Products { get; set; }
+        public ProductGrpModel? Product { get; set; }
 
         public List<Order> UserOrders { get; set; }
 
