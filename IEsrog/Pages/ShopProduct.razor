@@ -22,7 +22,7 @@
                     </h5>
                 </div>
 
-                <div class="flex flex-row border-gray-300 border-2 my-2 w-min">
+                <div class="flex flex-row border-gray-300 border-2 rounded-lg my-2 w-min">
                     @foreach (var opt in Product.Options)
                     {
                         var c = Option == opt ? "text-white bg-green-600 rounded-md" : "";
@@ -58,18 +58,18 @@
                 @if (Product.Extras.Any())
                 {
                     <div class="mt-16">Optional.Pre made -LA only:</div>
-                    <div class="flex flex-row">
-                        @foreach (var (p, txt) in Product.Extras)
+                    <div class="flex flex-row border-gray-300 border-2 rounded-lg my-2">
+                        @foreach (var (p, txt) in Product.Extras.Concat([(0.0d, "None")]))
                         {
                             var c = Extra == txt ? "text-white bg-green-600 rounded-md" : "";
-                            <span class="@(c) px-5 py-2 cursor-pointer my-2"
+                            <span class="@(c) flex flex-row px-5 py-2 cursor-pointer"
                             @onclick="() => SelectExtra(txt)">@txt - $@p.ToString("F2")</span>
                         }
                     </div>
                 }
 
                 <button @onclick="OnAdd"
-                class="px-5 py-2 text-white bg-green-600 rounded-md mt-6 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                    class="px-5 py-2 text-white bg-green-600 rounded-md mt-6 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
                     Add to Cart
                 </button>
             </div>
@@ -142,6 +142,8 @@
             };
 
             await MainService.AddItemToCart(item);
+            MainService.AddAlert(new Alert("Item added to cart", ""));
+
             StateHasChanged();
         }
         catch (Exception ex)

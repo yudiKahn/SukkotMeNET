@@ -106,9 +106,9 @@
             <i style="align-self: self-end">User and items are required</i>
         </div>
 
-        @if (_FromOrder != null)
+        @if (_FromOrder != null && _Order.CreatedAt.Year == DateTime.Now.Year)
         {
-            <button @onclick="() => ChangeViewOnly()" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
+            <button @onclick="ChangeViewOnly" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
                 <i class="fa @(_ViewOnly ? "fa-edit" : "fa-file")"></i>&nbsp;@(_ViewOnly ? "Edit" : "Pdf")
             </button>
         }
@@ -364,6 +364,8 @@
     List<User> _FilteredUsers = new();
     bool _ViewOnly;
 
+
+
     void ChangeViewOnly()
     {
         if(_ViewOnly && _Order.CreatedAt.Year < DateTime.Now.Year)
@@ -391,7 +393,7 @@
     {
         await base.OnAfterRenderAsync(firstRender);
 
-        if (_FromOrder is { } order)
+        if (firstRender && _FromOrder is { } order)
         {
             const int height = 1500;
             const int width = 800;
@@ -405,6 +407,7 @@
             );
 
             _ViewOnly = true;
+            StateHasChanged();
         }
     }
 
