@@ -32,6 +32,14 @@ namespace IEsrog.Extensions
 
         #endregion
 
+
+        public static DateTime ToCaTime(this DateTime dt)
+        {
+            var res = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dt, "Pacific Standard Time");
+            return res;
+        }
+        
+        
         public static T Clone<T>(this T obj) where T : class, new()
         {
             var res = new T();
