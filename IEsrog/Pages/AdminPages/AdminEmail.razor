@@ -65,6 +65,7 @@
 
         if (firstRender)
         {
+            OnStateChanged = () => ChangeGrp(_Groups[0]);
             ChangeGrp(_Groups[0]);
         }
     }

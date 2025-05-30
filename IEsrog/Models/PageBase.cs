@@ -7,6 +7,7 @@ namespace IEsrog.Models
     {
         bool _UsedOnAfterRender;
         protected Action? OnDisposed;
+        protected Action? OnStateChanged;
 
         [Inject]
         public MainStateService MainService { get; set; }
@@ -50,7 +51,11 @@ namespace IEsrog.Models
             }
         }
 
-        public virtual void OnStateHasChanged(object? sender, EventArgs args) => InvokeAsync(StateHasChanged);
+        public virtual void OnStateHasChanged(object? sender, EventArgs args)
+        {
+            InvokeAsync(StateHasChanged);
+            OnStateChanged?.Invoke();
+        }
 
 
     }
