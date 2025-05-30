@@ -11,38 +11,70 @@ public enum EmailType
     ResetPassword
 }
 
+public record BroadcastEmail(string EmailAddress, string Name);
+
 public class EmailService
 {
     readonly ApplicationConfiguration _AppConfig;
 
+    const string from = "Yanky@iesrog.com";
+    
     public EmailService(
         ApplicationConfiguration emailConfig)
     {
         _AppConfig = emailConfig;
     }
 
-    public async Task<bool> SendAsync(EmailType subject, string body, string to)
+    public async Task<bool> SendAsync(string[] to, string subject, string content)
     {
-        return await SendAsync(subject, body, null, to);
+        try
+        {
+            var fromAddr = new EmailAddress(from);
+            var toAddr = to
+                .Select(x => new EmailAddress(x))
+                .ToList();
+
+            var subjects = to.Select(_ => subject).ToList();
+            var substitutions = to
+                .Select(_ => new Dictionary<string, string>())
+                .ToList();
+
+            var msg = MailHelper.CreateMultipleEmailsToMultipleRecipients(
+                fromAddr, toAddr, subjects, content, null, substitutions);
+
+            var apiKey = _AppConfig.EmailApiKey;
+            var client = new SendGridClient(apiKey);
+            var response = await client.SendEmailAsync(msg);
+
+            return response.StatusCode == HttpStatusCode.OK ||
+                   response.StatusCode == HttpStatusCode.Accepted;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
     }
 
-    public async Task<bool> SendAsync(EmailType subject, string body, string? bcc, string to)
+    public async Task<bool> SendAsync(EmailType type, string body, string to)
+    {
+        return await SendAsync(type, body, null, to);
+    }
+
+    public async Task<bool> SendAsync(EmailType type, string body, string? bcc, string to)
     {
 
         try
         {
-            const string from = "Yanky@iesrog.com";
-
             var apiKey = _AppConfig.EmailApiKey;
             var client = new SendGridClient(apiKey);
             var fromAddr = new EmailAddress(from);
             var toAddr = new EmailAddress(to);
             
-            var subjectStr = subject switch
+            var subjectStr = type switch
             {
                 EmailType.OrderConfirmation => "Order Confirmation",
                 EmailType.ResetPassword => "iEsrog Reset password",
-                _ => throw new ArgumentOutOfRangeException(nameof(subject), subject, null)
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
             var msg = MailHelper.CreateSingleEmail(fromAddr, toAddr, subjectStr, string.Empty, body);
@@ -50,7 +82,7 @@ public class EmailService
             {
                 msg.AddBcc(new EmailAddress(bcc));
             }
-            if (subject == EmailType.OrderConfirmation)
+            if (type == EmailType.OrderConfirmation)
             {
                 //msg.AddBcc(new EmailAddress("chabad18@hotmail.com", "Yanky"));
                 msg.AddBcc("Iesrogonline@gmail.com");

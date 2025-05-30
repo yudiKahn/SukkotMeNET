@@ -117,7 +117,8 @@ public static class ToModelExtensions
             IsPaid = entity.IsPaid,
             IsPacked = entity.IsPacked,
             IsShipped = entity.IsShipped,
-            CreatedAt = entity.CreatedAt,
+            //CreatedAt = entity.CreatedAt,
+            CreatedAt = entity.CreatedAt.ToCaDate(),
             ShippingCost = entity.ShippingCost,
             Recipient = entity.Recipient
         };

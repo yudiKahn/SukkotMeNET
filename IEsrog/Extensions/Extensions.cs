@@ -33,7 +33,7 @@ namespace IEsrog.Extensions
         #endregion
 
 
-        public static DateTime ToCaTime(this DateTime dt)
+        public static DateTime ToCaDate(this DateTime dt)
         {
             var res = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dt, "Pacific Standard Time");
             return res;

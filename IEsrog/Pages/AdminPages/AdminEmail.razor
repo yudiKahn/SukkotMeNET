@@ -1,25 +1,103 @@
 ﻿@page "/admin/email"
+@using IEsrog.Models
+@using IEsrog.Services
+@inherits IEsrog.Models.PageBase
 
-<div class="py-20 bg-white dark:bg-gray-700 container max-w-6xl grid justify-center px-2">
+<div class="py-20 bg-white dark:bg-gray-700 container px-10">
 
-    <div class="w-full px-3">
+    <div class="w-full">
         <label class="block uppercase tracking-wide text-gray-500 text-xs font-bold mb-2" for="grid-last-name">
             Subject
         </label>
-        <input type="text"  class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
+        <input @bind="Subject" type="text" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
     </div>
 
-    <div class="w-full px-3 mt-10">
+    <div class="w-full mt-10">
         <label class="block uppercase tracking-wide text-gray-500 text-xs font-bold mb-2" for="grid-last-name">
             Content
         </label>
-        <textarea class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
+        <textarea @bind="Content" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" />
     </div>
-    
-    
-    <div class="w-full px-3 mt-10">Send</div>
+
+    <div class="w-full mt-10">
+        <div class="flex flex-row border-gray-300 border-2 rounded-lg my-2" style="width: fit-content">
+            @foreach (var grp in _Groups)
+            {
+                var c = _Grp == grp ? "text-white bg-green-600 rounded-md" : "";
+                <span class="@(c) px-5 py-2 cursor-pointer"
+                @onclick="() => ChangeGrp(grp)">@grp</span>
+            }
+        </div>
+    </div>
+
+    <div class="w-full mt-10">
+        <button class="text-white bg-green-600 rounded-md px-5 py-2 cursor-pointer"
+        @onclick="Send">
+            Send
+        </button>
+    </div>
+
+    <div class="w-full mt-10">
+        <p>
+            Send to:<br/>
+            <small>
+                @(string.Join(", ", _Emails))
+            </small>
+        </p>
+    </div>
 </div>
 
 @code {
+    [Inject] public AppStateService MainState { get; set; } = null!;
+    [Inject] public EmailService EmailService { get; set; } = null!;
+
+    string[] _Groups = ["Admin group", "All users group"];
+    string[] _Emails = [];
+
+    string _Grp = string.Empty;
+
+    public string Subject { get; set; } = string.Empty;
+    public string Content { get; set; } = string.Empty;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        if (firstRender)
+        {
+            ChangeGrp(_Groups[0]);
+        }
+    }
+
+    void ChangeGrp(string grp)
+    {
+        _Grp = grp;
+        _Emails = MainState.AdminState.AllUsers
+            .Where(u => _Grp == _Groups[1] || u.IsAdmin)
+            .Select(u => u.Email)
+            .ToArray();
+        StateHasChanged();
+    }
+
+    async void Send()
+    {
+        if(!_Emails.Any())
+        {
+            MainService.AddAlert(new Alert("Failed", "Failed to send emails. Please reselect group", AlertType.Error));
+            return;
+        }
+
+        var ok = await EmailService.SendAsync(_Emails, Subject, Content);
+
+        if (ok)
+        {
+            MainService.AddAlert(new Alert("Success", $"Email delivered to {_Grp}"));
+        }
+        else
+        {
+            MainService.AddAlert(new Alert("Failed", $"Failed to send email to {_Grp}", AlertType.Error));
+        }
+
+    }
 
 }
