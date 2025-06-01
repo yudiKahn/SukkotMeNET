@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using IEsrog.Configuration;
+using IEsrog.Extensions;
 using SendGrid.Helpers.Mail;
 using SendGrid;
 
@@ -16,13 +17,16 @@ public record BroadcastEmail(string EmailAddress, string Name);
 public class EmailService
 {
     readonly ApplicationConfiguration _AppConfig;
+    readonly CyclicLoggerService _Logger;
 
     const string from = "Yanky@iesrog.com";
     
     public EmailService(
-        ApplicationConfiguration emailConfig)
+        ApplicationConfiguration emailConfig,
+        CyclicLoggerService logger)
     {
         _AppConfig = emailConfig;
+        _Logger = logger;
     }
 
     public async Task<bool> SendAsync(string[] to, string subject, string content)
@@ -51,6 +55,7 @@ public class EmailService
         }
         catch (Exception e)
         {
+            _Logger.LogError($"Failed to send email to {to.ToCsv()}. Error: {e.ConcatMsg()}");
             return false;
         }
     }
@@ -96,6 +101,7 @@ public class EmailService
         }
         catch (Exception ex)
         {
+            _Logger.LogError($"Failed to send email to {to}. Error: {ex.ConcatMsg()}");
             return false;
         }
     }

@@ -4,6 +4,11 @@ namespace IEsrog.Extensions
 {
     public static class EnumerableExtensions
     {
+        public static string ToCsv<T>(this IEnumerable<T> items, string separator = ",")
+        {
+            return string.Join(separator, items.Select(i => i?.ToString() ?? string.Empty));
+        }
+
         public static double GetTotal(this IEnumerable<OrderItem> items, double shipment = 0D)
         {
             var res = shipment;
@@ -19,8 +24,6 @@ namespace IEsrog.Extensions
 
             return res;
         }
-
-       
 
         public static void AddOrMerge(this List<OrderItem> items, OrderItem newItem, bool toOverride = false)
         {

@@ -4,6 +4,7 @@ using IEsrog.Data.Interfaces;
 using IEsrog.Data.Repositories;
 using IEsrog.Models;
 using IEsrog.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace IEsrog
 {
@@ -39,6 +40,7 @@ namespace IEsrog
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
             builder.Services.AddSingleton<EmailService>();
             builder.Services.AddSingleton<FireAndForgetService>();
+            builder.Services.AddSingleton<CyclicLoggerService>();
 
             var app = builder.Build();
 
@@ -57,6 +59,8 @@ namespace IEsrog
 
             app.MapBlazorHub();
             app.MapFallbackToPage("/_Host");
+
+            app.MapGet("/getlogs", CyclicLoggerService.GetLogs);
 
             app.Run();
         }

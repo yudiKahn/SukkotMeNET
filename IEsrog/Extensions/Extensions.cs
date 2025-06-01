@@ -32,13 +32,22 @@ namespace IEsrog.Extensions
 
         #endregion
 
+        public static string ConcatMsg(this Exception ex, int max = 3)
+        {
+            var res = ex.Message;
+            if (ex.InnerException != null && max >  1)
+            {
+                res += $". {ConcatMsg(ex.InnerException, max - 1)}";
+            }
+
+            return res;
+        }
 
         public static DateTime ToCaDate(this DateTime dt)
         {
             var res = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dt, "Pacific Standard Time");
             return res;
         }
-        
         
         public static T Clone<T>(this T obj) where T : class, new()
         {
