@@ -83,7 +83,7 @@ public class EmailService
             };
 
             var msg = MailHelper.CreateSingleEmail(fromAddr, toAddr, subjectStr, string.Empty, body);
-            if(!string.IsNullOrEmpty(bcc))
+            if(!string.IsNullOrEmpty(bcc) && bcc != to)
             {
                 msg.AddBcc(new EmailAddress(bcc));
             }
