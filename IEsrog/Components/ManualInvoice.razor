@@ -230,7 +230,9 @@
                             <select @onchange="e => OnProdChange(e, item)"
                                     style="outline: 0;">
                                 <option value=""></option>
-                                @foreach (var prod in State.Products.OrderBy(x => x.Name))
+                                @foreach (var prod in State.Products
+                                              .Where(p => p.Price > 0.00)
+                                              .OrderBy(x => x.Name))
                                 {
                                     if (prod.Options is { Length: > 0 } options)
                                     {
