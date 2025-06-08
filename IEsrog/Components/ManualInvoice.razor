@@ -112,7 +112,7 @@
             </button>
         }
 
-        @if (!string.IsNullOrWhiteSpace(_Order.UserId))
+        @if (!string.IsNullOrWhiteSpace(_Order.UserId) && MainService.CanEditOrder(_Order))
         {
             <button @onclick="Reorder" class="px-2 py-1 mx-2 text-sm text-green-600 bg-white rounded-md flex items-center shadow-lg">
                 Reorder
