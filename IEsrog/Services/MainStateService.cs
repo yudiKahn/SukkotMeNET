@@ -221,6 +221,24 @@ namespace IEsrog.Services
         }
 
         //Order
+
+        public bool CanEditOrder(Order? o)
+        {
+            //todo: Hebrew calender?!
+            return o is not null && o.CreatedAt.Year == DateTime.Now.Year;
+        }
+
+        public bool CanEditOrder(string oId)
+        {
+            var order = _AppState.UserOrders.FirstOrDefault(o => o.Id == oId);
+            if (order is null && _AppState.User.IsAdmin)
+            {
+                order = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == oId);
+            }
+            
+            return CanEditOrder(order);
+        } 
+        
         public async Task<Order?> CreateOrderFromCart()
         {
             if (string.IsNullOrEmpty(_AppState.Cart.Id) || string.IsNullOrEmpty(_AppState.User.Id))
@@ -270,6 +288,11 @@ namespace IEsrog.Services
         {
             try
             {
+                if (!CanEditOrder(order))
+                {
+                    throw new Exception("Cant create/edit order from last year");
+                }
+                
                 if (!ObjectId.TryParse(user.Id, out _))
                 {
                     if (!_AppState.User.IsAdmin) return null;
@@ -299,6 +322,12 @@ namespace IEsrog.Services
 
         public async Task<bool> RemoveOrderAsync(Order? order)
         {
+
+            if (!CanEditOrder(order))
+            {
+                return false;
+            }
+            
             if (order is not null && !order.IsShipped)
             {
                 var res = await _Repository.OrdersRepository.DeleteFirstAsync(o => o.Id == order.Id);
@@ -318,7 +347,7 @@ namespace IEsrog.Services
 
         public async Task<bool> ToggleOrderStatus(Order order, string prop)
         {
-            if (string.IsNullOrEmpty(order.Id))
+            if (string.IsNullOrEmpty(order.Id) || !CanEditOrder(order))
                 return false;
 
             switch (prop)
@@ -346,6 +375,11 @@ namespace IEsrog.Services
         {
             try
             {
+                if (!CanEditOrder(orderId))
+                {
+                    throw new Exception("Cant create/edit order from last year");
+                }
+                
                 var order = _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
                 if (_AppState.User.Id == order?.UserId)
                 {
@@ -377,6 +411,9 @@ namespace IEsrog.Services
 
         public async Task<bool> SetShipmentPrice(string oId, double price)
         {
+            if (!CanEditOrder(oId))
+                return false;
+            
             var order = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == oId);
             if (order is null) return false;
 
@@ -387,9 +424,10 @@ namespace IEsrog.Services
 
         public async Task<bool> RemoveItemFromOrder(Order? order, OrderItem item)
         {
-            if (order is null) return false;
-
-            order.Items.Remove(item);
+            if (!CanEditOrder(order))
+                return false;
+            
+            order!.Items.Remove(item);
 
             if (_AppState.User.IsAdmin)
                 _AppState.AdminState.AllOrders.First(o => o.Id == order.Id).Items.Remove(item);

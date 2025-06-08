@@ -1,0 +1,76 @@
+﻿@typeparam TItem
+
+
+
+<div style="position: relative">
+
+    <input list="ice-cream-flavors" id="ice-cream-choice" name="ice-cream-choice" 
+           placeholder="@Placeholder" />
+
+    <datalist id="ice-cream-flavors" >
+        @foreach (var item in Items)
+        {
+            <option value="@ValueSelector.Invoke(item)">@ChildContent?.Invoke(item)</option>
+        }
+    </datalist>
+
+@*     <input placeholder="@Placeholder"
+           class="custom-select-input"
+           @bind="Search" @bind:event="oninput"
+           style="position: absolute; width: 100%; border: none;" />
+
+    <select style="outline: 0; width: 100%;"
+            @onchange="OnChange"
+            class="custom-select">
+        <option value=""></option>
+        @foreach (var item in Items)
+        {
+            <option value="@ValueSelector.Invoke(item)">@ChildContent?.Invoke(item)</option>
+        }
+    </select> *@
+</div>
+
+@* <script type="text/javascript">
+
+
+    document.querySelector('.custom-select-input').addEventListener('focus', () => {
+        console.log("focus!!!")
+        const select = document.querySelector('.custom-select');
+        console.log(select)
+        var evt = event
+        setTimeout(function(){
+            console.log(select.dispatchEvent(evt))
+        })
+    });
+
+
+    document.querySelector('.custom-select-input').addEventListener('blur', () => {
+        console.log("blur!!!")
+    });
+</script> *@
+
+@code {
+
+    [Parameter]
+    public required IEnumerable<TItem> Items { get; set; }
+
+    [Parameter]
+    public RenderFragment<TItem>? ChildContent { get; set; }
+
+    [Parameter]
+    public Func<TItem, string> ValueSelector { get; set; } = item => item?.ToString() ?? string.Empty;
+
+    [Parameter]
+    public string Placeholder { get; set; } = string.Empty;
+
+    public bool IsOpen { get; set; } = true;
+
+    public string Search { get; set; } = string.Empty;
+
+    void ToggleIsOpen() => IsOpen = !IsOpen;
+
+    void OnChange(ChangeEventArgs e)
+    {
+
+    }
+}

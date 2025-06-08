@@ -1,4 +1,5 @@
 ﻿@page "/admin/createuser"
+@page "/admin/createuser/{fromPage}"
 @using IEsrog.Components
 @using IEsrog.Models
 @using IEsrog.Services
@@ -9,10 +10,11 @@
 
 
 @code {
-    [Inject]
-    public MainStateService MainService { get; set; }
-    [Inject]
-    NavigationManager NavManager { get; set; }
+    [Inject] public MainStateService MainService { get; set; } = null!;
+
+    [Inject] NavigationManager NavManager { get; set; } = null!;
+
+    [Parameter] public string? FromPage { get; set; }
 
     async void OnSubmit(User user)
     {
@@ -25,7 +27,17 @@
             await MainService.RegisterAsync(user);
 
             MainService.AddAlert(new Alert("Success", "User creation succeed", AlertType.Success));
-            NavManager.NavigateTo("/admin");
+
+            if (string.IsNullOrWhiteSpace(FromPage))
+            {
+                NavManager.NavigateTo("/admin");
+            }
+            else
+            {
+                var to = FromPage!.Replace('-', '/');
+                NavManager.NavigateTo($"/{to}");
+            }
+            
         }
         catch (Exception e)
         {

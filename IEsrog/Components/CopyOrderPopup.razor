@@ -47,7 +47,7 @@
                                                         <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                                             @item.Name
                                                             @if (!string.IsNullOrWhiteSpace(item.PriceType) ||
-                                                    !string.IsNullOrWhiteSpace(item.Option))
+                                                   !string.IsNullOrWhiteSpace(item.Option))
                                                             {
                                                                 <small>(@item.PriceType @item.Option)</small>
                                                             }
@@ -121,13 +121,23 @@
                                                     <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
                                                         Total
                                                     </th>
+                                                    <th>
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 @foreach (var order in _Orders)
                                                 {
                                                     <tr>
-                                                        <td class="text-xs whitespace-nowrap p-4" colspan="2">@order.CreatedAt.ToString("d")</td>
+                                                        <td class="text-xs whitespace-nowrap p-4">
+                                                            @order.CreatedAt.ToString("d")
+                                                        </td>
+                                                        <td></td>
+                                                        <td>
+                                                            <button @onclick="() => AddRow(order.Items)" class="ml-6 px-3 py-1 bg-green-600 rounded-md">
+                                                                <i class="text-white fa fa-arrow-right"></i>
+                                                            </button>
+                                                        </td>
                                                     </tr>
 
                                                     @foreach (var item in order.Items)
@@ -136,7 +146,7 @@
                                                             <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                                                 @item.Name
                                                                 @if (!string.IsNullOrWhiteSpace(item.PriceType) ||
-                                                        !string.IsNullOrWhiteSpace(item.Option))
+                                                       !string.IsNullOrWhiteSpace(item.Option))
                                                                 {
                                                                     <small>(@item.PriceType @item.Option)</small>
                                                                 }
@@ -144,6 +154,8 @@
                                                             </td>
                                                             <td class="flex flex-row dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                                                                 <span>$@($"{item.Qty * item.Price:N1}")</span>
+                                                            </td>
+                                                            <td>
                                                                 <button @onclick="() => AddRow(item)" class="ml-6 px-3 py-1 bg-green-600 rounded-md">
                                                                     <i class="text-white fa fa-arrow-right"></i>
                                                                 </button>
@@ -205,6 +217,15 @@
         _IsVisible = false;
         StateHasChanged();
         Closed?.Invoke(this, ok);
+    }
+
+
+    void AddRow(List<OrderItem> items)
+    {
+        foreach (var item in items)
+        {
+            AddRow(item);
+        }
     }
 
     void AddRow(OrderItem? item)
