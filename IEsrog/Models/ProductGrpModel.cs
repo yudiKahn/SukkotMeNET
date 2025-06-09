@@ -57,8 +57,10 @@ public class ProductGrpModel
             });
         }
 
+        List<string> order = ["israeli set", "yanever set", "hadasim", "hoshnos", "aruvos"];
+        
         return res
-            .OrderBy(p => p.Name)
+            .OrderBy(p => order.IndexOf(p.Name.ToLower()) is var inx and > -1 ? inx.ToString() : p.Name  )
             .ToArray();
     }
 }

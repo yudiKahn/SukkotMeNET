@@ -18,6 +18,7 @@ namespace IEsrog
             public const string Confirm = "confirm";
             public const string Prompt = "prompt";
             public const string GetImageFromHTML = "GetImageFromHTML";
+            public const string PrintImageFromHTML = "PrintImageFromHTML";
             public const string RenderStockChart = "RenderStockChart";
         }
 

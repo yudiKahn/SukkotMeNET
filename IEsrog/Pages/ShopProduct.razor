@@ -2,6 +2,7 @@
 @using IEsrog.Extensions
 @using IEsrog.Models
 @using IEsrog.Services
+@using MongoDB.Driver
 @inherits PageBase
 @attribute [Authorize(Policy = Constants.Policies.IsUser)]
 
@@ -31,7 +32,7 @@
                     }
                 </div>
 
-                <select class="my-6"
+                <select class="my-6 border border-solid border-gray-500 px-2 py-1"
                 @onchange="e => Price = Product.Prices[int.Parse(e.Value!.ToString()!)]">
                     @{
                         var i = 0;
@@ -52,7 +53,7 @@
 
                 <div class="my-6 flex flex-col">
                     Quantity:
-                    <input @bind="Quantity" type="number" inputmode="digit" step="1" />
+                    <input class="border border-solid border-gray-500 px-2 py-1" @bind="Quantity" @bind:event="oninput" type="number" inputmode="digit" step="1" />
                 </div>
 
                 @if (Product.Extras.Any())
@@ -69,7 +70,9 @@
                 }
 
                 <button @onclick="OnAdd"
-                    class="px-5 py-2 text-white bg-green-600 rounded-md mt-6 disabled:border-gray-200 disabled:bg-gray-50 disabled:text-gray-500 disabled:shadow-none">
+                disabled="@(Quantity == 0)"
+                class="px-5 py-2 rounded-md mt-6  @(Quantity == 0 ? "border-gray-500 bg-gray-200 text-gray-500 shadow-none" : "text-white bg-green-600")"
+                >
                     Add to Cart
                 </button>
             </div>
@@ -95,7 +98,14 @@
     public string? Option { get; set; }
     public string? Extra { get; set; }
     public (double, string) Price { get; set; }
-    public int Quantity { get; set; }
+
+    int _Quantity;
+
+    public int Quantity
+    {
+        get => _Quantity;
+        set => SetProperty(ref _Quantity, value);
+    }
 
     public void SelectExtra(string e)
     {
