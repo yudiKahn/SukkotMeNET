@@ -20,7 +20,7 @@ namespace IEsrog.Services
             AppStateService appState,
             IRepositoryService repositoryService,
             EmailService emailService,
-            InvoiceService invoiceService, 
+            InvoiceService invoiceService,
             FireAndForgetService fireAndForgetService)
         {
             _AppState = appState;
@@ -49,7 +49,7 @@ namespace IEsrog.Services
                 var add = new List<ProductEntity>();
                 foreach (var i in items)
                 {
-                    
+
                 }
 
                 foreach (var a in add)
@@ -120,7 +120,7 @@ namespace IEsrog.Services
             _AppState.Cart.Items.Clear();
             _AppState.Cart.Items.AddOrMergeRange(items.ToArray());
             await _Repository.CartsRepository.UpdateFirstAsync(c => c.UserId == _AppState.User.Id, _AppState.Cart.ToEntity());
-            
+
             StateHasChanged?.Invoke(this, EventArgs.Empty);
         }
 
@@ -235,10 +235,10 @@ namespace IEsrog.Services
             {
                 order = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == oId);
             }
-            
+
             return CanEditOrder(order);
-        } 
-        
+        }
+
         public async Task<Order?> CreateOrderFromCart()
         {
             if (string.IsNullOrEmpty(_AppState.Cart.Id) || string.IsNullOrEmpty(_AppState.User.Id))
@@ -260,12 +260,12 @@ namespace IEsrog.Services
                 var invoice = _InvoiceService.GetInvoiceHtml(order, user);
 
                 var o = await _Repository.OrdersRepository.WriteAsync(order.ToEntity());
-                
+
                 _FireAndForgetService.Fire(new FireAndForgetSendEmailData(
                     EmailType.OrderConfirmation, invoice, user.Email, "chabad18@hotmail.com"));
                 //_ = await _EmailService.SendAsync(
                 //    "Order Invoice", invoice, bcc: "chabad18@hotmail.com", [user.Email]);
-               
+
                 await _Repository.CartsRepository.DeleteFirstAsync(c => c.Id == _AppState.Cart.Id);
 
                 _AppState.ForUser = null;
@@ -292,7 +292,7 @@ namespace IEsrog.Services
                 {
                     throw new Exception("Cant create/edit order from last year");
                 }
-                
+
                 if (!ObjectId.TryParse(user.Id, out _))
                 {
                     if (!_AppState.User.IsAdmin) return null;
@@ -311,7 +311,7 @@ namespace IEsrog.Services
                 var model = o.ToModel();
                 _AppState.AdminState.AllOrders.Add(model);
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
-                
+
                 return model;
             }
             catch
@@ -327,7 +327,7 @@ namespace IEsrog.Services
             {
                 return false;
             }
-            
+
             if (order is not null && !order.IsShipped)
             {
                 var res = await _Repository.OrdersRepository.DeleteFirstAsync(o => o.Id == order.Id);
@@ -379,7 +379,7 @@ namespace IEsrog.Services
                 {
                     throw new Exception("Cant create/edit order from last year");
                 }
-                
+
                 var order = _AppState.UserOrders.FirstOrDefault(o => o.Id == orderId);
                 if (_AppState.User.Id == order?.UserId)
                 {
@@ -398,7 +398,7 @@ namespace IEsrog.Services
                 {
                     await _Repository.OrdersRepository.UpdateFirstAsync(o => o.Id == orderId, order.ToEntity());
                 }
-                
+
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
 
                 return order is not null;
@@ -413,7 +413,7 @@ namespace IEsrog.Services
         {
             if (!CanEditOrder(oId))
                 return false;
-            
+
             var order = _AppState.AdminState.AllOrders.FirstOrDefault(o => o.Id == oId);
             if (order is null) return false;
 
@@ -426,7 +426,7 @@ namespace IEsrog.Services
         {
             if (!CanEditOrder(order))
                 return false;
-            
+
             order!.Items.Remove(item);
 
             if (_AppState.User.IsAdmin)
@@ -447,7 +447,7 @@ namespace IEsrog.Services
             var orders = userId != null
                 ? _AppState.AdminState.AllOrders.Where(o => o.UserId == userId)
                 : _AppState.UserOrders;
-            
+
             res.AddOrMergeRange(orders
                 .Where(o => o.CreatedAt.Year >= DateTime.Now.Year - 1)
                 .SelectMany(o => o.Items, (_, b) => b.Clone())
@@ -507,17 +507,17 @@ namespace IEsrog.Services
         public async Task<Dictionary<string, int>> GetStockData()
         {
             var from = DateTime.Now.AddMonths(-4);
-            
+
             var orders = await _Repository.OrdersRepository.ReadAllAsync(o => o.CreatedAt >= from);
 
             var prod = _AppState.Products.ToDictionary(k => k.Id);
-            
+
             var res = new Dictionary<string, int>();
 
             foreach (var oi in orders.SelectMany(o => o.Items))
             {
                 if (string.IsNullOrEmpty(oi.ProductId)) continue;
-                
+
                 var p = prod[oi.ProductId];
                 if (p.Includes?.Any() == true)
                 {
@@ -548,14 +548,14 @@ namespace IEsrog.Services
             var pt = string.IsNullOrWhiteSpace(oi.PriceType) ? string.Empty : " " + oi.PriceType;
             return $"{oi.Name}{opt}{pt}";
         }
-        
+
         string Key(OrderItemEntity oi)
         {
             var opt = string.IsNullOrWhiteSpace(oi.Option) ? string.Empty : " " + oi.Option;
             var pt = string.IsNullOrWhiteSpace(oi.PriceType) ? string.Empty : " " + oi.PriceType;
             return $"{oi.Name}{opt}{pt}";
         }
-        
+
         async Task<bool> InitUserCart()
         {
             if (string.IsNullOrEmpty(_AppState.User.Id))
@@ -679,7 +679,25 @@ namespace IEsrog.Services
                 _AppState.UserOrders[inx] = order;
             }
         }
-        
+
+        public async Task UpdateProductPrice(Product p)
+        {
+            var prd = await _Repository.ProductsRepository.ReadFirstAsync(prod => prod.Id == p.Id);
+            if (prd is null || Math.Abs(p.Price - prd.Price) < 0.001)
+                return;
+
+            prd.Price = p.Price;
+            prd = await _Repository.ProductsRepository.UpdateFirstAsync(prod => prod.Id == p.Id, prd, false);
+
+            var reference = _AppState.Products.FirstOrDefault(pr => pr.Id == p.Id);
+
+            if (prd != null && reference != null)
+            {
+                reference.Price = p.Price;
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
         public async Task<BackupResult> Backup()
         {
             var users = await _Repository.UsersRepository.ReadAllAsync();

@@ -1,0 +1,54 @@
+﻿@page "/admin/products"
+@using IEsrog.Extensions
+@using IEsrog.Models
+@using IEsrog.Services
+@inherits IEsrog.Models.PageBase
+@inject AppStateService _State
+
+
+<div class="bg-white dark:bg-gray-800">
+    <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 mx-auto mt-24">
+        <div class="block w-full overflow-x-auto">
+            <table class="items-center bg-transparent w-full border-collapse">
+                <thead>
+                    <tr>
+                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            Product
+                        </th>
+                        
+                        <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                            Price
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prod in _State.Products.OrderBy(x => $"{x.Name}{x.PricesType}"))
+                    {
+                        <tr>
+                            <td class="px-6 border border-solid border-blueGray-100 py-3">
+                                @(prod.Name) @(prod.PricesType.Prepend("- "))
+                            </td>
+
+                            <td class="px-6 border border-solid border-blueGray-100 py-3">
+                                <input @bind="prod.Price"
+                                       @onblur="() => OnBlur(prod)"/>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    async void OnBlur(Product? p)
+    {
+        if (p is null)
+            return;
+
+        await MainService.UpdateProductPrice(p);
+    }
+
+}

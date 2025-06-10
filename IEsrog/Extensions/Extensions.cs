@@ -93,6 +93,8 @@ namespace IEsrog.Extensions
             };
         }
 
+        public static string? Prepend(this string? str, string pre) => string.IsNullOrWhiteSpace(str) ? null : $"{pre}{str}";
+
         public static string? StrOrNull(this string? str) => string.IsNullOrWhiteSpace(str) ? null : str;
     }
 }

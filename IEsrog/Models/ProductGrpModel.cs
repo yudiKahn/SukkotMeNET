@@ -37,13 +37,13 @@ public class ProductGrpModel
         {
             var p1 = g.First();
 
-            res.Add(new ProductGrpModel
+            var p = new ProductGrpModel
             {
                 _Products = g.ToArray(),
                 Name = p1.Name,
                 Icon = p1.GetItemIcon(),
                 Prices = g
-                    .Select(p => (p.Price, p.PricesType))
+                    .Select(p => (p.Price, p.PricesType.StrOrNull() ?? p.Name))
                     .Where(x => x.Price > 0.0)
                     .ToArray(),
                 Options = g.SelectMany(p => p.Options ?? [])
@@ -54,7 +54,8 @@ public class ProductGrpModel
                         p.ExtraOptions?.Select(e => (e.Price, e.Option)) ?? [])
                     .Distinct()
                     .ToArray()
-            });
+            };
+            res.Add(p);
         }
 
         List<string> order = ["israeli set", "yanever set", "hadasim", "hoshnos", "aruvos"];
