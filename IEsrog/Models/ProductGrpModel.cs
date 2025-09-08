@@ -16,7 +16,7 @@ public class ProductGrpModel
     public Product? GetProduct(double price, string? priceType = null, string? option = null, string? extra = null)
     {
         return _Products.FirstOrDefault(p =>
-            p.Price == price && p.PricesType == priceType &&
+            p.Price == price && (p.PricesType == priceType || priceType == p.Name) &&
             (option == null || p.Options?.Contains(option) == true) &&
             (extra == null || p.ExtraOptions?.Any(e => e.Option == extra) == true));
     }
