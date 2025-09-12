@@ -3,6 +3,7 @@ using IEsrog.Data.Interfaces;
 using IEsrog.Models;
 using MongoDB.Bson;
 using IEsrog.Extensions;
+using IEsrog.Services.Email;
 
 namespace IEsrog.Services
 {
@@ -10,7 +11,7 @@ namespace IEsrog.Services
     {
         readonly AppStateService _AppState;
         readonly IRepositoryService _Repository;
-        readonly EmailService _EmailService;
+        readonly IEmailService _EmailService;
         readonly InvoiceService _InvoiceService;
         readonly FireAndForgetService _FireAndForgetService;
 
@@ -19,7 +20,7 @@ namespace IEsrog.Services
         public MainStateService(
             AppStateService appState,
             IRepositoryService repositoryService,
-            EmailService emailService,
+            IEmailService emailService,
             InvoiceService invoiceService,
             FireAndForgetService fireAndForgetService)
         {

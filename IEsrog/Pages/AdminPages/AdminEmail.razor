@@ -1,6 +1,7 @@
 ﻿@page "/admin/email"
 @using IEsrog.Models
 @using IEsrog.Services
+@using IEsrog.Services.Email
 @inherits IEsrog.Models.PageBase
 
 <div class="py-20 bg-white dark:bg-gray-700 container px-10">
@@ -49,7 +50,7 @@
 
 @code {
     [Inject] public AppStateService MainState { get; set; } = null!;
-    [Inject] public EmailService EmailService { get; set; } = null!;
+    [Inject] public IEmailService EmailService { get; set; } = null!;
 
     string[] _Groups = ["Admin group", "All users group"];
     string[] _Emails = [];

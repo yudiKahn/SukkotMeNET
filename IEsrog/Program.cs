@@ -5,6 +5,7 @@ using IEsrog.Data.Repositories;
 using IEsrog.Models;
 using IEsrog.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
+using IEsrog.Services.Email;
 
 namespace IEsrog
 {
@@ -38,7 +39,8 @@ namespace IEsrog
             builder.Services.AddScoped<InvoiceService>();
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
-            builder.Services.AddSingleton<EmailService>();
+            //builder.Services.AddSingleton<IEmailService, TwilioEmailService>();
+            builder.Services.AddSingleton<IEmailService, SmtpEmailService>();
             builder.Services.AddSingleton<FireAndForgetService>();
             builder.Services.AddSingleton<CyclicLoggerService>();
 

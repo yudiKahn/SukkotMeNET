@@ -4,24 +4,18 @@ using IEsrog.Extensions;
 using SendGrid.Helpers.Mail;
 using SendGrid;
 
-namespace IEsrog.Services;
+namespace IEsrog.Services.Email;
 
-public enum EmailType
-{
-    OrderConfirmation,
-    ResetPassword
-}
 
-public record BroadcastEmail(string EmailAddress, string Name);
 
-public class EmailService
+internal class TwilioEmailService : IEmailService
 {
     readonly ApplicationConfiguration _AppConfig;
     readonly CyclicLoggerService _Logger;
 
     const string from = "Yanky@iesrog.com";
     
-    public EmailService(
+    public TwilioEmailService(
         ApplicationConfiguration emailConfig,
         CyclicLoggerService logger)
     {
@@ -60,21 +54,15 @@ public class EmailService
         }
     }
 
-    public async Task<bool> SendAsync(EmailType type, string body, string to)
+    public async Task<bool> SendAsync(EmailType type, string body, string to, string? bcc = null)
     {
-        return await SendAsync(type, body, null, to);
-    }
-
-    public async Task<bool> SendAsync(EmailType type, string body, string? bcc, string to)
-    {
-
         try
         {
             var apiKey = _AppConfig.EmailApiKey;
             var client = new SendGridClient(apiKey);
             var fromAddr = new EmailAddress(from);
             var toAddr = new EmailAddress(to);
-            
+
             var subjectStr = type switch
             {
                 EmailType.OrderConfirmation => "Order Confirmation",
@@ -83,7 +71,7 @@ public class EmailService
             };
 
             var msg = MailHelper.CreateSingleEmail(fromAddr, toAddr, subjectStr, string.Empty, body);
-            if(!string.IsNullOrEmpty(bcc) && bcc != to)
+            if (!string.IsNullOrEmpty(bcc) && bcc != to)
             {
                 msg.AddBcc(new EmailAddress(bcc));
             }
@@ -96,7 +84,7 @@ public class EmailService
 
             var response = await client.SendEmailAsync(msg);
 
-            return response.StatusCode == HttpStatusCode.OK || 
+            return response.StatusCode == HttpStatusCode.OK ||
                    response.StatusCode == HttpStatusCode.Accepted;
         }
         catch (Exception ex)

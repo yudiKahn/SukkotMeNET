@@ -1,4 +1,6 @@
 
+using IEsrog.Services.Email;
+
 namespace IEsrog.Services;
 
 public abstract record FireAndForgetData;
@@ -23,8 +25,8 @@ public class FireAndForgetService
                 case FireAndForgetSendEmailData d1:
                 {
                     using var scope = _ServiceFactory.CreateScope();
-                    var service = scope.ServiceProvider.GetService<EmailService>();
-                    var res = await service!.SendAsync(d1.Subject, d1.Body, d1.Bcc, d1.To);
+                    var service = scope.ServiceProvider.GetService<IEmailService>();
+                    var res = await service!.SendAsync(d1.Subject, d1.Body, d1.To, d1.Bcc);
                 }
                     break;
                 default:
