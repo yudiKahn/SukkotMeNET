@@ -39,8 +39,8 @@ namespace IEsrog
             builder.Services.AddScoped<InvoiceService>();
 
             builder.Services.AddSingleton<IRepositoryService, RepositoryService>();
-            //builder.Services.AddSingleton<IEmailService, TwilioEmailService>();
-            builder.Services.AddSingleton<IEmailService, SmtpEmailService>();
+            builder.Services.AddSingleton<IEmailService, TwilioEmailService>();
+            //builder.Services.AddSingleton<IEmailService, SmtpEmailService>();
             builder.Services.AddSingleton<FireAndForgetService>();
             builder.Services.AddSingleton<CyclicLoggerService>();
 
