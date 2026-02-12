@@ -683,18 +683,48 @@ namespace IEsrog.Services
 
         public async Task UpdateProductPrice(Product p)
         {
+            await UpdateProduct(p);
+        }
+
+        public async Task UpdateProduct(Product p)
+        {
             var prd = await _Repository.ProductsRepository.ReadFirstAsync(prod => prod.Id == p.Id);
-            if (prd is null || Math.Abs(p.Price - prd.Price) < 0.001)
+            if (prd is null)
                 return;
 
-            prd.Price = p.Price;
-            prd = await _Repository.ProductsRepository.UpdateFirstAsync(prod => prod.Id == p.Id, prd, false);
+            var name = p.Name.Trim();
+            var priceType = p.PricesType.Trim();
+            var changed = false;
 
+            if (!string.Equals(prd.Name, name, StringComparison.Ordinal))
+            {
+                prd.Name = name;
+                changed = true;
+            }
+
+            if (Math.Abs(p.Price - prd.Price) >= 0.001)
+            {
+                prd.Price = p.Price;
+                changed = true;
+            }
+
+            if (!string.Equals(prd.PriceType, priceType, StringComparison.Ordinal))
+            {
+                prd.PriceType = priceType;
+                changed = true;
+            }
+
+            if (!changed)
+                return;
+
+            prd = await _Repository.ProductsRepository.UpdateFirstAsync(prod => prod.Id == p.Id, prd, false);
             var reference = _AppState.Products.FirstOrDefault(pr => pr.Id == p.Id);
 
             if (prd != null && reference != null)
             {
-                reference.Price = p.Price;
+                reference.Name = prd.Name;
+                reference.Price = prd.Price;
+                reference.PricesType = prd.PriceType;
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
             }
         }

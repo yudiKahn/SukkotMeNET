@@ -15,6 +15,7 @@
 	  <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
 	  <PackageReference Include="MongoDB.Driver" Version="3.1.0" />
 	  <PackageReference Include="SendGrid" Version="9.29.3" />
+	  <PackageReference Include="sib_api_v3_sdk" Version="4.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="wwwroot\images\sukkah.png">

@@ -1,29 +1,36 @@
 ﻿using IEsrog.Configuration;
+using sib_api_v3_sdk.Api;
+using sib_api_v3_sdk.Model;
 using System.Net;
 using System.Net.Mail;
-using IEsrog.Extensions;
 
 namespace IEsrog.Services.Email;
 
 internal class SmtpEmailService : IEmailService
 {
     readonly ApplicationConfiguration _AppConfig;
+    readonly string _Host;
+    readonly int _Port;
+    readonly string _Key;
+    readonly string _From;
+
 
     public SmtpEmailService(ApplicationConfiguration appConfig)
     {
         _AppConfig = appConfig;
+        _Host = "smtp.gmail.com";
+        _Port = 587;
+        _Key = "hrhq hhua fvgw gmza";
+        _From = "iesrog.yanky@gmail.com";
     }
-
-    const string from = "iesrog.yanky@gmail.com";
     
     public async Task<bool> SendAsync(EmailType type, string body, string to, string? bcc = null)
     {
         try
         {
-            var apiKey = "hrhq hhua fvgw gmza";
-            var smtp = new SmtpClient("smtp.gmail.com", 587)
+            var smtp = new SmtpClient(_Host, _Port)
             {
-                Credentials = new NetworkCredential(from, apiKey),
+                Credentials = new NetworkCredential(_From, _Key),
                 EnableSsl = true
             };
 
@@ -34,7 +41,7 @@ internal class SmtpEmailService : IEmailService
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
 
-            var message = new MailMessage(from, to)
+            var message = new MailMessage(_From, to)
             {
                 Subject = subjectStr,
                 Body = body,
