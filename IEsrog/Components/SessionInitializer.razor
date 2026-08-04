@@ -1,0 +1,45 @@
+@using IEsrog.Models
+@using IEsrog.Services
+@inject AppStateService State
+@inject MainStateService MainService
+@inject IJSRuntime Js
+
+@if (_IsInitialized)
+{
+    @ChildContent
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public RenderFragment ChildContent { get; set; } = null!;
+
+    private bool _IsInitialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        State.IsLoading = true;
+
+        try
+        {
+            var token = await Js.InvokeAsync<string?>(Constants.JavaScriptFunctions.LocalStorageGet, "token");
+            if (!string.IsNullOrWhiteSpace(token) && !await MainService.LoginUserFromLocalStorage(token))
+            {
+                await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
+            }
+        }
+        catch (Exception exception) when (exception is not TimeoutException)
+        {
+            await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.LocalStorageRemove, "token");
+            MainService.AddAlert(new Alert("Fail #012", exception.Message, AlertType.Error));
+        }
+        finally
+        {
+            State.IsLoading = false;
+            _IsInitialized = true;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}
