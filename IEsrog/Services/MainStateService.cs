@@ -505,56 +505,80 @@ namespace IEsrog.Services
             return u1?.Password == hashPass;
         }
 
-        public async Task<Dictionary<string, int>> GetStockData()
+        public async Task<IReadOnlyList<int>> GetStockYearsAsync()
         {
-            var from = DateTime.Now.AddMonths(-4);
+            var orders = await _Repository.OrdersRepository.ReadAllAsync();
 
-            var orders = await _Repository.OrdersRepository.ReadAllAsync(o => o.CreatedAt >= from);
+            return orders
+                .Where(order => order.CreatedAt != default)
+                .Select(order => order.CreatedAt.Year)
+                .Distinct()
+                .OrderByDescending(year => year)
+                .ToArray();
+        }
 
-            var prod = _AppState.Products.ToDictionary(k => k.Id);
+        public async Task<Dictionary<string, int>> GetStockDataAsync(int year)
+        {
+            var from = new DateTime(year, 1, 1);
+            var to = from.AddYears(1);
+            var orders = await _Repository.OrdersRepository.ReadAllAsync(
+                order => order.CreatedAt >= from && order.CreatedAt < to);
+            var products = (await _Repository.ProductsRepository.ReadAllAsync())
+                .ToDictionary(product => product.Id);
+            var sales = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-            var res = new Dictionary<string, int>();
-
-            foreach (var oi in orders.SelectMany(o => o.Items))
+            foreach (var item in orders.SelectMany(order => order.Items))
             {
-                if (string.IsNullOrEmpty(oi.ProductId)) continue;
+                if (item.Qty <= 0)
+                    continue;
 
-                var p = prod[oi.ProductId];
-                if (p.Includes?.Any() == true)
+                if (string.IsNullOrWhiteSpace(item.ProductId) || !products.ContainsKey(item.ProductId))
                 {
-                    var opt = oi.Option;
-                    var inc = p.Includes
-                        .Select(i => prod[i.ProductId].ToModel(opt, oi.PriceType, i.Qty))
-                        .ToArray();
+                    AddSale(item.Name, item.Qty);
+                    continue;
+                }
 
-                    foreach (var i in inc)
+                AddProduct(item.ProductId, item.Qty, new HashSet<string>());
+            }
+
+            return sales;
+
+            void AddProduct(string productId, int quantity, HashSet<string> path)
+            {
+                if (!products.TryGetValue(productId, out var product))
+                {
+                    AddSale($"Unknown product ({productId})", quantity);
+                    return;
+                }
+
+                if (!path.Add(productId))
+                {
+                    AddSale(product.Name, quantity);
+                    return;
+                }
+
+                if (product.Includes?.Any() == true)
+                {
+                    foreach (var includedProduct in product.Includes)
                     {
-                        res.TryGetValue(i.Name, out var x);
-                        res[Key(i)] = x + i.Qty;
+                        AddProduct(
+                            includedProduct.ProductId,
+                            quantity * includedProduct.Qty,
+                            new HashSet<string>(path));
                     }
                 }
                 else
                 {
-                    res.TryGetValue(oi.Name, out var x);
-                    res[Key(oi)] = x + oi.Qty;
+                    AddSale(product.Name, quantity);
                 }
             }
 
-            return res;
-        }
-
-        string Key(OrderItem oi)
-        {
-            var opt = string.IsNullOrWhiteSpace(oi.Option) ? string.Empty : " " + oi.Option;
-            var pt = string.IsNullOrWhiteSpace(oi.PriceType) ? string.Empty : " " + oi.PriceType;
-            return $"{oi.Name}{opt}{pt}";
-        }
-
-        string Key(OrderItemEntity oi)
-        {
-            var opt = string.IsNullOrWhiteSpace(oi.Option) ? string.Empty : " " + oi.Option;
-            var pt = string.IsNullOrWhiteSpace(oi.PriceType) ? string.Empty : " " + oi.PriceType;
-            return $"{oi.Name}{opt}{pt}";
+            void AddSale(string productName, int quantity)
+            {
+                var name = string.IsNullOrWhiteSpace(productName) ? "Unknown product" : productName.Trim();
+                sales.TryGetValue(name, out var currentQuantity);
+                sales[name] = currentQuantity + quantity;
+            }
         }
 
         async Task<bool> InitUserCart()
