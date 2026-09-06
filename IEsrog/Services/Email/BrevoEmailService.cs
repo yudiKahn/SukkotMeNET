@@ -38,7 +38,7 @@ public class BrevoEmailService : IEmailService
                 EmailType.ResetPassword => "iEsrog Reset password",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
-            return await DoSendAsync(to, subjectStr, body);
+            return await DoSendAsync(to, subjectStr, body, bcc);
         }
         catch (Exception e)
         {
@@ -47,7 +47,7 @@ public class BrevoEmailService : IEmailService
         }
     }
 
-    async Task<bool> DoSendAsync(string to, string subject, string html)
+    async Task<bool> DoSendAsync(string to, string subject, string html, string? bcc = null)
     {
         try
         {
@@ -59,6 +59,8 @@ public class BrevoEmailService : IEmailService
                 {
                     new(to, to)
                 },
+                bcc: string.IsNullOrWhiteSpace(bcc)
+                    ? null : [new(bcc, bcc)],
                 subject: subject,
                 htmlContent: html,
                 sender: new SendSmtpEmailSender
