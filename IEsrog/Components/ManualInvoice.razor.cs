@@ -165,6 +165,19 @@ public partial class ManualInvoice
         item.ExtraOption = prod.ExtraOptions?.FirstOrDefault(eo => eo.Option == extraOption)?.Clone();
     }
 
+    static string GetProductSelection(OrderItem item)
+    {
+        if (string.IsNullOrWhiteSpace(item.ProductId))
+            return string.Empty;
+
+        if (string.IsNullOrWhiteSpace(item.Option))
+            return item.ProductId;
+
+        return item.ExtraOption is null
+            ? $"{item.ProductId}~~~{item.Option}"
+            : $"{item.ProductId}~~~{item.Option}~~~{item.ExtraOption.Option}";
+    }
+
     void Add() => _Order.Items.Add(new OrderItem() { ProductId = string.Empty });
 
     void Remove(OrderItem item) => _Order.Items.Remove(item);

@@ -235,7 +235,9 @@
                             <input @bind="item.Name"
                             style="position: absolute; width: calc(100% - 40px);" />
                             <select @onchange="e => OnProdChange(e, item)"
+                            value="@GetProductSelection(item)"
                             style="outline: 0;">
+                                <option value="">Select product</option>
                                 @foreach (var prod in State.Products
                               .Where(p => p.Price > 0.00)
                               .OrderBy(x => x.Name))
