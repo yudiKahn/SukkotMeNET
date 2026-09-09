@@ -13,7 +13,7 @@
                         <!-- Modal header -->
                         <div class="flex items-start justify-between p-4 border-b rounded-t-lg bg-green-600 dark:border-gray-600">
                             <h3 class="text-xl font-semibold text-white dark:text-white">
-                                Duplicate Order
+                                @_Title
                             </h3>
                             <button @onclick="() => Close(false)" type="button"
                             class="text-white bg-green-500 hover:bg-gray-200 hover:text-gray-900 rounded-full text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="staticModal">
@@ -51,6 +51,10 @@
                                                             {
                                                                 <small>(@item.PriceType @item.Option)</small>
                                                             }
+                                                            @if (item.ExtraOption is { } extraOption)
+                                                            {
+                                                                <small> @extraOption.Option</small>
+                                                            }
                                                             &nbsp;&times;&nbsp;@item.Qty
                                                         </td>
                                                         <td class="flex flex-row dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
@@ -71,7 +75,7 @@
                             <!-- Modal footer -->
                             <div class="flex justify-end p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
                                 <button @onclick="() => Close(true)" data-modal-hide="staticModal" type="button" class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                                    Duplicate
+                                    @_ConfirmText
                                 </button>
                             </div>
                         }
@@ -190,15 +194,32 @@
     private bool _IsVisible = false;
     private OrderItem[]? _Items;
     private Order[]? _Orders;
+    private string _Title = "Duplicate Order";
+    private string _ConfirmText = "Duplicate";
 
     public event EventHandler<bool> Closed;
     [Parameter]
     public Action<OrderItem> AddItem { get; set; }
 
+    [Parameter]
+    public EventCallback<IReadOnlyList<OrderItem>> OnAddToCart { get; set; }
+
     public void Show(params OrderItem[] items)
     {
         _Items = items;
         _Orders = null;
+        _Title = "Duplicate Order";
+        _ConfirmText = "Duplicate";
+        _IsVisible = true;
+        StateHasChanged();
+    }
+
+    public void ShowForCart(Order order)
+    {
+        _Items = order.Items.Select(item => item.Clone()).ToArray();
+        _Orders = null;
+        _Title = "Add this order to your cart?";
+        _ConfirmText = "Add to cart";
         _IsVisible = true;
         StateHasChanged();
     }
@@ -207,16 +228,22 @@
     {
         _Items = null;
         _Orders = orders.OrderByDescending(o => o.CreatedAt).ToArray();
+        _Title = "Duplicate Order";
+        _ConfirmText = "Duplicate";
         _IsVisible = true;
         StateHasChanged();
     }
 
     private void Close(bool ok)
     {
+        var items = _Items;
         _Items = null;
         _IsVisible = false;
         StateHasChanged();
         Closed?.Invoke(this, ok);
+
+        if (ok && items is not null && OnAddToCart.HasDelegate)
+            _ = OnAddToCart.InvokeAsync(items);
     }
 
 
@@ -233,7 +260,8 @@
         if (item is null)
             return;
 
-        item.Id = ObjectId.GenerateNewId().ToString();
-        AddItem?.Invoke(item);        
+        var clone = item.Clone();
+        clone.Id = ObjectId.GenerateNewId().ToString();
+        AddItem?.Invoke(clone);
     }
 }

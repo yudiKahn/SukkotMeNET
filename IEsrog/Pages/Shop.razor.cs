@@ -30,6 +30,8 @@ public partial class Shop
 
     CopyOrderPopup _CopyOrder;
 
+    Order? LatestOrder => State.UserOrders.OrderByDescending(o => o.CreatedAt).FirstOrDefault();
+
     // OrderItem OrderItem = new OrderItem();
 
     async void AddItem(Product product, int optInx, int n = 1, bool toOverride = false, ExtraOptions? option = null)
@@ -109,17 +111,14 @@ public partial class Shop
         }
     }
 
-    void CopyOrder()
+    void CopyOrder(Order order)
     {
-        var items = MainService.GetLastYearOrder();
-        _CopyOrder.Show(items.ToArray());
+        _CopyOrder.ShowForCart(order);
     }
 
-    async void CopyOrderOnClosed(object? sender, bool e)
+    async Task AddOrderItemsToCart(IReadOnlyList<OrderItem> items)
     {
-        if (!e) return;
-
-        await MainService.CreateDuplicateOrder();
+        await MainService.AddItemsToCart(items);
         StateHasChanged();
     }
 
@@ -139,9 +138,6 @@ public partial class Shop
         base.OnAfterRender(firstRender);
         if (firstRender)
         {
-            _CopyOrder.Closed += CopyOrderOnClosed;
-            OnDisposed = () => _CopyOrder.Closed -= CopyOrderOnClosed;
-
             _Products = ProductGrpModel.Build(State.Products);
             StateHasChanged();
         }

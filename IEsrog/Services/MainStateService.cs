@@ -94,6 +94,29 @@ namespace IEsrog.Services
             }
         }
 
+        public async Task<bool> AddItemsToCart(IEnumerable<OrderItem> items)
+        {
+            try
+            {
+                var clonedItems = items.Select(item => item.Clone()).ToArray();
+                if (clonedItems.Length == 0)
+                    return false;
+
+                _AppState.Cart.Items.AddOrMergeRange(clonedItems);
+                await _Repository.CartsRepository.UpdateFirstAsync(
+                    c => c.UserId == _AppState.User.Id,
+                    _AppState.Cart.ToEntity());
+
+                StateHasChanged?.Invoke(this, EventArgs.Empty);
+                return true;
+            }
+            catch (Exception e)
+            {
+                AddAlert(new Alert("Error #010", e.Message, AlertType.Error));
+                return false;
+            }
+        }
+
         public async void RemoveItemFromCart(OrderItem item)
         {
             _AppState.Cart.Items.Remove(item);
@@ -141,7 +164,7 @@ namespace IEsrog.Services
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
 
                 Task.Run(InitUserCart).Wait();
-                InitUserOrders();
+                await InitUserOrders();
                 InitCartItems();
 
                 if (user1.IsAdmin)
@@ -162,7 +185,7 @@ namespace IEsrog.Services
                     StateHasChanged?.Invoke(this, EventArgs.Empty);
 
                     Task.Run(InitUserCart).Wait();
-                    InitUserOrders();
+                    await InitUserOrders();
                     InitCartItems();
 
                     if (user.IsAdmin)
@@ -610,7 +633,7 @@ namespace IEsrog.Services
             }
         }
 
-        async void InitUserOrders()
+        async Task InitUserOrders()
         {
             if (string.IsNullOrEmpty(_AppState.User.Id))
                 return;
@@ -654,7 +677,7 @@ namespace IEsrog.Services
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
 
                 await InitUserCart();
-                InitUserOrders();
+                await InitUserOrders();
 
                 StateHasChanged?.Invoke(this, EventArgs.Empty);
             }
@@ -674,7 +697,7 @@ namespace IEsrog.Services
             StateHasChanged?.Invoke(this, EventArgs.Empty);
 
             await InitUserCart();
-            InitUserOrders();
+            await InitUserOrders();
 
             StateHasChanged?.Invoke(this, EventArgs.Empty);
 
