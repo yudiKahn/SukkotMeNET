@@ -1,6 +1,7 @@
 ﻿@page "/admin/users"
 @using IEsrog.Services
 @using IEsrog.Models
+@using IEsrog.Extensions
 @inherits IEsrog.Models.PageBase
 @inject AppStateService _State
 @attribute [Authorize(Policy = Constants.Policies.IsAdmin)]
@@ -21,6 +22,58 @@
                     </div>
                 </div>
             </div>
+
+            @if (_EditingUser != null)
+            {
+                <div class="mx-4 mb-6 rounded border border-blueGray-100 bg-gray-50 dark:bg-gray-800 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4 class="font-semibold dark:text-gray-200">Edit user</h4>
+                        <button type="button" @onclick="CancelEdit" class="text-gray-500 hover:text-gray-700">Cancel</button>
+                    </div>
+
+                    <EditForm Model="_EditingUser" OnSubmit="SaveUser">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">First Name</label>
+                                <input required @bind="_EditingUser.FirstName" class="p-3 block w-full rounded" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">Last Name</label>
+                                <input required @bind="_EditingUser.LastName" class="p-3 block w-full rounded" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">Email</label>
+                                <input required type="email" @bind="_EditingUser.Email" class="p-3 block w-full rounded" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">Phone Number</label>
+                                <input required @bind="_EditingUser.PhoneNumber" class="p-3 block w-full rounded" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">New Password (optional)</label>
+                                <input type="password" @bind="_EditingPassword" class="p-3 block w-full rounded" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">Street</label>
+                                <input required @bind="_EditingUser.Address.Street" class="p-3 block w-full rounded" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">City</label>
+                                <input required @bind="_EditingUser.Address.City" class="p-3 block w-full rounded" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">State</label>
+                                <input required @bind="_EditingUser.Address.State" class="p-3 block w-full rounded" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-2 dark:text-gray-300">Zip</label>
+                                <input required type="number" @bind="_EditingUser.Address.Zip" class="p-3 block w-full rounded" />
+                            </div>
+                        </div>
+                        <button type="submit" class="mt-5 px-6 py-2 text-white bg-green-600 rounded-md hover:bg-green-700">Save</button>
+                    </EditForm>
+                </div>
+            }
 
             <div class="rounded-t mb-0 px-4 py-3 border-0">
                 <div class="flex flex-wrap items-center">
@@ -50,6 +103,9 @@
                                 Orders
                             </th>
                             <th></th>
+                            <th class="px-6 bg-blueGray-50 dark:text-gray-200 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
+                                Edit
+                            </th>
                             <th class="px-6 bg-blueGray-50 text-red-400 align-middle border border-solid border-blueGray-100 py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left">
                                 Delete
                             </th>
@@ -95,6 +151,12 @@
                                 </td>
 
                                 <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
+                                    <button type="button" @onclick="() => BeginEdit(user)" class="text-blue-500 hover:text-blue-700">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+
+                                <td class="dark:text-gray-300 border-t-0 px-6 border-l-0 border-r-0 text-xs whitespace-nowrap p-4 align-middle">
                                     @if (!user.IsAdmin)
                                     {
                                         <i @onclick="() => RemoveUser(user)" class="fas fa-trash text-red-400 cursor-pointer"></i>
@@ -137,10 +199,44 @@
     }
 
     User? _SelectedUser;
+    User? _EditingUser;
+    string _EditingPassword = "";
 
     void SelectUser(User user)
     {
         _SelectedUser = user;
+    }
+
+    void BeginEdit(User user)
+    {
+        _EditingUser = user.Clone();
+        _EditingPassword = "";
+    }
+
+    void CancelEdit()
+    {
+        _EditingUser = null;
+        _EditingPassword = "";
+    }
+
+    async Task SaveUser(EditContext _)
+    {
+        if (_EditingUser is null)
+            return;
+
+        try
+        {
+            var updatedUser = await MainService.UpdateUserAsync(_EditingUser, _EditingPassword);
+            if (!updatedUser)
+                return;
+
+            MainService.AddAlert(new Alert("Success", "User updated successfully", AlertType.Success));
+            CancelEdit();
+        }
+        catch (Exception e)
+        {
+            MainService.AddAlert(new Alert("Error", e.Message, AlertType.Error));
+        }
     }
 
     async void LoginAsUser()

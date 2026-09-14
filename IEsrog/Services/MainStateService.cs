@@ -511,6 +511,45 @@ namespace IEsrog.Services
             return res;
         }
 
+        public async Task<bool> UpdateUserAsync(User user, string? newPassword = null)
+        {
+            if (!_AppState.User.IsAdmin || string.IsNullOrWhiteSpace(user.Id))
+                return false;
+
+            var existingUser = await _Repository.UsersRepository.ReadFirstAsync(u => u.Id == user.Id);
+            if (existingUser is null)
+                return false;
+
+            var duplicateEmail = await _Repository.UsersRepository.ReadFirstAsync(
+                u => u.Email.ToLower() == user.Email.ToLower() && u.Id != user.Id);
+            if (duplicateEmail is not null)
+                throw new Exception("User with this email address already exist");
+
+            existingUser.FirstName = user.FirstName.Trim();
+            existingUser.LastName = user.LastName.Trim();
+            existingUser.Email = user.Email.Trim();
+            existingUser.PhoneNumber = user.PhoneNumber.Trim();
+            existingUser.Address = user.Address.ToEntity();
+
+            if (!string.IsNullOrWhiteSpace(newPassword))
+                existingUser.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+            var savedUser = await _Repository.UsersRepository.UpdateFirstAsync(u => u.Id == user.Id, existingUser, false);
+            if (savedUser is null)
+                return false;
+
+            var updatedModel = savedUser.ToModel();
+            var index = _AppState.AdminState.AllUsers.FindIndex(u => u.Id == user.Id);
+            if (index >= 0)
+                _AppState.AdminState.AllUsers[index] = updatedModel;
+
+            if (_AppState.User.Id == user.Id)
+                _AppState.User = updatedModel;
+
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
+            return true;
+        }
+
         public async Task<bool> ChangeUserPassword(string email, string newPass)
         {
             email = email.ToLower();
