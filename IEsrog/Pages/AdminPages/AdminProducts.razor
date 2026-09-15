@@ -9,6 +9,12 @@
 
 <div class="bg-white dark:bg-gray-800">
     <div class="w-full xl:w-8/12 mb-12 xl:mb-0 px-4 mx-auto mt-24">
+        <div class="flex justify-end mb-4">
+            <button type="button" @onclick="OpenCreateModal"
+                    class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                New product
+            </button>
+        </div>
         <div class="block w-full overflow-x-auto">
             <table class="items-center bg-transparent w-full border-collapse">
                 <thead>
@@ -55,9 +61,177 @@
     </div>
 </div>
 
+@if (_IsCreateModalOpen)
+{
+    <div class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black bg-opacity-50 p-4" @onclick="CloseCreateModal">
+        <section role="dialog" aria-modal="true" aria-labelledby="create-product-title"
+                 class="flex w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow dark:bg-gray-700"
+                 style="max-height: 90vh;"
+                 @onclick:stopPropagation="true">
+            <header class="flex items-center justify-between rounded-t-lg border-b bg-green-700 p-4 dark:border-gray-600">
+                <h2 id="create-product-title" class="text-xl font-semibold text-white">Create product</h2>
+                <button type="button" @onclick="CloseCreateModal" aria-label="Close"
+                        class="rounded px-3 py-1 text-white hover:bg-green-800">×</button>
+            </header>
+
+            <EditForm Model="_NewProduct" OnValidSubmit="SaveProduct" class="flex min-h-0 flex-col overflow-hidden">
+                <DataAnnotationsValidator />
+                <div class="min-h-0 flex-1 space-y-4 overflow-y-auto p-6">
+                    @if (!string.IsNullOrWhiteSpace(_CreateError))
+                    {
+                        <p role="alert" class="text-sm text-red-700">@_CreateError</p>
+                    }
+                    <div>
+                        <label for="product-name" class="mb-1 block font-medium dark:text-white">Name *</label>
+                        <InputText id="product-name" @bind-Value="_NewProduct.Name" required maxlength="100" class="w-full rounded border p-2" />
+                    </div>
+                    <div>
+                        <label for="product-category" class="mb-1 block font-medium dark:text-white">Category *</label>
+                        <InputSelect id="product-category" @bind-Value="_NewProduct.Category" required class="w-full rounded border p-2">
+                            <option value="">Select a category</option>
+                            @foreach (var category in Enum.GetNames<ProductCategory>())
+                            {
+                                <option value="@category">@category</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="product-price-type" class="mb-1 block font-medium dark:text-white">Price type</label>
+                            <InputText id="product-price-type" @bind-Value="_NewProduct.PricesType" maxlength="100" class="w-full rounded border p-2" />
+                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Optional. Leave blank for a single-price product; the shop uses the product name as its price label. Use labels such as “Small” or “Large” for separate price choices.</p>
+                        </div>
+                        <div>
+                            <label for="product-price" class="mb-1 block font-medium dark:text-white">Price *</label>
+                            <InputNumber id="product-price" @bind-Value="_NewProduct.Price" min="0.01" step="0.01" required class="w-full rounded border p-2" />
+                        </div>
+                    </div>
+
+                    <details class="rounded border p-4">
+                        <summary class="cursor-pointer font-semibold dark:text-white">Optional fields</summary>
+                        <div class="mt-4 space-y-4">
+                            <div>
+                                <label for="product-options" class="mb-1 block font-medium dark:text-white">Options</label>
+                                <InputText id="product-options" @bind-Value="_OptionsText" class="w-full rounded border p-2" placeholder="For example: Green, Brown" />
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Comma-separated choices customers can select, such as esrog grades or sizes.</p>
+                            </div>
+                            <div>
+                                <label for="product-extras" class="mb-1 block font-medium dark:text-white">Extra options</label>
+                                <InputTextArea id="product-extras" @bind-Value="_ExtraOptionsText" rows="3" class="w-full rounded border p-2" placeholder="Gift box, 5.00&#10;Premium wrap, 2.50" />
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">One paid add-on per line, written as <span class="font-mono">name, extra price</span>.</p>
+                            </div>
+                            <div>
+                                <label for="product-group" class="mb-1 block font-medium dark:text-white">Group number</label>
+                                <InputNumber id="product-group" @bind-Value="_NewProduct.Group" class="w-full rounded border p-2" />
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">An internal behavior code. Use 14 only when this product should keep the price type selected on the order; otherwise leave it at 0.</p>
+                            </div>
+                            <div>
+                                <label for="product-include" class="mb-1 block font-medium dark:text-white">Included product</label>
+                                <InputSelect id="product-include" @bind-Value="_IncludedProductId" class="w-full rounded border p-2">
+                                    <option value="">None</option>
+                                    @foreach (var product in _State.Products.OrderBy(product => product.Name))
+                                    {
+                                        <option value="@product.Id">@product.Name (@product.PricesType)</option>
+                                    }
+                                </InputSelect>
+                                <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">For a bundle or set, choose one existing product whose stock should also be counted when this product sells.</p>
+                                @if (!string.IsNullOrEmpty(_IncludedProductId))
+                                {
+                                    <label for="product-include-qty" class="mb-1 mt-2 block font-medium dark:text-white">Included quantity</label>
+                                    <InputNumber id="product-include-qty" @bind-Value="_IncludedQuantity" min="1" class="w-32 rounded border p-2" />
+                                }
+                            </div>
+                        </div>
+                    </details>
+                </div>
+                <footer class="flex shrink-0 justify-end gap-2 border-t p-4 dark:border-gray-600">
+                    <button type="button" @onclick="CloseCreateModal" class="rounded border px-4 py-2 dark:text-white">Cancel</button>
+                    <button type="submit" disabled="_IsSaving" class="rounded bg-green-700 px-4 py-2 font-medium text-white hover:bg-green-800 disabled:opacity-50">
+                        @(_IsSaving ? "Saving…" : "Create product")
+                    </button>
+                </footer>
+            </EditForm>
+        </section>
+    </div>
+}
 
 @code {
-    async void OnBlur(Product? p)
+    bool _IsCreateModalOpen;
+    bool _IsSaving;
+    Product _NewProduct = new();
+    string _OptionsText = string.Empty;
+    string _ExtraOptionsText = string.Empty;
+    string _IncludedProductId = string.Empty;
+    int _IncludedQuantity = 1;
+    string? _CreateError;
+
+    void OpenCreateModal()
+    {
+        _NewProduct = new Product();
+        _OptionsText = string.Empty;
+        _ExtraOptionsText = string.Empty;
+        _IncludedProductId = string.Empty;
+        _IncludedQuantity = 1;
+        _CreateError = null;
+        _IsCreateModalOpen = true;
+    }
+
+    void CloseCreateModal() => _IsCreateModalOpen = false;
+
+    async Task SaveProduct()
+    {
+        if (string.IsNullOrWhiteSpace(_NewProduct.Name) ||
+            string.IsNullOrWhiteSpace(_NewProduct.Category) ||
+            _NewProduct.Price <= 0)
+        {
+            _CreateError = "Enter a name, category, and a price greater than zero.";
+            return;
+        }
+
+        _IsSaving = true;
+        _CreateError = null;
+        try
+        {
+            _NewProduct.Name = _NewProduct.Name.Trim();
+            _NewProduct.PricesType = _NewProduct.PricesType.Trim();
+            _NewProduct.Options = _OptionsText.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            _NewProduct.ExtraOptions = ParseExtraOptions();
+            _NewProduct.Includes = string.IsNullOrEmpty(_IncludedProductId)
+                ? []
+                : [new ProductInclude { ProductId = _IncludedProductId, Qty = Math.Max(1, _IncludedQuantity) }];
+
+            if (!await MainService.CreateProduct(_NewProduct))
+            {
+                _CreateError = "The product could not be saved. Please try again.";
+                return;
+            }
+
+            _IsCreateModalOpen = false;
+        }
+        catch (FormatException)
+        {
+            _CreateError = "Enter each extra option as a name and numeric price separated by a comma.";
+        }
+        finally
+        {
+            _IsSaving = false;
+        }
+    }
+
+    ExtraOptions[] ParseExtraOptions() => _ExtraOptionsText
+        .Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+        .Select(line =>
+        {
+            var values = line.Split(',', 2, StringSplitOptions.TrimEntries);
+            if (values.Length != 2 || string.IsNullOrWhiteSpace(values[0]) ||
+                !double.TryParse(values[1], System.Globalization.NumberStyles.Number,
+                    System.Globalization.CultureInfo.CurrentCulture, out var price) || price < 0)
+                throw new FormatException();
+            return new ExtraOptions { Option = values[0], Price = price };
+        })
+        .ToArray();
+
+    async Task OnBlur(Product? p)
     {
         if (p is null)
             return;

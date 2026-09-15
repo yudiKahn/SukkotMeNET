@@ -16,6 +16,7 @@ public static class ToEntityExtensions
             Category = Enum.Parse<ProductCategory>(model.Category),
             Price = model.Price,
             PriceType = model.PricesType,
+            Group = model.Group,
             Options = model.Options,
             ExtraOptions = model.ExtraOptions?.Select(x => x.ToEntity()).ToArray(),
             Includes = model.Includes?

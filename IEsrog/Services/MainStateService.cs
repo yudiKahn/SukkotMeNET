@@ -772,6 +772,18 @@ namespace IEsrog.Services
             await UpdateProduct(p);
         }
 
+        public async Task<bool> CreateProduct(Product product)
+        {
+            product.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+            var created = await _Repository.ProductsRepository.WriteAsync(product.ToEntity());
+            if (created is null)
+                return false;
+
+            _AppState.Products = _AppState.Products.Append(product).ToList();
+            StateHasChanged?.Invoke(this, EventArgs.Empty);
+            return true;
+        }
+
         public async Task UpdateProduct(Product p)
         {
             var prd = await _Repository.ProductsRepository.ReadFirstAsync(prod => prod.Id == p.Id);
