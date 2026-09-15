@@ -8,7 +8,7 @@ using MongoDB.Bson;
 
 namespace IEsrog.Components;
 
-public partial class ManualInvoice
+public partial class ManualInvoice : IAsyncDisposable
 {
     const int height = 1500;
     const int width = 800;
@@ -86,6 +86,8 @@ public partial class ManualInvoice
     User _User = new();
     List<User> _FilteredUsers = new();
     bool _ViewOnly;
+    bool _PrintShortcutRegistered;
+    DotNetObjectReference<ManualInvoice>? _PrintShortcutReference;
 
 
 
@@ -131,6 +133,20 @@ public partial class ManualInvoice
         {
             _ViewOnly = true;
             StateHasChanged();
+        }
+
+        if (_ViewOnly && _FromOrder is not null && !_PrintShortcutRegistered)
+        {
+            _PrintShortcutReference = DotNetObjectReference.Create(this);
+            await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.RegisterPrintShortcut, _PrintShortcutReference);
+            _PrintShortcutRegistered = true;
+        }
+        else if (!_ViewOnly && _PrintShortcutRegistered)
+        {
+            await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.UnregisterPrintShortcut);
+            _PrintShortcutRegistered = false;
+            _PrintShortcutReference?.Dispose();
+            _PrintShortcutReference = null;
         }
     }
 
@@ -218,15 +234,31 @@ public partial class ManualInvoice
         // _Order.Items.AddOrMergeRange(items.ToArray());
     }
 
-    async void Print()
+    async Task Print()
     {
         if (_FromOrder is not { } order) return;
         
         var html = InvoiceService.GetInvoiceHtml(order, _User);
-        await Js.InvokeAsync<string>(
-            Constants.JavaScriptFunctions.PrintImageFromHTML,
-            html, width, height
-        );
+        await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.PrintHtml, html);
+    }
+
+    [JSInvokable]
+    public Task PrintFromShortcut() => Print();
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_PrintShortcutRegistered)
+        {
+            try
+            {
+                await Js.InvokeVoidAsync(Constants.JavaScriptFunctions.UnregisterPrintShortcut);
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+
+        _PrintShortcutReference?.Dispose();
     }
 
 }
